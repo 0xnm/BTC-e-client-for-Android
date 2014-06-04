@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" android:focusableInTouchMode="true"
+        android:orientation="vertical">
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/NotifyMeOn"
+                android:id="@+id/textView" android:layout_weight="1"
+                android:gravity="center_vertical"/>
+        <Spinner
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:id="@+id/TypeSpinner"
+                android:entries="@array/NotifiersTypes" android:layout_weight="1"/>
+
+
+    </LinearLayout>
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/NotifiersPair"
+                android:id="@+id/textView2"
+                android:singleLine="false" android:layout_weight="1"
+                android:gravity="center_vertical"/>
+        <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/PairSpinner"
+                android:entries="@array/ExchangePairs" android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:layout_marginLeft="10dp" android:layout_marginRight="10dp"
+            android:orientation="horizontal">
+        <TextView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="@string/ValueTitle"
+                android:id="@+id/ValueTitle"
+                android:singleLine="false" android:layout_weight="1"
+                android:gravity="center_vertical"/>
+        <EditText
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:inputType="numberDecimal"
+                android:id="@+id/NotifValue" android:text="@string/ZeroFloatValue"
+                android:layout_weight="1"/>
+    </LinearLayout>
+
+    <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/NotifDescription"
+            android:gravity="center" android:layout_margin="4dp" android:textSize="16sp"
+            android:text="@string/PanicSellDescription"/>
+</LinearLayout>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="BTCEClientTheme" parent="@android:Theme.Holo.Light">
+        <item name="android:windowBackground">@drawable/bg_app</item>
+    </style>
+</resources>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:orientation="vertical"
+              android:layout_width="match_parent" android:layout_height="match_parent"
+        >
+
+    <view
+            android:layout_width="fill_parent"
+            android:layout_height="250sp"
+            class="org.stockchart.StockChartView"
+            android:id="@+id/StockChartView"
+            android:layout_marginTop="11dp"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/IndicatorsSectionTitle"
+            android:id="@+id/IndicatorsSectionTitle"
+            android:textAppearance="@android:style/TextAppearance.Large"/>
+
+    <TableLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:stretchColumns="*">
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enableEMAIndicator"
+                    android:id="@+id/enableEMAIndicator"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="3dp"/>
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enableMACDIndicator"
+                    android:id="@+id/enableMACDIndicator"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="3dp"/>
+        </TableRow>
+        <TableRow
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent">
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enableRSIIndicator"
+                    android:id="@+id/enableRSIIndicator"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="3dp"/>
+
+            <Switch
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/enableSMAIndicator"
+                    android:id="@+id/enableSMAIndicator"
+                    android:layout_gravity="left|center_vertical"
+                    android:layout_marginLeft="3dp"/>
+        </TableRow>
+    </TableLayout>
+
+
+</LinearLayout>

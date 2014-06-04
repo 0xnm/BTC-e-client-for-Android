@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:gravity="center">
+
+    <ListView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/ActiveOrdersContainer"
+            android:layout_gravity="center" android:clickable="false" android:drawSelectorOnTop="true"
+            android:focusable="false" android:focusableInTouchMode="false" android:textFilterEnabled="false"
+            android:divider="@null"
+            android:dividerHeight="5dp"/>
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/NoItems"
+            android:id="@+id/NoItems"
+            android:layout_gravity="center"
+            android:visibility="gone" android:textStyle="bold"/>
+
+    <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Loading"
+            android:layout_gravity="center"
+            android:visibility="gone"/>
+</LinearLayout>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BTC-e client</string>
+    <string name="CurrencyNameBTC">BTC</string>
+    <string name="CurrencyNameLTC">LTC</string>
+    <string name="CurrencyNameNMC">NMC</string>
+    <string name="CurrencyNameNVC">NVC</string>
+    <string name="TickerInfoLast">Last</string>
+    <string name="TickerInfoBuy">Buy</string>
+    <string name="TickerInfoSell">Sell</string>
+    <string name="FeeX2">2xFee</string>
+    <string name="Loading">Loading…</string>
+    <string name="AccountInfo">My Funds</string>
+    <string name="UpdateAccountInfo">Please press \"Update\"</string>
+    <string name="enableEMAIndicator">Show EMA</string>
+    <string name="enableMACDIndicator">Show MACD</string>
+    <string name="enableRSIIndicator">Show RSI</string>
+    <string name="enableSMAIndicator">Show SMA</string>
+    <string name="IndicatorsSectionTitle">Indicators</string>
+    <string name="SaveSettings">Save Settings</string>
+    <string name="StopTimer">Stop Timer</string>
+    <string name="SelectPairsPromptTitle">Pairs to display</string>
+    <string name="FundsInfoUpdatedtext">Account info was successfully updated</string>
+    <string name="DialogSave">Save</string>
+    <string name="NoPairsToDisplay">No Pairs to display</string>
+    <string name="EmpyActiveOrdersList">You have no active orders</string>
+    <string name="SelectDateTitle">Select Date</string>
+    <string name="RefreshButtonText">Refresh</string>
+    <string name="AddNotifierTitle">Add watcher</string>
+    <string name="OoopsError">Ooops</string>
+    <string-array name="Currencies">
+        <item>BTC</item>
+        <item>LTC</item>
+        <item>NMC</item>
+        <item>NVC</item>
+        <item>XPM</item>
+        <item>TRC</item>
+        <item>PPC</item>
+        <item>FTC</item>
+        <item>USD</item>
+        <item>GBP</item>
+        <item>CNH</item>
+        <item>EUR</item>
+        <item>RUR</item>
+    </string-array>
+    <string-array name="NavSections">
+        <item>Dashboard</item>
+        <item>Orders Book</item>
+        <item>My Active Orders</item>
+        <item>My Trades</item>
+        <item>My Transactions</item>
+        <item>Charts</item>
+        <item>Settings</item>
+        <item>Watchers</item>
+        <item>Help</item>
+    </string-array>
+    <string-array name="Periods">
+        <item>30s</item>
+        <item>1m</item>
+        <item>2m</item>
+        <item>3m</item>
+        <item>5m</item>
+        <item>10m</item>
+        <item>15m</item>
+        <item>20m</item>
+        <item>30m</item>
+        <item>45m</item>
+        <item>1h</item>
+    </string-array>
+    <string-array name="ExchangePairs">
+        <item>BTC/USD</item>
+        <item>BTC/RUR</item>
+        <item>BTC/EUR</item>
+        <item>BTC/CNH</item>
+        <item>BTC/GBP</item>
+        <item>LTC/BTC</item>
+        <item>LTC/USD</item>
+        <item>LTC/RUR</item>
+        <item>LTC/EUR</item>
+        <item>LTC/CNH</item>
+        <item>LTC/GBP</item>
+        <item>NMC/BTC</item>
+        <item>NMC/USD</item>
+        <item>NVC/BTC</item>
+        <item>NVC/USD</item>
+        <item>USD/RUR</item>
+        <item>EUR/USD</item>
+        <item>EUR/RUR</item>
+        <item>USD/CNH</item>
+        <item>GBP/USD</item>
+        <item>TRC/BTC</item>
+        <item>PPC/BTC</item>
+        <item>PPC/USD</item>
+        <item>FTC/BTC</item>
+        <item>XPM/BTC</item>
+    </string-array>
+    <string-array name="NotifiersTypes">
+        <item>Panic Sell</item>
+        <item>Panic Buy</item>
+        <item>Stop-loss</item>
+        <item>Take-profit</item>
+    </string-array>
+    <string name="AboutText"><![CDATA[<b>Used libraries: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
+    <br /><br /><b>Watchers: </b><br />Please note, that to make a watcher work you <b>should</b> have its pair added at the Dashboard.<br /><br />
+    <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies
+    <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br />
+    Authors of this app are not affiliated with BTC-e exchange]]></string>
+    <string name="StopLossDescription">You will be notified once the price get below the specified value</string>
+    <string name="TakeProfitDescription">You will be notified once the price get above the specified value</string>
+    <string name="PanicBuyDescription">You will be notified once the last check price is more than previous check price
+        on the specified delta
+    </string>
+    <string name="PanicSellDescription">You will be notified once the last check price is less than previous check price
+        on the specified delta
+    </string>
+    <string name="TradeTitle">Trading</string>
+    <string name="EnableRecurrentCheck">Enable periodic check</string>
+    <string name="RecurrentPeriod">Period:</string>
+    <string name="PeriodWasSetFor">Period was set for</string>
+    <string name="ChoosePeriod">Choose period</string>
+    <string name="GeneralErrorText">Something went wrong. Please try again later.</string>
+    <string name="WidgetConfigTitle">Please choose pair to watch</string>
+    <string name="PlaceholderText">Placeholder text</string>
+    <string name="PairTitleWidget">Pair</string>
+    <string name="NATitle">N/A</string>
+    <string name="DateTitle">Date</string>
+    <string name="KeyTitle">Key</string>
+    <string name="PairTitle">Pair:</string>
+    <string name="NoItems">NO ITEMS</string>
+    <string name="NotifyMeOn">Notify me on</string>
+    <string name="ZeroFloatValue">0.0</string>
+    <string name="Bids">BIDS</string>
+    <string name="Asks">ASKS</string>
+    <string name="SettingsSecretTitle">Secret</string>
+    <string name="StartDateTitle">Start Date</string>
+    <string name="EndDateTitle">End Date</string>
+    <string name="TimeStampTitle">Timestamp:</string>
+    <string name="OrderIDTitle">OrderID:</string>
+    <string name="PairColumnHeader">Pair</string>
+    <string name="NotifiersPair">Pair</string>
+    <string name="TypeTitle">Type:</string>
+    <string name="AmountTitle">Amount:</string>
+    <string name="WaitingForData">WAITING FOR DATA</string>
+    <string name="RateTitle">Rate:</string>
+    <string name="ValueTitle">Value:</string>
+    <string name="Price">Price</string>
+    <string name="Currency">Currency</string>
+    <string name="Amount">Amount</string>
+    <string name="UpdateButton">Update</string>
+    <string name="BuyButton">Buy</string>
+    <string name="SellButton">Sell</string>
+    <string name="DexcriptionTitle">Description:</string>
+    <string name="RemoveOrder">Remove order</string>
+</resources>

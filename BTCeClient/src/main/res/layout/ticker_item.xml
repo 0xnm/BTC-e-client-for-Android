@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<TableRow xmlns:android="http://schemas.android.com/apk/res/android"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:id="@+id/CurrencyName" android:layout_column="0" android:textStyle="bold"
+            android:textSize="16sp" android:textColor="@android:color/secondary_text_dark"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ZeroFloatValue"
+            android:id="@+id/InfoLast" android:layout_column="1"
+            android:textColor="@android:color/secondary_text_dark"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ZeroFloatValue"
+            android:id="@+id/InfoBuy" android:layout_column="2" android:textColor="@android:color/secondary_text_dark"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ZeroFloatValue"
+            android:id="@+id/InfoSell" android:layout_column="3"
+            android:textColor="@android:color/secondary_text_dark"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/ZeroFloatValue"
+            android:id="@+id/Info2xFee" android:layout_column="4"
+            android:textColor="@android:color/secondary_text_dark"/>
+
+</TableRow>

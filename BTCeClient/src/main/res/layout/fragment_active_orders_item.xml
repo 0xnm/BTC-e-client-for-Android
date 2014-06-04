@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card" android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="10dp" android:layout_marginBottom="10dp">
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false" android:layout_alignParentRight="false"
+            android:layout_alignWithParentIfMissing="false" android:layout_toLeftOf="@+id/removeOrder">
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/PairTitle"
+                    android:id="@+id/textView10"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/PlaceholderText"
+                    android:id="@+id/ActiveOrderPair" android:layout_marginLeft="10dp"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/TypeTitle"
+                    android:id="@+id/textView6"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ActiveOrderType" android:layout_marginLeft="10dp"
+                    android:text="@string/PlaceholderText"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/AmountTitle"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ActiveOrderAmount" android:layout_marginLeft="10dp"
+                    android:text="@string/PlaceholderText"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/RateTitle"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ActiveOrderRate" android:layout_marginLeft="10dp"
+                    android:text="@string/PlaceholderText"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/TimeStampTitle"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ActiveOrderTimestamp" android:layout_marginLeft="10dp"
+                    android:text="@string/PlaceholderText"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content">
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/OrderIDTitle"
+                    android:textColor="@android:color/primary_text_light"
+                    android:textStyle="bold"/>
+            <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/ActiveOrderID" android:layout_marginLeft="10dp"
+                    android:text="@string/PlaceholderText"
+                    android:textColor="@android:color/primary_text_light"/>
+        </LinearLayout>
+    </LinearLayout>
+    <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/removeOrder" android:src="@drawable/remove_button"
+            android:layout_alignParentRight="true" android:layout_centerVertical="true"
+            android:contentDescription="@string/RemoveOrder"/>
+</RelativeLayout>
