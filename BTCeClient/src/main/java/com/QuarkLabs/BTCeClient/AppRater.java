@@ -82,7 +82,6 @@ class AppRater {
 
         TextView tv = new TextView(context);
         tv.setText("If you enjoy using " + APP_TITLE + ", please take a moment to rate it. Thanks for your support!");
-        tv.setWidth(240);
         tv.setPadding(10, 20, 10, 20);
         ll.addView(tv);
 
