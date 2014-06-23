@@ -27,8 +27,10 @@ import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.*;
@@ -54,7 +56,8 @@ public class ChartsFragment extends Fragment {
     private Map<String, View> mCharts;
     private View mRootView;
     private LayoutInflater mInflater;
-    private List<String> mCookies = new ArrayList<>();
+    private List<String> mCookies = Collections.synchronizedList(new ArrayList<String>());
+    private ChartsUpdater mChartsUpdater;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -63,14 +66,33 @@ public class ChartsFragment extends Fragment {
         mInflater = inflater;
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_chart, container, false);
-            updateChartsSet(inflater);
         }
+        mChartsUpdater = new ChartsUpdater(new Handler());
+        mChartsUpdater.setListener(new Listener<StockChartView>() {
+            @Override
+            public void onChartDownloaded(StockChartView stockChartView) {
+                if (isVisible()) {
+                    stockChartView.invalidate();
+                }
+            }
+        });
+
+        mChartsUpdater.start();
+        mChartsUpdater.getLooper();
         return mRootView;
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        refreshChartViews(mInflater);
         updateCharts();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mChartsUpdater.clearQueue();
+        mChartsUpdater.quit();
     }
 
     @Override
@@ -92,7 +114,7 @@ public class ChartsFragment extends Fragment {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 checkBoxListAdapter.saveValuesToPreferences();
-                                updateChartsSet(mInflater);
+                                refreshChartViews(mInflater);
                                 updateCharts();
                             }
                         })
@@ -124,7 +146,15 @@ public class ChartsFragment extends Fragment {
         }
         if (mCharts.size() > 0) {
             Toast.makeText(getActivity(), "Updating charts", Toast.LENGTH_SHORT).show();
-            new PrepareToGetChartDataTask().execute();
+            Set<String> chartNames = mCharts.keySet();
+            String[] chartsNamesSorted = chartNames.toArray(new String[chartNames.size()]);
+            Arrays.sort(chartsNamesSorted);
+
+            for (String x : chartsNamesSorted) {
+                String pair = x.replace("/", "_").toLowerCase();
+                mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.StockChartView),
+                        pair);
+            }
         }
     }
 
@@ -134,17 +164,20 @@ public class ChartsFragment extends Fragment {
      * @param inflater
      */
 
-    private void updateChartsSet(LayoutInflater inflater) {
+    private void refreshChartViews(LayoutInflater inflater) {
 
         LinearLayout chartsContainer = (LinearLayout) mRootView.findViewById(R.id.ChartsContainer);
         chartsContainer.removeAllViews();
+
         mCharts = new HashMap<>();
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Set<String> hashSet = sh.getStringSet("ChartsToDisplay", new HashSet<String>());
-        TextView noCharts = new TextView(getActivity());
+
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
         lp.gravity = Gravity.CENTER;
+
+        TextView noCharts = new TextView(getActivity());
         noCharts.setLayoutParams(lp);
         noCharts.setGravity(Gravity.CENTER);
         noCharts.setText("NO CHARTS");
@@ -263,82 +296,86 @@ public class ChartsFragment extends Fragment {
         }
     }
 
-    private class FetchChartDataTask extends AsyncTask<String, Void, Void> {
+    private static interface Listener<StockChartView> {
+        void onChartDownloaded(StockChartView token);
+    }
+
+    private class ChartsUpdater extends HandlerThread {
+
+        private static final int MESSAGE_DOWNLOAD = 0;
+        private static final String TAG = "ChartDownloaderThread";
+        private Handler mHandler;
+        private Handler mResponseHandler;
+        private Map<StockChartView, String> requestMap = Collections.synchronizedMap(new HashMap<StockChartView,
+                String>());
+        private Listener<StockChartView> mListener;
+
+
+        public ChartsUpdater(Handler responseHandler) {
+            super(TAG);
+            mResponseHandler = responseHandler;
+        }
 
         @Override
-        protected Void doInBackground(String... params) {
-            if (params.length == 0) {
-                throw new IllegalArgumentException("Pair should be specified");
-            }
-            String pair = params[0].replace("/", "_").toLowerCase();
-            getChartData(pair,
-                    (StockChartView) mCharts.get(params[0]).findViewById(R.id.StockChartView));
-            return null;
+        protected void onLooperPrepared() {
+            mHandler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    if (msg.what == MESSAGE_DOWNLOAD) {
+                        @SuppressWarnings("unchecked")
+                        StockChartView token = (StockChartView) msg.obj;
+                        handleRequest(token);
+                    }
+                }
+            };
         }
 
-        /**
-         * Fetches data for a particular pair
-         *
-         * @param pair
-         * @param chart
-         */
-        private void getChartData(String pair, StockChartView chart) {
-
-            StringBuilder out = new StringBuilder();
-            try {
-                URL url = new URL("https://btc-e.com/exchange/" + pair);
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-                for (String cookie : mCookies) {
-                    connection.addRequestProperty("Cookie", cookie);
-                }
-                connection.connect();
-                if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
-                    showError();
-                    return;
-                }
-                BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String line;
-                while ((line = rd.readLine()) != null) {
-                    out.append(line);
-                }
-                rd.close();
-                connection.disconnect();
-
-            } catch (IOException e) {
-                e.printStackTrace();
+        private void handleRequest(final StockChartView token) {
+            final String pair = requestMap.get(token);
+            if (pair == null) {
+                return;
             }
-
-            Pattern pattern = Pattern.compile("ToDataTable\\(\\[\\[(.+?)\\]\\], true");
-            Matcher matcher = pattern.matcher(out.toString());
-            if (matcher.find()) {
-                //chart data
-                String[] data = matcher.group(1).split("\\],\\[");
-                if (isVisible() && getActivity() != null) {
-                    populateChart(pair, data, chart);
-                }
-            } else {
-                //if data not found, maybe cookie was outdated
-                mCookies.clear();
-                showError();
+            ChartDataDownloader chartDataDownloader = new ChartDataDownloader();
+            if (mCookies.size() == 0) {
+                chartDataDownloader.getCookies();
             }
+            String[] data = chartDataDownloader.getChartData(pair);
+            if (data != null) {
+                updateChart(token, data);
+            }
+            mResponseHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    requestMap.remove(token);
+                    mListener.onChartDownloaded(token);
+                }
+            });
         }
 
-        /**
-         * Populates particular chart with a fetched data
-         *
-         * @param pair
-         * @param data
-         * @param chartView
-         */
-        private void populateChart(String pair, final String[] data, final StockChartView chartView) {
+        public void setListener(Listener<StockChartView> listener) {
+            mListener = listener;
+        }
+
+        public void queueChart(StockChartView token, String pair) {
+            requestMap.put(token, pair);
+            mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
+        }
+
+        public void clearQueue() {
+            mHandler.removeMessages(MESSAGE_DOWNLOAD);
+            requestMap.clear();
+        }
+
+        private void updateChart(StockChartView token, final String[] data) {
+
             final StockSeries fPriceSeries = new StockSeries();
             fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
             fPriceSeries.setName("price");
-            chartView.reset();
-            chartView.getCrosshair().setAuto(true);
-            Area area = chartView.addArea();
+            token.reset();
+            token.getCrosshair().setAuto(true);
+            Area area = token.addArea();
             area.getLegend().getAppearance().getFont().setSize(16);
+            String pair = requestMap.get(token);
             area.setTitle(pair.replace("_", "/").toUpperCase());
 
             for (String x : data) {
@@ -385,7 +422,7 @@ public class ChartsFragment extends Fragment {
                 }
             };
 
-            chartView.getCrosshair().setLabelFormatProvider(dp);
+            token.getCrosshair().setLabelFormatProvider(dp);
             //provider for right axis (value)
             Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
                 @Override
@@ -433,66 +470,81 @@ public class ChartsFragment extends Fragment {
                     .getFont()
                     .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
                             getResources().getDisplayMetrics()));
-            chartView.getCrosshair().getAppearance().getFont()
+            token.getCrosshair().getAppearance().getFont()
                     .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
                             getResources().getDisplayMetrics()));
-
-            if (isVisible() && getActivity() != null) {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        chartView.invalidate();
-                    }
-                });
-            }
         }
-
     }
 
-    private class PrepareToGetChartDataTask extends AsyncTask<Void, Void, Void> {
+    private class ChartDataDownloader {
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            if (mCookies.size() == 0) {
-                try {
-                    URL url = new URL("https://btc-e.com/");
-                    HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+        private static final String mBaseUrl = "https://btc-e.com/exchange/";
 
-                    if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
-                        showError();
-                        return null;
-                    }
+        String[] getChartData(String pair) {
 
-                    mCookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    Pattern pattern = Pattern.compile("document.cookie=\"(a=(.+?));");
-                    Matcher matcher = pattern.matcher(reader.readLine());
+            StringBuilder out = new StringBuilder();
+            try {
+                URL url = new URL(mBaseUrl + pair);
+                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
-                    //if cookie not found
-                    if (!matcher.find()) {
-                        showError();
-                        return null;
-                    }
-                    reader.close();
-                    connection.disconnect();
-                    mCookies.add(matcher.group(1));
-                } catch (IOException e) {
-                    e.printStackTrace();
+                for (String cookie : mCookies) {
+                    connection.addRequestProperty("Cookie", cookie);
                 }
+                if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+                    showError();
+                    return null;
+                }
+                BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                String line;
+                while ((line = rd.readLine()) != null) {
+                    out.append(line);
+                }
+                Pattern pattern = Pattern.compile("ToDataTable\\(\\[\\[(.+?)\\]\\], true");
+                Matcher matcher = pattern.matcher(out.toString());
+                if (matcher.find()) {
+                    //chart data
+                    return matcher.group(1).split("\\],\\[");
+                } else {
+                    //if data not found, maybe cookie was outdated
+                    mCookies.clear();
+                    showError();
+                }
+                rd.close();
+                connection.disconnect();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return null;
         }
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            Set<String> chartNames = mCharts.keySet();
-            String[] chartsNamesSorted = chartNames.toArray(new String[chartNames.size()]);
-            Arrays.sort(chartsNamesSorted);
+        void getCookies() {
+            try {
+                URL url = new URL("https://btc-e.com/");
+                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
-            for (String x : chartsNamesSorted) {
-                new FetchChartDataTask().executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, x);
+                if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
+                    showError();
+                    return;
+                }
+
+                mCookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
+                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                Pattern pattern = Pattern.compile("document.cookie=\"(a=(.+?));");
+                Matcher matcher = pattern.matcher(reader.readLine());
+
+                //if cookie not found
+                if (!matcher.find()) {
+                    showError();
+                    return;
+                }
+                reader.close();
+                connection.disconnect();
+                mCookies.add(matcher.group(1));
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
-
 }
+
+
