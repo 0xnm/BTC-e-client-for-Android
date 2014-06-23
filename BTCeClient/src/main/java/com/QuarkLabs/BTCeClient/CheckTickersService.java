@@ -109,8 +109,8 @@ public class CheckTickersService extends IntentService {
     /**
      * Processes new data, adds notifications if any
      *
-     * @param newData
-     * @param oldData
+     * @param newData JSONObject with new tickers data
+     * @param oldData JSONObject with old tickers data
      * @return String with all notifications
      */
     private String checkNotifiers(JSONObject newData, JSONObject oldData) {

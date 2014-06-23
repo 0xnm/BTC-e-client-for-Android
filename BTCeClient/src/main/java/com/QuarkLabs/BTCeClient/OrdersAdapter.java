@@ -183,7 +183,7 @@ public class OrdersAdapter extends BaseAdapter {
     /**
      * Updates the data in adapter
      *
-     * @param jsonObject
+     * @param jsonObject JSONObject with trades/transactions/active orders
      */
     public void updateEntries(JSONObject jsonObject) {
         try {
@@ -217,7 +217,7 @@ public class OrdersAdapter extends BaseAdapter {
     }
 
     /**
-     * Class for cancelling active order
+     * AsyncTask class to cancel active order
      */
     private class CancelActiveOrder extends AsyncTask<Integer, Void, JSONObject> {
 

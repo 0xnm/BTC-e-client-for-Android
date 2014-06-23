@@ -46,8 +46,7 @@ public class MyActivity extends Activity {
     public static boolean alarmSet;
     public static PendingIntent pendingIntent;
     public static App app;
-    private final HomeFragment mHomeFragment = new HomeFragment();
-    private final ChartsFragment mChartsFragment = new ChartsFragment();
+    private HomeFragment mHomeFragment = new HomeFragment();
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -57,55 +56,45 @@ public class MyActivity extends Activity {
      *
      * @param position
      */
-    private void displayItem(int position) {
-        String tag = "";
+    private void displayItem(final int position) {
         Fragment fragment = null;
         final FragmentManager fragmentManager = getFragmentManager();
         switch (position) {
             case 0:
                 fragment = mHomeFragment;
-                tag = "0";
                 fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 break;
             case 1:
                 fragment = new OrdersBookFragment();
-                tag = "1";
                 break;
             case 2:
                 fragment = new ActiveOrdersFragment();
-                tag = "2";
                 break;
             case 3:
                 fragment = new TradeHistoryFragment();
-                tag = "3";
                 break;
             case 4:
                 fragment = new TransHistoryFragment();
-                tag = "4";
                 break;
-            // storing ChartsFragment in memory due to big size of charts
             case 5:
-                fragment = mChartsFragment;
-                tag = "5";
+                fragment = new ChartsFragment();
                 break;
             case 6:
                 fragment = new SettingsFragment();
-                tag = "6";
                 break;
             case 7:
                 fragment = new NotifiersFragment();
-                tag = "7";
                 break;
             case 8:
                 fragment = new HelpFragment();
-                tag = "8";
                 break;
             default:
                 break;
         }
         final Fragment fr = fragment;
-        final String tag1 = tag;
         if (fr != null) {
+            //delay in msecs
+            int delay = 250;
             //post delayed for smooth behaviour
             new Handler().postDelayed(new Runnable() {
                 @Override
@@ -114,10 +103,10 @@ public class MyActivity extends Activity {
                     fragmentManager.beginTransaction()
                             .replace(R.id.content_frame, fr)
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .addToBackStack(tag1)
+                            .addToBackStack(String.valueOf(position)) //name of fragment = position
                             .commit();
                 }
-            }, 250);
+            }, delay);
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
             mDrawerLayout.closeDrawer(mDrawerList);
@@ -201,8 +190,6 @@ public class MyActivity extends Activity {
         if (mDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
-        // Handle your other action bar items...
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -228,6 +215,7 @@ public class MyActivity extends Activity {
         if (alarmSet) {
             alarmManager.cancel(pendingIntent);
         }
+        //Are we finishing, cap? - Yes, we are finishing, my padawan
         if (isFinishing()) {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_launcher)

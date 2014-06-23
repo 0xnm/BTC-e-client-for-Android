@@ -133,7 +133,10 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     bundle.putIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS,
                             appWidgetManager.getAppWidgetIds(new ComponentName(mContext, WidgetProvider.class)));
                     intent.putExtras(bundle);
-                    PendingIntent pi = PendingIntent.getBroadcast(mContext, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    PendingIntent pi = PendingIntent.getBroadcast(mContext,
+                            0,
+                            intent,
+                            PendingIntent.FLAG_UPDATE_CURRENT);
                     views.setOnClickPendingIntent(R.id.widgetContainer, pi);
                     SimpleDateFormat df = new SimpleDateFormat("EEE HH:mm");
                     Calendar calendar = Calendar.getInstance();

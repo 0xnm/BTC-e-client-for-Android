@@ -44,7 +44,7 @@ import java.util.*;
 
 public class HomeFragment extends Fragment {
 
-    private static int NOTIFICATIONS_COUNT = 1;
+    public static final double DOUBLEFEE = 0.004;
     private TableLayout mTickersContainer;
     private BroadcastReceiver mGetStatsReceiver;
 
@@ -103,8 +103,8 @@ public class HomeFragment extends Fragment {
     /**
      * Updates Dashboard with a fetched data
      *
-     * @param tickersContainer
-     * @param Tickers
+     * @param tickersContainer ViewGroup with ticker rows inside
+     * @param Tickers          Tickers data
      */
     private void updateStats(ViewGroup tickersContainer, Map<String, JSONObject> Tickers) {
 
@@ -128,7 +128,7 @@ public class HomeFragment extends Fragment {
                     }
                     field.setText(formatDouble(newValue));
                     TextView Info2xFee = (TextView) v.findViewById(R.id.Info2xFee);
-                    Info2xFee.setText(formatDouble(newValue * 0.004));
+                    Info2xFee.setText(formatDouble(newValue * DOUBLEFEE));
                 }
             }
         }
@@ -138,8 +138,8 @@ public class HomeFragment extends Fragment {
     /**
      * Formats decimal with a pattern "#.#######"
      *
-     * @param value
-     * @return
+     * @param value Value to format
+     * @return Formatted string
      */
     private String formatDouble(double value) {
         DecimalFormat decimalFormat = new DecimalFormat("#.#######");
@@ -154,6 +154,7 @@ public class HomeFragment extends Fragment {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            //add pair to dashboard action
             case R.id.action_add:
                 final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(getActivity(),
                         getResources().getStringArray(R.array.ExchangePairs),
@@ -169,12 +170,14 @@ public class HomeFragment extends Fragment {
                                     public void onClick(DialogInterface dialog, int which) {
                                         checkBoxListAdapter.saveValuesToPreferences();
                                         populateTickersContainer(mTickersContainer);
-                                        getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+                                        getActivity().sendBroadcast(new Intent(getActivity(),
+                                                StartServiceReceiver.class));
                                     }
                                 }
                         )
                         .show();
                 break;
+            //refresh dashboard action
             case R.id.action_refresh:
                 getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
                 break;
@@ -191,10 +194,9 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Returns TableLayout with TableRows depending on the list of pairs to watch
+     * Fills tickers dashboard with ticker rows
      *
-     * @param tickersContainer
-     * @return
+     * @param tickersContainer Root container to fill
      */
     private void populateTickersContainer(TableLayout tickersContainer) {
 
@@ -217,6 +219,7 @@ public class HomeFragment extends Fragment {
                 TradePrice.setText(((TextView) v).getText());
             }
         };
+
         Set<String> pairsSet = sh.getStringSet("PairsToDisplay", new HashSet<String>());
         tickersContainer.removeViews(1, tickersContainer.getChildCount() - 1);
         if (pairsSet.size() == 0) {
@@ -241,15 +244,15 @@ public class HomeFragment extends Fragment {
             for (String x : pairsArray) {
                 TableRow infoRow = (TableRow) inflater.inflate(R.layout.ticker_item, tickersContainer, false);
                 infoRow.setTag(x);
-                TextView Last = (TextView) infoRow.findViewById(R.id.InfoLast);
-                TextView Sell = (TextView) infoRow.findViewById(R.id.InfoSell);
-                TextView Buy = (TextView) infoRow.findViewById(R.id.InfoBuy);
-                Last.setTag("last");
-                Sell.setTag("sell");
-                Buy.setTag("buy");
-                Last.setOnClickListener(fillPrice);
-                Sell.setOnClickListener(fillPrice);
-                Buy.setOnClickListener(fillPrice);
+                TextView last = (TextView) infoRow.findViewById(R.id.InfoLast);
+                TextView sell = (TextView) infoRow.findViewById(R.id.InfoSell);
+                TextView buy = (TextView) infoRow.findViewById(R.id.InfoBuy);
+                last.setTag("last");
+                sell.setTag("sell");
+                buy.setTag("buy");
+                last.setOnClickListener(fillPrice);
+                sell.setOnClickListener(fillPrice);
+                buy.setOnClickListener(fillPrice);
                 TextView infoTitle = (TextView) infoRow.findViewById(R.id.CurrencyName);
                 infoTitle.setText(x);
                 tickersContainer.addView(infoRow);
@@ -260,7 +263,7 @@ public class HomeFragment extends Fragment {
     /**
      * Refreshes funds table with fetched data
      *
-     * @param response
+     * @param response JSONObject with funds data
      */
     private void refreshFunds(JSONObject response) {
         try {
@@ -331,10 +334,16 @@ public class HomeFragment extends Fragment {
         }
     }
 
+    /**
+     * AsyncTask to register trade request on the exchange
+     */
     private class RegisterTradeRequestTask extends AsyncTask<String, Void, JSONObject> {
+
+        private Context mContext;
 
         @Override
         protected JSONObject doInBackground(String... params) {
+            mContext = getActivity().getApplicationContext();
             String tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
                     .getText().toString();
             String tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
@@ -362,7 +371,7 @@ public class HomeFragment extends Fragment {
                         .setContentTitle(getResources().getString(R.string.app_name))
                         .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
                 NotificationManager mNotificationManager =
-                        (NotificationManager) getActivity()
+                        (NotificationManager) mContext
                                 .getSystemService(Context.NOTIFICATION_SERVICE);
                 if (jsonObject.optInt("success") == 1) {
                     mBuilder.setContentText("Order was successfully added");
@@ -375,12 +384,15 @@ public class HomeFragment extends Fragment {
                             mBuilder.build());
                 }
             } else {
-                Toast.makeText(getActivity(), getResources()
+                Toast.makeText(mContext, getResources()
                         .getString(R.string.GeneralErrorText), Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    /**
+     * AsyncTask to update funds
+     */
     private class UpdateFundsTask extends AsyncTask<Void, Void, JSONObject> {
 
         @Override
@@ -396,7 +408,9 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            refreshFunds(jsonObject);
+            if (isVisible()) {
+                refreshFunds(jsonObject);
+            }
         }
     }
 }

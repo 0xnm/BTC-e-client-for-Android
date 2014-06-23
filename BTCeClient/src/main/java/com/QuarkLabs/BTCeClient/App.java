@@ -39,8 +39,8 @@ public class App {
     /**
      * Gets info for provided pairs
      *
-     * @param pairs
-     * @return
+     * @param pairs Array of pairs to get info for
+     * @return JSONObject with data, sample https://btc-e.com/api/3/ticker/btc_usd-btc_rur
      * @throws JSONException
      */
     public static JSONObject getPairInfo(String[] pairs) throws JSONException {
@@ -55,7 +55,7 @@ public class App {
     /**
      * Gets account info
      *
-     * @return
+     * @return JSONObject with account info, https://btc-e.com/api/documentation
      * @throws UnsupportedEncodingException
      * @throws JSONException
      */
@@ -70,8 +70,8 @@ public class App {
     /**
      * Gets history of transactions
      *
-     * @param params
-     * @return
+     * @param params Possible parameters and their values, https://btc-e.com/api/documentation
+     * @return JSONObject with transactions, https://btc-e.com/api/documentation
      * @throws JSONException
      */
     public JSONObject getTransactionsHistory(Map<String, String> params) throws JSONException {
@@ -87,8 +87,8 @@ public class App {
     /**
      * Gets history of trades
      *
-     * @param params
-     * @return
+     * @param params Possible parameters and their values, https://btc-e.com/api/documentation
+     * @return JSONObject with trades, https://btc-e.com/api/documentation
      * @throws JSONException
      */
     public JSONObject getTradeHistory(Map<String, String> params) throws JSONException {
@@ -104,7 +104,7 @@ public class App {
     /**
      * Gets active orders
      *
-     * @return
+     * @return JSONObject with active orders, https://btc-e.com/api/documentation
      * @throws UnsupportedEncodingException
      * @throws JSONException
      */
@@ -118,21 +118,21 @@ public class App {
     /**
      * Makes trade request
      *
-     * @param pair
-     * @param type
-     * @param rate
-     * @param amount
-     * @return
+     * @param pair   Pair to trade
+     * @param type   Sell of Buy
+     * @param rate   Trade price
+     * @param amount Trade volume
+     * @return JSONObject with trade response, https://btc-e.com/api/documentation
      * @throws UnsupportedEncodingException
      * @throws JSONException
      */
     public JSONObject trade(String pair, String type, String rate, String amount) throws UnsupportedEncodingException, JSONException {
 
         HashMap<String, String> temp = new HashMap<>(4);
-        temp.put("pair", "" + pair);
-        temp.put("type", "" + type);
-        temp.put("rate", "" + rate);
-        temp.put("amount", "" + amount);
+        temp.put("pair", pair);
+        temp.put("type", type);
+        temp.put("rate", rate);
+        temp.put("amount", amount);
 
         return mAuthRequest.makeRequest("Trade", temp);
 
@@ -141,8 +141,8 @@ public class App {
     /**
      * Cancels order
      *
-     * @param orderId
-     * @return
+     * @param orderId Id of the order to cancel
+     * @return JSONObject with cancellation response, https://btc-e.com/api/documentation
      * @throws UnsupportedEncodingException
      * @throws JSONException
      */

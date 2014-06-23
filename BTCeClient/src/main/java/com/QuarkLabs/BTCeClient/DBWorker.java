@@ -75,7 +75,7 @@ public class DBWorker extends SQLiteOpenHelper {
         contentValues.put("Value", value);
         contentValues.put("Pair", pair);
         contentValues.put("Type", type);
-        db.insert("Notifiers", "", contentValues);
+        db.insert("Notifiers", null, contentValues);
     }
 
     public synchronized void removeNotifier(int _id) {
