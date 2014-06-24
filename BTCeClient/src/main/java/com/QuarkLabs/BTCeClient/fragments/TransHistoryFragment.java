@@ -26,8 +26,8 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 import com.QuarkLabs.BTCeClient.ListTypes;
-import com.QuarkLabs.BTCeClient.OrdersAdapter;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.adapters.OrdersAdapter;
 import com.QuarkLabs.BTCeClient.loaders.OrdersLoader;
 import org.json.JSONObject;
 
@@ -35,11 +35,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class TransHistoryFragment extends Fragment implements LoaderManager.LoaderCallbacks<JSONObject> {
     private static final int LOADER_ID = 0;
     private static final int WEEK = 7 * 24 * 60 * 60 * 1000;
-    private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy");
+    private final SimpleDateFormat mSimpleDateFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
     private OrdersAdapter mAdapter;
     private ListView mListView;
     private Date mStartDateValue;
@@ -179,11 +180,11 @@ public class TransHistoryFragment extends Fragment implements LoaderManager.Load
         if (data == null) {
             Toast.makeText(getActivity(), getResources().getString(R.string.GeneralErrorText), Toast.LENGTH_LONG)
                     .show();
-            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase());
+            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else if (data.optInt("success") == 0) {
-            mNoItems.setText(data.optString("error").toUpperCase());
+            mNoItems.setText(data.optString("error").toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else {

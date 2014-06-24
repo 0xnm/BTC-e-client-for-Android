@@ -18,6 +18,7 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -35,8 +36,8 @@ import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
-import com.QuarkLabs.BTCeClient.CheckBoxListAdapter;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
 import org.stockchart.StockChartView;
 import org.stockchart.core.*;
 import org.stockchart.indicators.*;
@@ -151,7 +152,7 @@ public class ChartsFragment extends Fragment {
             Arrays.sort(chartsNamesSorted);
 
             for (String x : chartsNamesSorted) {
-                String pair = x.replace("/", "_").toLowerCase();
+                String pair = x.replace("/", "_").toLowerCase(Locale.US);
                 mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.StockChartView),
                         pair);
             }
@@ -316,6 +317,7 @@ public class ChartsFragment extends Fragment {
             mResponseHandler = responseHandler;
         }
 
+        @SuppressLint("HandlerLeak")
         @Override
         protected void onLooperPrepared() {
             mHandler = new Handler() {
@@ -340,7 +342,7 @@ public class ChartsFragment extends Fragment {
                 chartDataDownloader.getCookies();
             }
             String[] data = chartDataDownloader.getChartData(pair);
-            if (data != null) {
+            if (data != null && requestMap.get(token) != null) {
                 updateChart(token, data);
             }
             mResponseHandler.post(new Runnable() {
@@ -376,7 +378,7 @@ public class ChartsFragment extends Fragment {
             Area area = token.addArea();
             area.getLegend().getAppearance().getFont().setSize(16);
             String pair = requestMap.get(token);
-            area.setTitle(pair.replace("_", "/").toUpperCase());
+            area.setTitle(pair.replace("_", "/").toUpperCase(Locale.US));
 
             for (String x : data) {
                 String[] values = x.split(", ");

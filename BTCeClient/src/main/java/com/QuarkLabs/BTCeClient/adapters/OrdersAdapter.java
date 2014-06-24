@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.adapters;
 
 import android.app.AlertDialog;
 import android.app.NotificationManager;
@@ -31,6 +31,9 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.QuarkLabs.BTCeClient.ListTypes;
+import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,7 +47,7 @@ public class OrdersAdapter extends BaseAdapter {
     private Context mContext;
     private LayoutInflater mInflater;
     private ListTypes mListType;
-    private SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss");
+    private SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss", Locale.US);
 
     public OrdersAdapter(Context context, ListTypes listType) {
         mContext = context;
@@ -119,9 +122,9 @@ public class OrdersAdapter extends BaseAdapter {
                     orderID.setText(dataToDisplay.getString("order_id"));
                     calendar.setTimeInMillis(Long.parseLong(dataToDisplay.getString("timestamp")) * 1000L);
                     timestamp.setText(mDateFormat.format(calendar.getTime()));
-                    pair.setText(pairValue.replace("_", "/").toUpperCase());
-                    rate.setText(dataToDisplay.getString("rate") + " " + pairValue.substring(4).toUpperCase());
-                    amount.setText(dataToDisplay.getString("amount") + " " + pairValue.substring(0, 3).toUpperCase());
+                    pair.setText(pairValue.replace("_", "/").toUpperCase(Locale.US));
+                    rate.setText(dataToDisplay.getString("rate") + " " + pairValue.substring(4).toUpperCase(Locale.US));
+                    amount.setText(dataToDisplay.getString("amount") + " " + pairValue.substring(0, 3).toUpperCase(Locale.US));
                     type.setText(dataToDisplay.getString("type"));
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -163,10 +166,10 @@ public class OrdersAdapter extends BaseAdapter {
                 try {
                     String pairValue = dataToDisplay.getString("pair");
                     Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-                    pair.setText(pairValue.replace("_", "/").toUpperCase());
+                    pair.setText(pairValue.replace("_", "/").toUpperCase(Locale.US));
                     type.setText(dataToDisplay.getString("type"));
-                    amount.setText(dataToDisplay.getString("amount") + " " + pairValue.substring(0, 3).toUpperCase());
-                    rate.setText(dataToDisplay.getString("rate") + " " + pairValue.substring(4).toUpperCase());
+                    amount.setText(dataToDisplay.getString("amount") + " " + pairValue.substring(0, 3).toUpperCase(Locale.US));
+                    rate.setText(dataToDisplay.getString("rate") + " " + pairValue.substring(4).toUpperCase(Locale.US));
                     calendar.setTimeInMillis(Long.parseLong(dataToDisplay.getString("timestamp_created")) * 1000L);
                     timestamp.setText(mDateFormat.format(calendar.getTime()));
                     orderID.setText(String.valueOf(mData.get(position).optInt("id")));

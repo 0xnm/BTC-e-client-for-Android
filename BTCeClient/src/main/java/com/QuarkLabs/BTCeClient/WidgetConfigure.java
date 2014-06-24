@@ -32,9 +32,11 @@ import android.widget.RemoteViews;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class WidgetConfigure extends ListActivity {
+    public static final String DATE_TIME_PATTERN = "EEE HH:mm";
     private int mAppWidgetId;
     private ArrayAdapter<String> mAdapter;
 
@@ -67,7 +69,7 @@ public class WidgetConfigure extends ListActivity {
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(WidgetConfigure.this);
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.appwidget_layout);
                 views.setTextViewText(R.id.widgetPair, mAdapter.getItem(position));
-                SimpleDateFormat df = new SimpleDateFormat("EEE HH:mm");
+                SimpleDateFormat df = new SimpleDateFormat(DATE_TIME_PATTERN, Locale.US);
                 Calendar calendar = Calendar.getInstance();
                 views.setTextViewText(R.id.widgetDate, df.format(calendar.getTime()));
 

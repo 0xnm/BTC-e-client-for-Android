@@ -28,9 +28,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.QuarkLabs.BTCeClient.AuthRequest;
 import com.QuarkLabs.BTCeClient.MyActivity;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.exchangeApi.AuthRequest;
 
 import java.util.concurrent.TimeUnit;
 

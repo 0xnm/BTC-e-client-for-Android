@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.exchangeApi;
 
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
@@ -29,7 +29,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-class SimpleRequest {
+public class SimpleRequest {
     /**
      * Makes simple non-authenticated request
      *

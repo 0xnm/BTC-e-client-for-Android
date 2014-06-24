@@ -37,10 +37,12 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import com.QuarkLabs.BTCeClient.fragments.*;
+import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
-public class MyActivity extends Activity {
+public class MyActivity extends Activity implements ActivityCallbacks {
     public static TickersStorage tickersStorage = new TickersStorage();
     public static AlarmManager alarmManager;
     public static boolean alarmSet;
@@ -54,7 +56,7 @@ public class MyActivity extends Activity {
     /**
      * Display selected fragment
      *
-     * @param position
+     * @param position Position at the list
      */
     private void displayItem(final int position) {
         Fragment fragment = null;
@@ -239,6 +241,19 @@ public class MyActivity extends Activity {
             mDrawerList.setItemChecked(Integer.parseInt(stackName), true);
             mDrawerList.setSelection(Integer.parseInt(stackName));
         }
+    }
+
+    @Override
+    public void makeNotification(int id, String message) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentText(message);
+
+        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mNotificationManager.notify(id, mBuilder.build());
     }
 
     /**

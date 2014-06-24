@@ -18,22 +18,25 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.app.NotificationManager;
 import android.content.*;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.RingtoneManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
-import com.QuarkLabs.BTCeClient.*;
+import com.QuarkLabs.BTCeClient.ConstantHolder;
+import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.StartServiceReceiver;
+import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,6 +50,23 @@ public class HomeFragment extends Fragment {
     public static final double DOUBLEFEE = 0.004;
     private TableLayout mTickersContainer;
     private BroadcastReceiver mGetStatsReceiver;
+    private ActivityCallbacks mCallback;
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        try {
+            mCallback = (ActivityCallbacks) activity;
+        } catch (ClassCastException e) {
+            throw new ClassCastException(activity.toString() + " must implement ActivityCallbacks");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        mCallback = null;
+        super.onDetach();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -301,7 +321,7 @@ public class HomeFragment extends Fragment {
                     TableRow row = new TableRow(getActivity());
                     TextView currency = new TextView(getActivity());
                     TextView amount = new TextView(getActivity());
-                    currency.setText(anArrayList.toUpperCase());
+                    currency.setText(anArrayList.toUpperCase(Locale.US));
                     amount.setText(funds.getString(anArrayList));
                     currency.setLayoutParams(layoutParams);
                     currency.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
@@ -319,15 +339,7 @@ public class HomeFragment extends Fragment {
                 notificationText = response.getString("error");
             }
 
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getActivity())
-                    .setSmallIcon(R.drawable.ic_launcher)
-                    .setContentTitle(getResources().getString(R.string.app_name))
-                    .setContentText(notificationText);
-
-            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(ConstantHolder.ACCOUNT_INFO_NOTIF_ID, mBuilder.build());
+            mCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID, notificationText);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -353,7 +365,7 @@ public class HomeFragment extends Fragment {
             String tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
                     .getSelectedItem().toString();
             String tradeAction = params[0];
-            String pair = tradeCurrency.toLowerCase() + "_" + tradePriceCurrency.toLowerCase();
+            String pair = tradeCurrency.toLowerCase(Locale.US) + "_" + tradePriceCurrency.toLowerCase(Locale.US);
             JSONObject response = null;
             try {
                 response = MyActivity.app.trade(pair, tradeAction, tradePrice, tradeAmount);
@@ -365,24 +377,15 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            if (jsonObject != null) {
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(getActivity())
-                        .setSmallIcon(R.drawable.ic_launcher)
-                        .setContentTitle(getResources().getString(R.string.app_name))
-                        .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-                NotificationManager mNotificationManager =
-                        (NotificationManager) mContext
-                                .getSystemService(Context.NOTIFICATION_SERVICE);
+            String message = "";
+            if (jsonObject != null && isVisible()) {
                 if (jsonObject.optInt("success") == 1) {
-                    mBuilder.setContentText("Order was successfully added");
-                    mNotificationManager.notify(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
-                            mBuilder.build());
+                    message = "Order was successfully added";
                     refreshFunds(jsonObject);
                 } else {
-                    mBuilder.setContentText(jsonObject.optString("error"));
-                    mNotificationManager.notify(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
-                            mBuilder.build());
+                    message = jsonObject.optString("error");
                 }
+                mCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID, message);
             } else {
                 Toast.makeText(mContext, getResources()
                         .getString(R.string.GeneralErrorText), Toast.LENGTH_LONG).show();

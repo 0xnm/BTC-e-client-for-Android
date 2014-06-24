@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.exchangeApi;
 
 import android.content.Context;
 import org.json.JSONException;
@@ -24,6 +24,7 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class App {
@@ -46,7 +47,7 @@ public class App {
     public static JSONObject getPairInfo(String[] pairs) throws JSONException {
         String url = "https://btc-e.com/api/3/ticker/";
         for (String x : pairs) {
-            url += x.replace("/", "_").toLowerCase() + "-";
+            url += x.replace("/", "_").toLowerCase(Locale.US) + "-";
         }
         SimpleRequest reqSim = new SimpleRequest();
         return reqSim.makeRequest(url.substring(0, url.length() - 1));

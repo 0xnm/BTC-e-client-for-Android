@@ -30,10 +30,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.QuarkLabs.BTCeClient.ListTypes;
-import com.QuarkLabs.BTCeClient.OrdersAdapter;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.adapters.OrdersAdapter;
 import com.QuarkLabs.BTCeClient.loaders.OrdersLoader;
 import org.json.JSONObject;
+
+import java.util.Locale;
 
 public class ActiveOrdersFragment extends Fragment implements LoaderManager.LoaderCallbacks<JSONObject> {
 
@@ -75,11 +77,11 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
         if (data == null) {
             Toast.makeText(getActivity(), getResources().getString(R.string.GeneralErrorText), Toast.LENGTH_LONG)
                     .show();
-            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase());
+            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else if (data.optInt("success") == 0) {
-            mNoItems.setText(data.optString("error").toUpperCase());
+            mNoItems.setText(data.optString("error").toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else {

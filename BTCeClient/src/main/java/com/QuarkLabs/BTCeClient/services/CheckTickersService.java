@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.services;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -31,14 +31,21 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import com.QuarkLabs.BTCeClient.ConstantHolder;
+import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Set;
 
 public class CheckTickersService extends IntentService {
+    public static final String BASE_URL = "https://btc-e.com/api/3/ticker/";
     private final static int PANIC_BUY_TYPE = 0;
     private final static int PANIC_SELL_TYPE = 1;
     private final static int STOP_LOSS_TYPE = 2;
@@ -56,9 +63,9 @@ public class CheckTickersService extends IntentService {
         String[] pairs = x.toArray(new String[x.size()]);
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        String url = "https://btc-e.com/api/3/ticker/";
+        String url = BASE_URL;
         for (String xx : pairs) {
-            url += xx.replace("/", "_").toLowerCase() + "-";
+            url += xx.replace("/", "_").toLowerCase(Locale.US) + "-";
         }
         SimpleRequest reqSim = new SimpleRequest();
 
@@ -87,7 +94,7 @@ public class CheckTickersService extends IntentService {
                 }
                 for (Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
                     String key = iterator.next();
-                    String keyForData = key.replace("_", "/").toUpperCase();
+                    String keyForData = key.replace("_", "/").toUpperCase(Locale.US);
                     MyActivity.tickersStorage.saveEntry(keyForData, data.optJSONObject(key));
                     MyActivity.tickersStorage.saveAll(data);
 
@@ -127,7 +134,7 @@ public class CheckTickersService extends IntentService {
                 double newValue = newData.optJSONObject(key).optDouble("last");
                 while (!cursor.isAfterLast()) {
                     boolean pairMatched = key.replace("_", "/")
-                            .toUpperCase()
+                            .toUpperCase(Locale.US)
                             .equals(cursor.getString(cursor.getColumnIndex("Pair")));
                     if (pairMatched) {
                         float percent;
@@ -136,26 +143,26 @@ public class CheckTickersService extends IntentService {
                                 percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
                                 if (newValue > ((1 + percent) * oldValue)) {
                                     stringBuilder.append("Panic Buy for ").append(key.replace("_", "/")
-                                            .toUpperCase()).append("; ");
+                                            .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case PANIC_SELL_TYPE:
                                 percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
                                 if (newValue < ((1 - percent) * oldValue)) {
                                     stringBuilder.append("Panic Sell for ").append(key.replace("_", "/")
-                                            .toUpperCase()).append("; ");
+                                            .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case STOP_LOSS_TYPE:
                                 if (newValue < cursor.getFloat(cursor.getColumnIndex("Value"))) {
                                     stringBuilder.append("Stop Loss for ").append(key.replace("_", "/")
-                                            .toUpperCase()).append("; ");
+                                            .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case TAKE_PROFIT_TYPE:
                                 if (newValue > cursor.getFloat(cursor.getColumnIndex("Value"))) {
                                     stringBuilder.append("Take Profit for ").append(key.replace("_", "/")
-                                            .toUpperCase()).append("; ");
+                                            .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             default:

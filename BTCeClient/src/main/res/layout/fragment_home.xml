@@ -159,8 +159,7 @@
                         android:id="@+id/TradeAmount"
                         android:layout_column="0"
                         android:singleLine="true"
-                        android:editable="true"
-                        android:numeric="integer|decimal"
+                        android:inputType="number|numberDecimal"
                         android:layout_gravity="center"
                         android:layout_weight="1"/>
 
@@ -213,8 +212,7 @@
                         android:id="@+id/TradePrice"
                         android:layout_column="0"
                         android:singleLine="true"
-                        android:editable="true"
-                        android:numeric="integer|decimal"
+                        android:inputType="number|numberDecimal"
                         android:layout_gravity="center"
                         android:layout_weight="1"/>
 

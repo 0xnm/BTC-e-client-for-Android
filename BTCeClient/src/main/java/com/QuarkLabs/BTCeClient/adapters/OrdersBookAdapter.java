@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.adapters;
 
 import android.content.Context;
 import android.graphics.Typeface;
@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import com.QuarkLabs.BTCeClient.R;
 import org.json.JSONArray;
 
 public class OrdersBookAdapter extends BaseAdapter {

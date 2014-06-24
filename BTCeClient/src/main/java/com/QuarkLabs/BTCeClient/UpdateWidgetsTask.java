@@ -29,6 +29,7 @@ import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.widget.RemoteViews;
+import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -39,7 +40,6 @@ import java.util.*;
 class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
     private Context mContext;
     private Map<Integer, String> mMap;
-
 
     public UpdateWidgetsTask(Context context, Map<Integer, String> map) {
         mContext = context;
@@ -71,7 +71,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
             cursor.close();
             for (Iterator<String> x = response.keys(); x.hasNext(); ) {
                 String pair = x.next();
-                String pairInDB = pair.replace("_", "/").toUpperCase();
+                String pairInDB = pair.replace("_", "/").toUpperCase(Locale.US);
                 ContentValues cv = new ContentValues(4);
                 double last = response.getJSONObject(pair).getDouble("last");
                 double sell = response.getJSONObject(pair).getDouble("sell");
@@ -89,9 +89,9 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     response.getJSONObject(pair).put("color", "green");
                 }
 
-                int result = dbWorker.updateWidgetData(cv, pair.replace("_", "/").toUpperCase());
+                int result = dbWorker.updateWidgetData(cv, pair.replace("_", "/").toUpperCase(Locale.US));
                 if (result == 0) {
-                    cv.put("pair", pair.replace("_", "/").toUpperCase());
+                    cv.put("pair", pair.replace("_", "/").toUpperCase(Locale.US));
                     dbWorker.insertToWidgetData(cv);
                 }
             }
@@ -111,7 +111,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                 for (int x : mMap.keySet()) {
                     RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.appwidget_layout);
                     double price = jsonObject
-                            .getJSONObject(mMap.get(x).replace("/", "_").toLowerCase())
+                            .getJSONObject(mMap.get(x).replace("/", "_").toLowerCase(Locale.US))
                             .getDouble("last");
                     String priceString;
                     if (price > 1) {
@@ -124,7 +124,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     String color = jsonObject
                             .getJSONObject(mMap.get(x)
                                     .replace("/", "_")
-                                    .toLowerCase())
+                                    .toLowerCase(Locale.US))
                             .getString("color");
                     int colorValue = color.equals("green") ? Color.GREEN : Color.RED;
                     views.setTextColor(R.id.widgetCurrencyValue, colorValue);
@@ -138,7 +138,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT);
                     views.setOnClickPendingIntent(R.id.widgetContainer, pi);
-                    SimpleDateFormat df = new SimpleDateFormat("EEE HH:mm");
+                    SimpleDateFormat df = new SimpleDateFormat("EEE HH:mm", Locale.US);
                     Calendar calendar = Calendar.getInstance();
                     views.setTextViewText(R.id.widgetDate, df.format(calendar.getTime()));
                     appWidgetManager.updateAppWidget(x, views);

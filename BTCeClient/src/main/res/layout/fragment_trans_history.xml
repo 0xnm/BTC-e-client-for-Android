@@ -50,7 +50,7 @@
                     android:text="01/01/2010"
                     android:id="@+id/StartDateValue"
                     android:layout_gravity="center_horizontal"
-                    android:editable="false"
+                    android:inputType="none"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:layout_weight="1" android:gravity="center"/>
@@ -61,7 +61,7 @@
                     android:text="01/01/2020"
                     android:id="@+id/EndDateValue"
                     android:layout_gravity="center_horizontal"
-                    android:editable="false"
+                    android:inputType="none"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:layout_weight="1" android:gravity="center"/>

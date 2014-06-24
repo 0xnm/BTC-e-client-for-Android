@@ -21,6 +21,7 @@ package com.QuarkLabs.BTCeClient;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 
 public class StartServiceReceiver extends BroadcastReceiver {
     @Override
