@@ -63,7 +63,6 @@ public class ChartsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[5]);
         mInflater = inflater;
         if (mRootView == null) {
             mRootView = inflater.inflate(R.layout.fragment_chart, container, false);
@@ -162,7 +161,7 @@ public class ChartsFragment extends Fragment {
     /**
      * Creates views for charts
      *
-     * @param inflater
+     * @param inflater Inflater to be used for creating views
      */
 
     private void refreshChartViews(LayoutInflater inflater) {

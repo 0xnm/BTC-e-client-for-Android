@@ -28,7 +28,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
-import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.exchangeApi.AuthRequest;
 
@@ -37,7 +37,6 @@ import java.util.concurrent.TimeUnit;
 public class SettingsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[6]);
         return inflater.inflate(R.layout.fragment_settings, container, false);
     }
 
@@ -52,7 +51,7 @@ public class SettingsFragment extends Fragment {
         final SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(getActivity());
         long milliseconds = sh.getLong("periodForChecking", 0);
         String text;
-        if (milliseconds != 0 && MyActivity.alarmSet) {
+        if (milliseconds != 0 && MainActivity.alarmSet) {
             text = (milliseconds < 60 * 1000) ? TimeUnit.MILLISECONDS.toSeconds(milliseconds) + " sec."
                     : TimeUnit.MILLISECONDS.toMinutes(milliseconds) + " min.";
         } else {
@@ -74,15 +73,15 @@ public class SettingsFragment extends Fragment {
             }
         });
         Switch alarmSelector = (Switch) getView().findViewById(R.id.AlarmSelector);
-        alarmSelector.setChecked(MyActivity.alarmSet);
+        alarmSelector.setChecked(MainActivity.alarmSet);
         alarmSelector.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 final SharedPreferences.Editor editor = sh.edit();
                 if (!isChecked) {
 
-                    MyActivity.alarmManager.cancel(MyActivity.pendingIntent);
-                    MyActivity.alarmSet = false;
+                    MainActivity.alarmManager.cancel(MainActivity.pendingIntent);
+                    MainActivity.alarmSet = false;
                     editor.putBoolean("periodicalCheckEnabled", false);
                     SettingsCheckPeriod.setText(getResources().getString(R.string.RecurrentPeriod) + " N/A");
                 } else {
@@ -125,8 +124,8 @@ public class SettingsFragment extends Fragment {
                                     editor.putLong("periodForChecking", milliseconds);
                                     editor.putBoolean("periodicalCheckEnabled", true);
                                     editor.commit();
-                                    MyActivity.alarmSet = true;
-                                    ((MyActivity) getActivity()).setRecurringAlarm(milliseconds);
+                                    MainActivity.alarmSet = true;
+                                    ((MainActivity) getActivity()).setRecurringAlarm(milliseconds);
                                     String text = (milliseconds < 60 * 1000) ?
                                             TimeUnit.MILLISECONDS.toSeconds(milliseconds) + " sec."
                                             : TimeUnit.MILLISECONDS.toMinutes(milliseconds) + " min.";

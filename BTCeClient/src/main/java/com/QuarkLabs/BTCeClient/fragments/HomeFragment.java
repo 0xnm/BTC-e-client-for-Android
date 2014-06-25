@@ -32,7 +32,7 @@ import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.StartServiceReceiver;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
@@ -41,13 +41,12 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.text.DecimalFormat;
 import java.util.*;
 
 public class HomeFragment extends Fragment {
 
-    public static final double DOUBLEFEE = 0.004;
+    private static final double DOUBLEFEE = 0.004;
     private TableLayout mTickersContainer;
     private BroadcastReceiver mGetStatsReceiver;
     private ActivityCallbacks mCallback;
@@ -71,7 +70,6 @@ public class HomeFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        getActivity().getActionBar().setTitle(R.string.app_name);
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
 
@@ -86,7 +84,7 @@ public class HomeFragment extends Fragment {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isVisible()) {
-                    updateStats(mTickersContainer, MyActivity.tickersStorage.loadData());
+                    updateStats(mTickersContainer, MainActivity.tickersStorage.loadData());
                 }
             }
         };
@@ -227,16 +225,16 @@ public class HomeFragment extends Fragment {
         View.OnClickListener fillPrice = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText TradePrice = (EditText) getView().findViewById(R.id.TradePrice);
-                Spinner TradeCurrency = (Spinner) getView().findViewById(R.id.TradeCurrency);
-                Spinner TradePriceCurrency = (Spinner) getView().findViewById(R.id.TradePriceCurrency);
+                EditText tradePrice = (EditText) getView().findViewById(R.id.TradePrice);
+                Spinner tradeCurrency = (Spinner) getView().findViewById(R.id.TradeCurrency);
+                Spinner tradePriceCurrency = (Spinner) getView().findViewById(R.id.TradePriceCurrency);
                 String pair = ((TextView) ((ViewGroup) v.getParent()).getChildAt(0)).getText().toString();
-                ArrayAdapter arrayAdapter = (ArrayAdapter) TradeCurrency.getAdapter();
+                @SuppressWarnings("unchecked") ArrayAdapter<String> arrayAdapter = (ArrayAdapter<String>) tradeCurrency.getAdapter();
                 int spinnerPosition = arrayAdapter.getPosition(pair.substring(0, 3));
-                TradeCurrency.setSelection(spinnerPosition);
+                tradeCurrency.setSelection(spinnerPosition);
                 spinnerPosition = arrayAdapter.getPosition(pair.substring(4));
-                TradePriceCurrency.setSelection(spinnerPosition);
-                TradePrice.setText(((TextView) v).getText());
+                tradePriceCurrency.setSelection(spinnerPosition);
+                tradePrice.setText(((TextView) v).getText());
             }
         };
 
@@ -368,8 +366,8 @@ public class HomeFragment extends Fragment {
             String pair = tradeCurrency.toLowerCase(Locale.US) + "_" + tradePriceCurrency.toLowerCase(Locale.US);
             JSONObject response = null;
             try {
-                response = MyActivity.app.trade(pair, tradeAction, tradePrice, tradeAmount);
-            } catch (UnsupportedEncodingException | JSONException e) {
+                response = MainActivity.app.trade(pair, tradeAction, tradePrice, tradeAmount);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return response;
@@ -377,7 +375,7 @@ public class HomeFragment extends Fragment {
 
         @Override
         protected void onPostExecute(JSONObject jsonObject) {
-            String message = "";
+            String message;
             if (jsonObject != null && isVisible()) {
                 if (jsonObject.optInt("success") == 1) {
                     message = "Order was successfully added";
@@ -402,8 +400,8 @@ public class HomeFragment extends Fragment {
         protected JSONObject doInBackground(Void... params) {
             JSONObject response = null;
             try {
-                response = MyActivity.app.getAccountInfo();
-            } catch (UnsupportedEncodingException | JSONException e) {
+                response = MainActivity.app.getAccountInfo();
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return response;

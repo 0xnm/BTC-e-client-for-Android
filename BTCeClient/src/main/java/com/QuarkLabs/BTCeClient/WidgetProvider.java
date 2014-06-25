@@ -31,14 +31,15 @@ public class WidgetProvider extends AppWidgetProvider {
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
         Map<Integer, String> map = new HashMap<>();
+
         for (int id : appWidgetIds) {
             SharedPreferences sharedPreferences = context.getSharedPreferences("widget" + id, Context.MODE_PRIVATE);
             String pair = sharedPreferences.getString("pair", "");
             if (pair.length() != 0) {
                 map.put(id, pair);
             }
-
         }
+
         UpdateWidgetsTask updateWidgetsTask = new UpdateWidgetsTask(context, map);
         updateWidgetsTask.execute();
     }

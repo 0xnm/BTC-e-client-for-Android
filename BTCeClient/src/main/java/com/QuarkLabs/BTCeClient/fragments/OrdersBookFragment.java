@@ -18,6 +18,7 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -88,13 +89,12 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
 
         mAsksAdapter = new OrdersBookAdapter(getActivity());
         mBidsAdapter = new OrdersBookAdapter(getActivity());
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[1]);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        View v = inflater.inflate(R.layout.fragment_ordersbook, null, false);
+        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.fragment_ordersbook, null, false);
         mAsksList = (ListView) v.findViewById(R.id.asks);
         mBidsList = (ListView) v.findViewById(R.id.bids);
         mChartArea = (FrameLayout) v.findViewById(R.id.OrdersBookChart);

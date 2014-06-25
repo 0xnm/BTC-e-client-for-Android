@@ -69,7 +69,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                 }
             }
             cursor.close();
-            for (Iterator<String> x = response.keys(); x.hasNext(); ) {
+            for (@SuppressWarnings("unchecked") Iterator<String> x = response.keys(); x.hasNext(); ) {
                 String pair = x.next();
                 String pairInDB = pair.replace("_", "/").toUpperCase(Locale.US);
                 ContentValues cv = new ContentValues(4);

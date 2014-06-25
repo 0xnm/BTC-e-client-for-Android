@@ -75,11 +75,10 @@ public class AuthRequest {
      * @param method    Method of Trade API
      * @param arguments Additional arguments, which can exist for this method
      * @return Response of type JSONObject
-     * @throws UnsupportedEncodingException
      * @throws JSONException
      */
     @Nullable
-    public JSONObject makeRequest(@NotNull String method, Map<String, String> arguments) throws UnsupportedEncodingException, JSONException {
+    public JSONObject makeRequest(@NotNull String method, Map<String, String> arguments) throws JSONException {
 
         if (key.length() == 0 || secret.length() == 0) {
             return new JSONObject("{success:0,error:'No key/secret provided'}");

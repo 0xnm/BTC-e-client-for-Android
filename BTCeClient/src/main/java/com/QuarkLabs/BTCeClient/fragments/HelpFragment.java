@@ -29,16 +29,16 @@ import android.widget.TextView;
 import com.QuarkLabs.BTCeClient.R;
 
 public class HelpFragment extends Fragment {
-    @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
-        TextView aboutText = (TextView) getView().findViewById(R.id.aboutText);
-        aboutText.setText(Html.fromHtml(getResources().getString(R.string.AboutText)));
-        aboutText.setMovementMethod(LinkMovementMethod.getInstance());
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[8]);
         return inflater.inflate(R.layout.fragment_help, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        @SuppressWarnings("ConstantConditions") TextView aboutText = (TextView) getView().findViewById(R.id.aboutText);
+        aboutText.setText(Html.fromHtml(getResources().getString(R.string.AboutText)));
+        aboutText.setMovementMethod(LinkMovementMethod.getInstance());
     }
 }

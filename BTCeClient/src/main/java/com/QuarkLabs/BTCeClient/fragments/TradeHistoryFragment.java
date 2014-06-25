@@ -76,7 +76,6 @@ public class TradeHistoryFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[3]);
         return inflater.inflate(R.layout.fragment_trade_history, container, false);
     }
 
@@ -200,7 +199,8 @@ public class TradeHistoryFragment extends Fragment implements LoaderManager.Load
                 out.put("success", 1);
                 JSONObject returnObject = new JSONObject();
                 int count = 0;
-                for (Iterator<String> iterator = data.getJSONObject("return").keys(); iterator.hasNext(); ) {
+                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.getJSONObject("return").keys();
+                     iterator.hasNext(); ) {
                     String key = iterator.next();
                     if (data.getJSONObject("return").getJSONObject(key).getLong("timestamp") > start) {
                         returnObject.put(key, data.getJSONObject("return").getJSONObject(key));

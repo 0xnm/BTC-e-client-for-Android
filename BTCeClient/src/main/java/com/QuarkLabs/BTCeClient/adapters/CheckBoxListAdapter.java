@@ -95,8 +95,6 @@ public class CheckBoxListAdapter extends BaseAdapter {
             checkBox.setChecked(false);
         }
         checkBox.setText(text);
-
-
         return checkBox;
     }
 

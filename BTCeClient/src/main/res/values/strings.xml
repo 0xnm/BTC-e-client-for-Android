@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BTC-e client</string>
-    <string name="CurrencyNameBTC">BTC</string>
-    <string name="CurrencyNameLTC">LTC</string>
-    <string name="CurrencyNameNMC">NMC</string>
-    <string name="CurrencyNameNVC">NVC</string>
     <string name="TickerInfoLast">Last</string>
     <string name="TickerInfoBuy">Buy</string>
     <string name="TickerInfoSell">Sell</string>
     <string name="FeeX2">2xFee</string>
-    <string name="Loading">Loading…</string>
     <string name="AccountInfo">My Funds</string>
     <string name="UpdateAccountInfo">Please press \"Update\"</string>
     <string name="enableEMAIndicator">Show EMA</string>
@@ -18,13 +13,10 @@
     <string name="enableSMAIndicator">Show SMA</string>
     <string name="IndicatorsSectionTitle">Indicators</string>
     <string name="SaveSettings">Save Settings</string>
-    <string name="StopTimer">Stop Timer</string>
     <string name="SelectPairsPromptTitle">Pairs to display</string>
     <string name="FundsInfoUpdatedtext">Account info was successfully updated</string>
     <string name="DialogSave">Save</string>
     <string name="NoPairsToDisplay">No Pairs to display</string>
-    <string name="EmpyActiveOrdersList">You have no active orders</string>
-    <string name="SelectDateTitle">Select Date</string>
     <string name="RefreshButtonText">Refresh</string>
     <string name="AddNotifierTitle">Add watcher</string>
     <string name="OoopsError">Ooops</string>
@@ -151,4 +143,6 @@
     <string name="SellButton">Sell</string>
     <string name="DexcriptionTitle">Description:</string>
     <string name="RemoveOrder">Remove order</string>
+    <string name="AddMenu">Add</string>
+    <string name="RefreshMenu">Refresh</string>
 </resources>

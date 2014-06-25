@@ -217,7 +217,8 @@
 
             <TableRow
                     android:layout_width="fill_parent"
-                    android:layout_height="fill_parent">
+                    android:layout_height="fill_parent"
+                    style="?android:attr/buttonBarStyle">
 
                 <Button
                         android:layout_width="fill_parent"
@@ -225,7 +226,8 @@
                         android:text="@string/BuyButton"
                         android:id="@+id/BuyButton"
                         android:layout_weight="1"
-                        android:layout_margin="5dp" android:background="@drawable/buy_button_custom"/>
+                        android:layout_margin="5dp" android:background="@drawable/buy_button_custom"
+                        style="?android:attr/buttonBarButtonStyle"/>
 
                 <Button
                         android:layout_width="fill_parent"
@@ -234,7 +236,8 @@
                         android:id="@+id/SellButton"
                         android:layout_weight="1"
                         android:layout_margin="5dp"
-                        android:background="@drawable/sell_button_custom"/>
+                        android:background="@drawable/sell_button_custom"
+                        style="?android:attr/buttonBarButtonStyle"/>
             </TableRow>
         </TableLayout>
     </LinearLayout>

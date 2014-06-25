@@ -36,7 +36,6 @@
             <EditText
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="01/01/2010"
                     android:id="@+id/StartDateValue"
                     android:layout_gravity="center_horizontal"
                     android:inputType="none"
@@ -46,7 +45,6 @@
             <EditText
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:text="01/01/2020"
                     android:id="@+id/EndDateValue"
                     android:layout_gravity="center_horizontal"
                     android:inputType="none"

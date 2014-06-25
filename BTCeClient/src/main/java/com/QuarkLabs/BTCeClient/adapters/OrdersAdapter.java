@@ -32,12 +32,11 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.QuarkLabs.BTCeClient.ListTypes;
-import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -188,6 +187,7 @@ public class OrdersAdapter extends BaseAdapter {
      *
      * @param jsonObject JSONObject with trades/transactions/active orders
      */
+    @SuppressWarnings("unchecked")
     public void updateEntries(JSONObject jsonObject) {
         try {
             List<JSONObject> temp = new ArrayList<>();
@@ -229,8 +229,8 @@ public class OrdersAdapter extends BaseAdapter {
             int order_id = params[0];
             JSONObject response = null;
             try {
-                response = MyActivity.app.cancelOrder(order_id);
-            } catch (UnsupportedEncodingException | JSONException e) {
+                response = MainActivity.app.cancelOrder(order_id);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
             return response;

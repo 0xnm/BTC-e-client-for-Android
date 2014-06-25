@@ -76,7 +76,6 @@ public class TransHistoryFragment extends Fragment implements LoaderManager.Load
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[4]);
         return inflater.inflate(R.layout.fragment_trans_history, container, false);
     }
 

@@ -18,6 +18,7 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -41,7 +42,6 @@ public class NotifiersFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[7]);
         return inflater.inflate(R.layout.fragment_notifiers, container, false);
     }
 
@@ -117,7 +117,7 @@ public class NotifiersFragment extends Fragment {
             case R.id.action_add:
                 LayoutInflater inflater = (LayoutInflater) getActivity()
                         .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                View view = inflater.inflate(R.layout.notifiers_add_dialog, null);
+                @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.notifiers_add_dialog, null);
                 final TextView valueTitle = (TextView) view.findViewById(R.id.ValueTitle);
                 final TextView notifDesc = (TextView) view.findViewById(R.id.NotifDescription);
                 Spinner type = (Spinner) view.findViewById(R.id.TypeSpinner);

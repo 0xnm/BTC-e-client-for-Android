@@ -22,11 +22,10 @@ import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.Bundle;
 import com.QuarkLabs.BTCeClient.ListTypes;
-import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,11 +47,7 @@ public class OrdersLoader extends AsyncTaskLoader<JSONObject> {
         switch (mType) {
             case ActiveOrders:
                 try {
-                    try {
-                        mData = MyActivity.app.getActiveOrders();
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                    mData = MainActivity.app.getActiveOrders();
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -61,7 +56,7 @@ public class OrdersLoader extends AsyncTaskLoader<JSONObject> {
                 hashMap.put("since", mBundle.getString("startDate"));
                 hashMap.put("end", mBundle.getString("endDate"));
                 try {
-                    mData = MyActivity.app.getTransactionsHistory(hashMap);
+                    mData = MainActivity.app.getTransactionsHistory(hashMap);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -71,7 +66,7 @@ public class OrdersLoader extends AsyncTaskLoader<JSONObject> {
                 hashMap.put("since", "0");
                 hashMap.put("end", mBundle.getString("endDate"));
                 try {
-                    mData = MyActivity.app.getTradeHistory(hashMap);
+                    mData = MainActivity.app.getTradeHistory(hashMap);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

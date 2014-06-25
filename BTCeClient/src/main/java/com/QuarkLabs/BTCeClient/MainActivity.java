@@ -42,7 +42,8 @@ import com.QuarkLabs.BTCeClient.fragments.*;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
-public class MyActivity extends Activity implements ActivityCallbacks {
+public class MainActivity extends Activity implements ActivityCallbacks {
+
     public static TickersStorage tickersStorage = new TickersStorage();
     public static AlarmManager alarmManager;
     public static boolean alarmSet;
@@ -52,11 +53,12 @@ public class MyActivity extends Activity implements ActivityCallbacks {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
+    private String[] mDrawerListItems;
 
     /**
-     * Display selected fragment
+     * Displays selected fragment
      *
-     * @param position Position at the list
+     * @param position Position at the list (0-based)
      */
     private void displayItem(final int position) {
         Fragment fragment = null;
@@ -107,6 +109,10 @@ public class MyActivity extends Activity implements ActivityCallbacks {
                             .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                             .addToBackStack(String.valueOf(position)) //name of fragment = position
                             .commit();
+                    ActionBar actionBar = getActionBar();
+                    if (actionBar != null) {
+                        actionBar.setTitle(mDrawerListItems[position]);
+                    }
                 }
             }, delay);
             mDrawerList.setItemChecked(position, true);
@@ -122,11 +128,15 @@ public class MyActivity extends Activity implements ActivityCallbacks {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        AppRater.app_launched(this);
+        setContentView(R.layout.main);
 
+        AppRater.app_launched(this);
         BitmapDrawable bg = (BitmapDrawable) getResources().getDrawable(R.drawable.bg_striped);
         bg.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        getActionBar().setBackgroundDrawable(bg);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setBackgroundDrawable(bg);
+        }
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
@@ -135,11 +145,10 @@ public class MyActivity extends Activity implements ActivityCallbacks {
             setRecurringAlarm(sharedPreferences.getLong("periodForChecking", 30000));
         }
 
-        setContentView(R.layout.main);
-        String[] navSections = getResources().getStringArray(R.array.NavSections);
+        mDrawerListItems = getResources().getStringArray(R.array.NavSections);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, navSections));
+        mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
         app = new App(this);
 
@@ -189,10 +198,7 @@ public class MyActivity extends Activity implements ActivityCallbacks {
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        if (mDrawerToggle.onOptionsItemSelected(item)) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
     }
 
     /**

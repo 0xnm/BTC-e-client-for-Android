@@ -36,7 +36,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class WidgetConfigure extends ListActivity {
-    public static final String DATE_TIME_PATTERN = "EEE HH:mm";
+
+    private static final String DATE_TIME_PATTERN = "EEE HH:mm";
     private int mAppWidgetId;
     private ArrayAdapter<String> mAdapter;
 
@@ -59,7 +60,8 @@ public class WidgetConfigure extends ListActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
 
-                SharedPreferences sharedPreferences = getSharedPreferences("widget" + mAppWidgetId, Context.MODE_PRIVATE);
+                SharedPreferences sharedPreferences = getSharedPreferences("widget" + mAppWidgetId,
+                        Context.MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putString("pair", mAdapter.getItem(position));
                 editor.commit();
@@ -86,6 +88,5 @@ public class WidgetConfigure extends ListActivity {
 
             }
         });
-
     }
 }

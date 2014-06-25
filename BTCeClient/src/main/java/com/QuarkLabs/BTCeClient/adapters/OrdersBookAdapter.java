@@ -18,6 +18,7 @@
 
 package com.QuarkLabs.BTCeClient.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
@@ -53,6 +54,7 @@ public class OrdersBookAdapter extends BaseAdapter {
         return position;
     }
 
+    @SuppressLint("InflateParams")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v;
@@ -82,7 +84,7 @@ public class OrdersBookAdapter extends BaseAdapter {
     /**
      * Updates data in adapter
      *
-     * @param data
+     * @param data JSONArray with price-volume pairs
      */
     public void pushData(JSONArray data) {
         mData = data;

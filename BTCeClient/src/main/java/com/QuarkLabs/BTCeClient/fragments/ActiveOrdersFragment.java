@@ -48,12 +48,12 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
-        getActivity().getActionBar().setTitle(getResources().getStringArray(R.array.NavSections)[2]);
         return inflater.inflate(R.layout.fragment_active_orders, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        //noinspection ConstantConditions
         mListView = (ListView) getView().findViewById(R.id.ActiveOrdersContainer);
         mAdapter = new OrdersAdapter(getActivity(), ListTypes.ActiveOrders);
         mLoadingView = (ProgressBar) getView().findViewById(R.id.Loading);

@@ -22,7 +22,6 @@ import android.content.Context;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -57,10 +56,9 @@ public class App {
      * Gets account info
      *
      * @return JSONObject with account info, https://btc-e.com/api/documentation
-     * @throws UnsupportedEncodingException
      * @throws JSONException
      */
-    public JSONObject getAccountInfo() throws UnsupportedEncodingException, JSONException {
+    public JSONObject getAccountInfo() throws JSONException {
 
         JSONObject response;
         response = mAuthRequest.makeRequest("getInfo", null);
@@ -76,13 +74,7 @@ public class App {
      * @throws JSONException
      */
     public JSONObject getTransactionsHistory(Map<String, String> params) throws JSONException {
-        JSONObject response = null;
-        try {
-            response = mAuthRequest.makeRequest("TransHistory", params);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return response;
+        return mAuthRequest.makeRequest("TransHistory", params);
     }
 
     /**
@@ -93,27 +85,17 @@ public class App {
      * @throws JSONException
      */
     public JSONObject getTradeHistory(Map<String, String> params) throws JSONException {
-        JSONObject response = null;
-        try {
-            response = mAuthRequest.makeRequest("TradeHistory", params);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        return response;
+        return mAuthRequest.makeRequest("TradeHistory", params);
     }
 
     /**
      * Gets active orders
      *
      * @return JSONObject with active orders, https://btc-e.com/api/documentation
-     * @throws UnsupportedEncodingException
      * @throws JSONException
      */
-    public JSONObject getActiveOrders() throws UnsupportedEncodingException, JSONException {
-
-
+    public JSONObject getActiveOrders() throws JSONException {
         return mAuthRequest.makeRequest("ActiveOrders", null);
-
     }
 
     /**
@@ -124,10 +106,9 @@ public class App {
      * @param rate   Trade price
      * @param amount Trade volume
      * @return JSONObject with trade response, https://btc-e.com/api/documentation
-     * @throws UnsupportedEncodingException
      * @throws JSONException
      */
-    public JSONObject trade(String pair, String type, String rate, String amount) throws UnsupportedEncodingException, JSONException {
+    public JSONObject trade(String pair, String type, String rate, String amount) throws JSONException {
 
         HashMap<String, String> temp = new HashMap<>(4);
         temp.put("pair", pair);
@@ -144,10 +125,9 @@ public class App {
      *
      * @param orderId Id of the order to cancel
      * @return JSONObject with cancellation response, https://btc-e.com/api/documentation
-     * @throws UnsupportedEncodingException
      * @throws JSONException
      */
-    public JSONObject cancelOrder(int orderId) throws UnsupportedEncodingException, JSONException {
+    public JSONObject cancelOrder(int orderId) throws JSONException {
 
         Map<String, String> temp = new HashMap<>(1);
         temp.put("order_id", String.valueOf(orderId));

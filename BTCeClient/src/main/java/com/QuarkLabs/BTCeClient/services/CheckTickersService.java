@@ -33,7 +33,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
-import com.QuarkLabs.BTCeClient.MyActivity;
+import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
 import org.json.JSONException;
@@ -45,7 +45,7 @@ import java.util.Locale;
 import java.util.Set;
 
 public class CheckTickersService extends IntentService {
-    public static final String BASE_URL = "https://btc-e.com/api/3/ticker/";
+    private static final String BASE_URL = "https://btc-e.com/api/3/ticker/";
     private final static int PANIC_BUY_TYPE = 0;
     private final static int PANIC_SELL_TYPE = 1;
     private final static int STOP_LOSS_TYPE = 2;
@@ -79,7 +79,7 @@ public class CheckTickersService extends IntentService {
 
             if (data != null && data.optInt("success", 1) != 0) {
 
-                String message = checkNotifiers(data, MyActivity.tickersStorage.loadAllValues());
+                String message = checkNotifiers(data, MainActivity.tickersStorage.loadAllValues());
 
                 if (message.length() != 0) {
                     NotificationManager notificationManager =
@@ -92,11 +92,11 @@ public class CheckTickersService extends IntentService {
                     notificationManager.notify(ConstantHolder.ALARM_NOTIF_ID, nb.build());
 
                 }
-                for (Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
+                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
                     String key = iterator.next();
                     String keyForData = key.replace("_", "/").toUpperCase(Locale.US);
-                    MyActivity.tickersStorage.saveEntry(keyForData, data.optJSONObject(key));
-                    MyActivity.tickersStorage.saveAll(data);
+                    MainActivity.tickersStorage.saveEntry(keyForData, data.optJSONObject(key));
+                    MainActivity.tickersStorage.saveAll(data);
 
                 }
                 LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("UpdateTickers"));
@@ -126,7 +126,7 @@ public class CheckTickersService extends IntentService {
         Cursor cursor = dbWorker.getNotifiers();
 
         StringBuilder stringBuilder = new StringBuilder();
-        for (Iterator<String> iterator = newData.keys(); iterator.hasNext(); ) {
+        for (@SuppressWarnings("unchecked") Iterator<String> iterator = newData.keys(); iterator.hasNext(); ) {
             cursor.moveToFirst();
             String key = iterator.next();
             if (oldData != null && oldData.has(key)) {
