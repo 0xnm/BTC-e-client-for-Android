@@ -104,11 +104,14 @@ public class MainActivity extends Activity implements ActivityCallbacks {
                 @Override
                 public void run() {
 
-                    fragmentManager.beginTransaction()
+                    FragmentTransaction transaction = fragmentManager.beginTransaction()
                             .replace(R.id.content_frame, fr)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                            .addToBackStack(String.valueOf(position)) //name of fragment = position
-                            .commit();
+                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                    if (position != 0) {
+                        transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
+                    }
+
+                    transaction.commit();
                     ActionBar actionBar = getActionBar();
                     if (actionBar != null) {
                         actionBar.setTitle(mDrawerListItems[position]);
@@ -177,7 +180,7 @@ public class MainActivity extends Activity implements ActivityCallbacks {
         getActionBar().setHomeButtonEnabled(true);
 
         if (savedInstanceState == null) {
-            getFragmentManager().beginTransaction().add(R.id.content_frame, mHomeFragment).commit();
+            displayItem(0);
         }
 
     }
@@ -241,11 +244,17 @@ public class MainActivity extends Activity implements ActivityCallbacks {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        int switchToPosition = 0;
         FragmentManager fm = getFragmentManager();
         if (fm.getBackStackEntryCount() != 0) {
             String stackName = fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName();
-            mDrawerList.setItemChecked(Integer.parseInt(stackName), true);
-            mDrawerList.setSelection(Integer.parseInt(stackName));
+            switchToPosition = Integer.parseInt(stackName);
+        }
+        mDrawerList.setItemChecked(switchToPosition, true);
+        mDrawerList.setSelection(switchToPosition);
+        ActionBar actionBar = getActionBar();
+        if (actionBar != null) {
+            actionBar.setTitle(mDrawerListItems[switchToPosition]);
         }
     }
 
