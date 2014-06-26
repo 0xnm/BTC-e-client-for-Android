@@ -18,28 +18,30 @@
 
 package com.QuarkLabs.BTCeClient;
 
-import org.json.JSONObject;
+import com.QuarkLabs.BTCeClient.models.Ticker;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class TickersStorage {
-    private Map<String, JSONObject> mTickers = new HashMap<>();
-    private JSONObject mData;
+    private static Map<String, Ticker> mLatestTickers = new HashMap<>();
+    private static Map<String, Ticker> mPreviousTickers = new HashMap<>();
 
-    public void saveEntry(String key, JSONObject value) {
-        mTickers.put(key, value);
+    public static void saveData(Map<String, Ticker> newData) {
+        mPreviousTickers = new HashMap<>(mLatestTickers);
+        mLatestTickers = newData;
     }
 
-    public void saveAll(JSONObject data) {
-        this.mData = data;
+    public static Map<String, Ticker> loadPreviousData() {
+        return mPreviousTickers;
     }
 
-    public Map<String, JSONObject> loadData() {
-        return mTickers;
+    public static Map<String, Ticker> loadLatestData() {
+        return mLatestTickers;
     }
 
-    public JSONObject loadAllValues() {
-        return mData;
+    public static void addNewTicker(Ticker ticker) {
+        mLatestTickers.put(ticker.getPair(), ticker);
     }
+
 }

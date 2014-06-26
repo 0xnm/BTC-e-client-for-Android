@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.*;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -31,12 +30,11 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
-import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.MainActivity;
-import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.StartServiceReceiver;
+import com.QuarkLabs.BTCeClient.*;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
+import com.QuarkLabs.BTCeClient.models.Ticker;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +45,8 @@ import java.util.*;
 public class HomeFragment extends Fragment {
 
     private static final double DOUBLEFEE = 0.004;
-    private TableLayout mTickersContainer;
+    private FixedGridView mTickersContainer;
+    private TickersDashboardAdapter mTickersDashboardAdapter;
     private BroadcastReceiver mGetStatsReceiver;
     private ActivityCallbacks mCallback;
 
@@ -76,15 +75,33 @@ public class HomeFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        mTickersContainer = (TableLayout) getView().findViewById(R.id.tickersContainer);
-        populateTickersContainer(mTickersContainer);
+        mTickersContainer = (FixedGridView) getView().findViewById(R.id.tickersContainer);
+        mTickersContainer.setExpanded(true);
+        mTickersDashboardAdapter = new TickersDashboardAdapter(getActivity());
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Set<String> pairs = preferences.getStringSet("PairsToDisplay", new HashSet<String>());
+        for (String pair : pairs) {
+            if (!TickersStorage.loadLatestData().containsKey(pair)) {
+                Ticker ticker = new Ticker();
+                ticker.setPair(pair);
+                TickersStorage.addNewTicker(ticker);
+            }
+        }
+        mTickersDashboardAdapter.update();
+        mTickersContainer.setAdapter(mTickersDashboardAdapter);
+        mTickersContainer.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return event.getAction() == MotionEvent.ACTION_MOVE;
+            }
+        });
 
         //Broadcast receiver initialization
         mGetStatsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isVisible()) {
-                    updateStats(mTickersContainer, MainActivity.tickersStorage.loadData());
+                    mTickersDashboardAdapter.update();
                 }
             }
         };
@@ -116,41 +133,6 @@ public class HomeFragment extends Fragment {
 
         //start service to get new data once Dashboard is opened
         getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
-    }
-
-    /**
-     * Updates Dashboard with a fetched data
-     *
-     * @param tickersContainer ViewGroup with ticker rows inside
-     * @param Tickers          Tickers data
-     */
-    private void updateStats(ViewGroup tickersContainer, Map<String, JSONObject> Tickers) {
-
-        for (String pair : Tickers.keySet()) {
-            View v = tickersContainer.findViewWithTag(pair);
-            if (v != null) {
-                String[] array = {"last", "sell", "buy"};
-                for (String indicator : array) {
-                    TextView field = (TextView) v.findViewWithTag(indicator);
-                    Double newValue = Tickers.get(pair).optDouble(indicator);
-                    Double oldValue = 0.0;
-                    try {
-                        oldValue = Double.parseDouble(String.valueOf(field.getText()));
-                    } catch (NumberFormatException e) {
-                        e.printStackTrace();
-                    }
-                    if (newValue > oldValue) {
-                        field.setTextColor(Color.GREEN);
-                    } else {
-                        field.setTextColor(Color.RED);
-                    }
-                    field.setText(formatDouble(newValue));
-                    TextView Info2xFee = (TextView) v.findViewById(R.id.Info2xFee);
-                    Info2xFee.setText(formatDouble(newValue * DOUBLEFEE));
-                }
-            }
-        }
-
     }
 
     /**
@@ -187,7 +169,6 @@ public class HomeFragment extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         checkBoxListAdapter.saveValuesToPreferences();
-                                        populateTickersContainer(mTickersContainer);
                                         getActivity().sendBroadcast(new Intent(getActivity(),
                                                 StartServiceReceiver.class));
                                     }
@@ -209,73 +190,6 @@ public class HomeFragment extends Fragment {
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mGetStatsReceiver);
         super.onDestroyView();
-    }
-
-    /**
-     * Fills tickers dashboard with ticker rows
-     *
-     * @param tickersContainer Root container to fill
-     */
-    private void populateTickersContainer(TableLayout tickersContainer) {
-
-        LayoutInflater inflater = (LayoutInflater) getActivity().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        //listener for quick copy of price value to the Trade section
-        View.OnClickListener fillPrice = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EditText tradePrice = (EditText) getView().findViewById(R.id.TradePrice);
-                Spinner tradeCurrency = (Spinner) getView().findViewById(R.id.TradeCurrency);
-                Spinner tradePriceCurrency = (Spinner) getView().findViewById(R.id.TradePriceCurrency);
-                String pair = ((TextView) ((ViewGroup) v.getParent()).getChildAt(0)).getText().toString();
-                @SuppressWarnings("unchecked") ArrayAdapter<String> arrayAdapter = (ArrayAdapter<String>) tradeCurrency.getAdapter();
-                int spinnerPosition = arrayAdapter.getPosition(pair.substring(0, 3));
-                tradeCurrency.setSelection(spinnerPosition);
-                spinnerPosition = arrayAdapter.getPosition(pair.substring(4));
-                tradePriceCurrency.setSelection(spinnerPosition);
-                tradePrice.setText(((TextView) v).getText());
-            }
-        };
-
-        Set<String> pairsSet = sh.getStringSet("PairsToDisplay", new HashSet<String>());
-        tickersContainer.removeViews(1, tickersContainer.getChildCount() - 1);
-        if (pairsSet.size() == 0) {
-
-            //if no pairs to watch, then add NoPairsToDisplay text
-            TextView textView = new TextView(getActivity());
-            textView.setGravity(Gravity.CENTER);
-            textView.setText(getResources().getString(R.string.NoPairsToDisplay));
-            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
-            textView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-            tickersContainer.addView(textView);
-            TableRow.LayoutParams layoutParams = new TableRow
-                    .LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT, 1);
-            textView.setLayoutParams(layoutParams);
-            textView.setTextColor(Color.WHITE);
-
-        } else {
-
-            String[] pairsArray = pairsSet.toArray(new String[pairsSet.size()]);
-            Arrays.sort(pairsArray);
-            for (String x : pairsArray) {
-                TableRow infoRow = (TableRow) inflater.inflate(R.layout.ticker_item, tickersContainer, false);
-                infoRow.setTag(x);
-                TextView last = (TextView) infoRow.findViewById(R.id.InfoLast);
-                TextView sell = (TextView) infoRow.findViewById(R.id.InfoSell);
-                TextView buy = (TextView) infoRow.findViewById(R.id.InfoBuy);
-                last.setTag("last");
-                sell.setTag("sell");
-                buy.setTag("buy");
-                last.setOnClickListener(fillPrice);
-                sell.setOnClickListener(fillPrice);
-                buy.setOnClickListener(fillPrice);
-                TextView infoTitle = (TextView) infoRow.findViewById(R.id.CurrencyName);
-                infoTitle.setText(x);
-                tickersContainer.addView(infoRow);
-            }
-        }
     }
 
     /**

@@ -44,7 +44,6 @@ import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 public class MainActivity extends Activity implements ActivityCallbacks {
 
-    public static TickersStorage tickersStorage = new TickersStorage();
     public static AlarmManager alarmManager;
     public static boolean alarmSet;
     public static PendingIntent pendingIntent;

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" android:background="@drawable/bg_dashboard">
+
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/PairTitle"
+            android:id="@+id/tickerPair"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_centerHorizontal="true"
+            android:textColor="@android:color/white"
+            android:textStyle="bold"
+            android:layout_alignParentTop="true"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:id="@+id/tickerLastValue"
+            android:layout_below="@+id/tickerPair"
+            android:layout_toLeftOf="@+id/tickerPair" android:textStyle="bold" android:layout_marginTop="5dp"
+            />
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:id="@+id/tickerBuyValue"
+            android:textSize="10sp"
+            android:layout_toRightOf="@+id/tickerLastValue"
+            android:layout_alignBaseline="@+id/tickerLastValue" android:layout_marginLeft="8dp"
+            android:textColor="@android:color/white"/>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="0.0"
+            android:id="@+id/tickerSellValue"
+            android:layout_alignStart="@+id/tickerBuyValue" android:textSize="10sp"
+            android:layout_below="@+id/tickerBuyValue" android:textColor="@android:color/white"/>
+</RelativeLayout>

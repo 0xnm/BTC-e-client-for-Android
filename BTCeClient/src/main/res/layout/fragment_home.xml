@@ -9,7 +9,7 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
-        <TableLayout
+        <com.QuarkLabs.BTCeClient.FixedGridView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:measureWithLargestChild="false"
@@ -18,59 +18,11 @@
                 android:stretchColumns="*"
                 android:id="@+id/tickersContainer"
                 android:gravity="center_horizontal" android:layout_marginLeft="5dp" android:layout_marginTop="5dp"
-                android:layout_marginRight="5dp" android:background="@drawable/bg_dashboard">
+                android:layout_marginRight="5dp"
+                android:useDefaultMargins="true" android:choiceMode="none" android:numColumns="auto_fit"
+                android:verticalSpacing="2dp" android:horizontalSpacing="2dp">
 
-            <TableRow
-                    android:layout_width="fill_parent"
-                    android:layout_height="fill_parent"
-                    android:measureWithLargestChild="true">
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/PairColumnHeader"
-                        android:id="@+id/textView12"
-                        android:layout_column="0"
-                        android:textSize="16sp"
-                        android:textStyle="bold" android:textColor="@android:color/secondary_text_dark"/>
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/TickerInfoLast"
-                        android:id="@+id/TickerInfoLast"
-                        android:layout_column="1"
-                        android:textStyle="bold"
-                        android:textSize="16sp" android:textColor="@android:color/secondary_text_dark"/>
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/TickerInfoBuy"
-                        android:id="@+id/TickerInfoBuy"
-                        android:layout_column="2"
-                        android:textStyle="bold"
-                        android:textSize="16sp" android:textColor="@android:color/secondary_text_dark"/>
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/TickerInfoSell"
-                        android:id="@+id/TickerInfoSell"
-                        android:layout_column="3"
-                        android:textStyle="bold"
-                        android:textSize="16sp" android:textColor="@android:color/secondary_text_dark"/>
-
-                <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@string/FeeX2"
-                        android:id="@+id/TickerInfoFeeX2"
-                        android:layout_column="4"
-                        android:textStyle="bold"
-                        android:textSize="16sp" android:textColor="@android:color/secondary_text_dark"/>
-            </TableRow>
-        </TableLayout>
+        </com.QuarkLabs.BTCeClient.FixedGridView>
 
         <TextView
                 android:layout_width="fill_parent"

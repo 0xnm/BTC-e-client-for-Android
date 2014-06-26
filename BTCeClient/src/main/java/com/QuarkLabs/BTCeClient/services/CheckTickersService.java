@@ -33,16 +33,14 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
-import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
+import com.QuarkLabs.BTCeClient.models.Ticker;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Locale;
-import java.util.Set;
+import java.util.*;
 
 public class CheckTickersService extends IntentService {
     private static final String BASE_URL = "https://btc-e.com/api/3/ticker/";
@@ -79,7 +77,25 @@ public class CheckTickersService extends IntentService {
 
             if (data != null && data.optInt("success", 1) != 0) {
 
-                String message = checkNotifiers(data, MainActivity.tickersStorage.loadAllValues());
+                ArrayList<Ticker> tickers = new ArrayList<>();
+                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
+                    String key = iterator.next();
+                    JSONObject pairData = data.optJSONObject(key);
+                    Ticker ticker = new Ticker();
+                    ticker.setPair(key);
+                    ticker.setUpdated(pairData.optLong("updated"));
+                    ticker.setAvg(pairData.optDouble("avg"));
+                    ticker.setBuy(pairData.optDouble("buy"));
+                    ticker.setSell(pairData.optDouble("sell"));
+                    ticker.setHigh(pairData.optDouble("high"));
+                    ticker.setLast(pairData.optDouble("last"));
+                    ticker.setLow(pairData.optDouble("low"));
+                    ticker.setVol(pairData.optDouble("vol"));
+                    ticker.setVolCur(pairData.optDouble("vol_cur"));
+                    tickers.add(ticker);
+                }
+
+                String message = checkNotifiers(tickers, TickersStorage.loadLatestData());
 
                 if (message.length() != 0) {
                     NotificationManager notificationManager =
@@ -90,17 +106,14 @@ public class CheckTickersService extends IntentService {
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(message.substring(0, message.length() - 2));
                     notificationManager.notify(ConstantHolder.ALARM_NOTIF_ID, nb.build());
-
                 }
-                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
-                    String key = iterator.next();
-                    String keyForData = key.replace("_", "/").toUpperCase(Locale.US);
-                    MainActivity.tickersStorage.saveEntry(keyForData, data.optJSONObject(key));
-                    MainActivity.tickersStorage.saveAll(data);
 
+                Map<String, Ticker> newData = new HashMap<>();
+                for (Ticker ticker : tickers) {
+                    newData.put(ticker.getPair(), ticker);
                 }
+                TickersStorage.saveData(newData);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("UpdateTickers"));
-
             }
         } else {
             new Handler().post(new Runnable() {
@@ -116,24 +129,24 @@ public class CheckTickersService extends IntentService {
     /**
      * Processes new data, adds notifications if any
      *
-     * @param newData JSONObject with new tickers data
+     * @param tickersList JSONObject with new tickers data
      * @param oldData JSONObject with old tickers data
      * @return String with all notifications
      */
-    private String checkNotifiers(JSONObject newData, JSONObject oldData) {
+    private String checkNotifiers(ArrayList<Ticker> tickersList, Map<String, Ticker> oldData) {
 
         DBWorker dbWorker = DBWorker.getInstance(this);
         Cursor cursor = dbWorker.getNotifiers();
 
         StringBuilder stringBuilder = new StringBuilder();
-        for (@SuppressWarnings("unchecked") Iterator<String> iterator = newData.keys(); iterator.hasNext(); ) {
+        for (Ticker ticker : tickersList) {
             cursor.moveToFirst();
-            String key = iterator.next();
-            if (oldData != null && oldData.has(key)) {
-                double oldValue = oldData.optJSONObject(key).optDouble("last");
-                double newValue = newData.optJSONObject(key).optDouble("last");
+            String pair = ticker.getPair();
+            if (oldData.size() != 0 && oldData.containsKey(pair)) {
+                double oldValue = oldData.get(pair).getLast();
+                double newValue = ticker.getLast();
                 while (!cursor.isAfterLast()) {
-                    boolean pairMatched = key.replace("_", "/")
+                    boolean pairMatched = pair.replace("_", "/")
                             .toUpperCase(Locale.US)
                             .equals(cursor.getString(cursor.getColumnIndex("Pair")));
                     if (pairMatched) {
@@ -142,26 +155,26 @@ public class CheckTickersService extends IntentService {
                             case PANIC_BUY_TYPE:
                                 percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
                                 if (newValue > ((1 + percent) * oldValue)) {
-                                    stringBuilder.append("Panic Buy for ").append(key.replace("_", "/")
+                                    stringBuilder.append("Panic Buy for ").append(pair.replace("_", "/")
                                             .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case PANIC_SELL_TYPE:
                                 percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
                                 if (newValue < ((1 - percent) * oldValue)) {
-                                    stringBuilder.append("Panic Sell for ").append(key.replace("_", "/")
+                                    stringBuilder.append("Panic Sell for ").append(pair.replace("_", "/")
                                             .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case STOP_LOSS_TYPE:
                                 if (newValue < cursor.getFloat(cursor.getColumnIndex("Value"))) {
-                                    stringBuilder.append("Stop Loss for ").append(key.replace("_", "/")
+                                    stringBuilder.append("Stop Loss for ").append(pair.replace("_", "/")
                                             .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
                             case TAKE_PROFIT_TYPE:
                                 if (newValue > cursor.getFloat(cursor.getColumnIndex("Value"))) {
-                                    stringBuilder.append("Take Profit for ").append(key.replace("_", "/")
+                                    stringBuilder.append("Take Profit for ").append(pair.replace("_", "/")
                                             .toUpperCase(Locale.US)).append("; ");
                                 }
                                 break;
@@ -176,6 +189,4 @@ public class CheckTickersService extends IntentService {
         cursor.close();
         return stringBuilder.toString();
     }
-
-
 }
