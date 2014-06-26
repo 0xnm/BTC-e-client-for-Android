@@ -32,14 +32,24 @@ import java.util.Locale;
  *     You should have received a copy of the GNU General Public License
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-public class TickersDashboardAdapter extends BaseAdapter {
+public class TickersDashboardAdapter extends BaseAdapter implements View.OnClickListener {
 
     private Context mContext;
-
     private ArrayList<Ticker> mData = new ArrayList<>();
+    private TickersDashboardAdapterCallbackInterface mCallback;
+    private int mNumColumns = 0;
 
-    public TickersDashboardAdapter(@NotNull Context mContext) {
-        this.mContext = mContext;
+    public TickersDashboardAdapter(@NotNull Context context, TickersDashboardAdapterCallbackInterface callback) {
+        mContext = context;
+        mCallback = callback;
+    }
+
+    public int getNumColumns() {
+        return mNumColumns;
+    }
+
+    public void setNumColumns(int mNumColumns) {
+        mNumColumns = mNumColumns;
     }
 
     @Override
@@ -71,7 +81,8 @@ public class TickersDashboardAdapter extends BaseAdapter {
         TextView last = (TextView) v.findViewById(R.id.tickerLastValue);
         TextView buy = (TextView) v.findViewById(R.id.tickerBuyValue);
         TextView sell = (TextView) v.findViewById(R.id.tickerSellValue);
-        pair.setText(ticker.getPair().replace("_", "/").toUpperCase(Locale.US));
+        String pairValue = ticker.getPair().replace("_", "/").toUpperCase(Locale.US);
+        pair.setText(pairValue);
         last.setText(String.valueOf(ticker.getLast()));
         buy.setText(String.valueOf(ticker.getBuy()));
         sell.setText(String.valueOf(ticker.getSell()));
@@ -85,6 +96,12 @@ public class TickersDashboardAdapter extends BaseAdapter {
             buy.setTextColor(Color.GREEN);
             sell.setTextColor(Color.GREEN);
         }
+        last.setOnClickListener(this);
+        buy.setOnClickListener(this);
+        sell.setOnClickListener(this);
+        last.setTag(pairValue);
+        buy.setTag(pairValue);
+        sell.setTag(pairValue);
         return v;
     }
 
@@ -92,5 +109,20 @@ public class TickersDashboardAdapter extends BaseAdapter {
         mData.clear();
         mData.addAll(TickersStorage.loadLatestData().values());
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClick(View v) {
+        TextView clickedTextView = (TextView) v;
+        String pair = (String) v.getTag();
+        double price = Double.parseDouble(String.valueOf(clickedTextView.getText()));
+        //just a safety measure
+        if (mCallback != null) {
+            mCallback.onPriceClicked(pair, price);
+        }
+    }
+
+    public interface TickersDashboardAdapterCallbackInterface {
+        public void onPriceClicked(String pair, double price);
     }
 }

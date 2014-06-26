@@ -20,7 +20,9 @@
                 android:gravity="center_horizontal" android:layout_marginLeft="5dp" android:layout_marginRight="5dp"
                 android:layout_marginTop="5dp"
                 android:useDefaultMargins="true" android:choiceMode="none" android:numColumns="auto_fit"
-                android:verticalSpacing="2dp" android:horizontalSpacing="2dp">
+                android:verticalSpacing="@dimen/dashboard_spacing" android:horizontalSpacing="@dimen/dashboard_spacing"
+                android:stretchMode="columnWidth"
+                >
 
         </com.QuarkLabs.BTCeClient.FixedGridView>
 
@@ -69,9 +71,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:stretchColumns="*"
-                android:orientation="vertical">
+                android:orientation="vertical" android:id="@+id/tradingSection">
 
-            <TableRow
+        <TableRow
                     android:layout_width="fill_parent"
                     android:layout_height="fill_parent">
 

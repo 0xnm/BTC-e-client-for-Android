@@ -39,10 +39,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.DecimalFormat;
 import java.util.*;
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment implements TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
 
     private static final double DOUBLEFEE = 0.004;
     private FixedGridView mTickersContainer;
@@ -77,16 +76,23 @@ public class HomeFragment extends Fragment {
 
         mTickersContainer = (FixedGridView) getView().findViewById(R.id.tickersContainer);
         mTickersContainer.setExpanded(true);
-        mTickersDashboardAdapter = new TickersDashboardAdapter(getActivity());
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Set<String> pairs = preferences.getStringSet("PairsToDisplay", new HashSet<String>());
-        for (String pair : pairs) {
-            if (!TickersStorage.loadLatestData().containsKey(pair)) {
-                Ticker ticker = new Ticker();
-                ticker.setPair(pair);
-                TickersStorage.addNewTicker(ticker);
+        final int dashboardSpacing = getResources().getDimensionPixelSize(R.dimen.dashboard_spacing);
+        final int dahboardItemSize = getResources().getDimensionPixelSize(R.dimen.dashboard_item_size);
+        mTickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                if (mTickersDashboardAdapter.getNumColumns() == 0) {
+                    final int numColumns =
+                            (int) Math.floor(mTickersContainer.getWidth() / (dashboardSpacing + dahboardItemSize));
+                    if (numColumns > 0) {
+                        mTickersDashboardAdapter.setNumColumns(numColumns);
+                        mTickersContainer.setNumColumns(numColumns);
+                    }
+                }
             }
-        }
+        });
+        mTickersDashboardAdapter = new TickersDashboardAdapter(getActivity(), this);
+        updateStorageWithTickers();
         mTickersDashboardAdapter.update();
         mTickersContainer.setAdapter(mTickersDashboardAdapter);
         mTickersContainer.setOnTouchListener(new View.OnTouchListener() {
@@ -135,15 +141,18 @@ public class HomeFragment extends Fragment {
         getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
     }
 
-    /**
-     * Formats decimal with a pattern "#.#######"
-     *
-     * @param value Value to format
-     * @return Formatted string
+    /***
+     * Updates TickerStorage with new tickers
      */
-    private String formatDouble(double value) {
-        DecimalFormat decimalFormat = new DecimalFormat("#.#######");
-        return decimalFormat.format(value);
+    private void updateStorageWithTickers() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Set<String> pairs = preferences.getStringSet("PairsToDisplay", new HashSet<String>());
+        for (String pair : pairs) {
+            if (!TickersStorage.loadLatestData().containsKey(pair.replace("/", "_").toLowerCase(Locale.US))) {
+                Ticker ticker = new Ticker(pair);
+                TickersStorage.addNewTicker(ticker);
+            }
+        }
     }
 
     @Override
@@ -169,6 +178,8 @@ public class HomeFragment extends Fragment {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
                                         checkBoxListAdapter.saveValuesToPreferences();
+                                        updateStorageWithTickers();
+                                        mTickersDashboardAdapter.update();
                                         getActivity().sendBroadcast(new Intent(getActivity(),
                                                 StartServiceReceiver.class));
                                     }
@@ -209,8 +220,12 @@ public class HomeFragment extends Fragment {
                 View.OnClickListener fillAmount = new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        EditText tradeAmount = (EditText) getView().findViewById(R.id.TradeAmount);
-                        tradeAmount.setText(((TextView) v).getText());
+                        ScrollView scrollView = (ScrollView) getView();
+                        if (scrollView != null) {
+                            EditText tradeAmount = (EditText) scrollView.findViewById(R.id.TradeAmount);
+                            tradeAmount.setText(((TextView) v).getText());
+                            scrollView.smoothScrollTo(0, scrollView.findViewById(R.id.tradingSection).getBottom());
+                        }
                     }
                 };
 
@@ -254,6 +269,30 @@ public class HomeFragment extends Fragment {
             mCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID, notificationText);
 
         } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void onPriceClicked(String pair, double price) {
+        try {
+            ScrollView scrollView = (ScrollView) getView();
+            if (scrollView != null) {
+                scrollView.smoothScrollTo(0, scrollView.findViewById(R.id.tradingSection).getBottom());
+                String[] currencies = pair.split("/");
+                EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
+                tradePrice.setText(String.valueOf(price));
+                Spinner tradeCurrency = (Spinner) scrollView.findViewById(R.id.TradeCurrency);
+                Spinner tradePriceCurrency = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
+                tradeCurrency.setSelection(
+                        ((ArrayAdapter<String>) tradeCurrency.getAdapter())
+                                .getPosition(currencies[0]));
+                tradePriceCurrency.setSelection(
+                        ((ArrayAdapter<String>) tradePriceCurrency.getAdapter())
+                                .getPosition(currencies[1]));
+            }
+        } catch (ClassCastException | NullPointerException e) {
             e.printStackTrace();
         }
     }

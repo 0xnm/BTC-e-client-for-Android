@@ -81,8 +81,7 @@ public class CheckTickersService extends IntentService {
                 for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
                     String key = iterator.next();
                     JSONObject pairData = data.optJSONObject(key);
-                    Ticker ticker = new Ticker();
-                    ticker.setPair(key);
+                    Ticker ticker = new Ticker(key);
                     ticker.setUpdated(pairData.optLong("updated"));
                     ticker.setAvg(pairData.optDouble("avg"));
                     ticker.setBuy(pairData.optDouble("buy"));
@@ -130,7 +129,7 @@ public class CheckTickersService extends IntentService {
      * Processes new data, adds notifications if any
      *
      * @param tickersList JSONObject with new tickers data
-     * @param oldData JSONObject with old tickers data
+     * @param oldData     JSONObject with old tickers data
      * @return String with all notifications
      */
     private String checkNotifiers(ArrayList<Ticker> tickersList, Map<String, Ticker> oldData) {

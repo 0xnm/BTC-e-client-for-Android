@@ -32,16 +32,16 @@ public class Ticker {
     private long updated;
     private double fee;
 
+    public Ticker(String pair) {
+        this.pair = pair;
+    }
+
     public double getFee() {
         return fee;
     }
 
     public String getPair() {
         return pair;
-    }
-
-    public void setPair(String pair) {
-        this.pair = pair;
     }
 
     public double getHigh() {
