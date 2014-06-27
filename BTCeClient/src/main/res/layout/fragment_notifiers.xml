@@ -9,7 +9,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/listView" android:divider="@null"
-            android:layout_marginLeft="16dp" android:layout_marginRight="16dp"/>
+            />
     <TextView
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"

@@ -48,8 +48,8 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         return mNumColumns;
     }
 
-    public void setNumColumns(int mNumColumns) {
-        mNumColumns = mNumColumns;
+    public void setNumColumns(int numColumns) {
+        mNumColumns = numColumns;
     }
 
     @Override
@@ -72,7 +72,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         View v;
         if (convertView == null) {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            v = inflater.inflate(R.layout.fragment_home_tickers_dashboard_item, null, false);
+            v = inflater.inflate(R.layout.fragment_home_tickers_dashboard_item, parent, false);
         } else {
             v = convertView;
         }

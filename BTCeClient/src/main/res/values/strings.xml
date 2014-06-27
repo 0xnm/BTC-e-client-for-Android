@@ -1,24 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BTC-e client</string>
-    <string name="TickerInfoLast">Last</string>
-    <string name="TickerInfoBuy">Buy</string>
-    <string name="TickerInfoSell">Sell</string>
     <string name="FeeX2">2xFee</string>
     <string name="AccountInfo">My Funds</string>
-    <string name="UpdateAccountInfo">Please press \"Update\"</string>
+    <string name="UpdateAccountInfo">Please press \"UPDATE\"</string>
     <string name="enableEMAIndicator">Show EMA</string>
     <string name="enableMACDIndicator">Show MACD</string>
     <string name="enableRSIIndicator">Show RSI</string>
     <string name="enableSMAIndicator">Show SMA</string>
     <string name="IndicatorsSectionTitle">Indicators</string>
-    <string name="SaveSettings">Save Settings</string>
+    <string name="SaveSettingsButton">SAVE SETTINGS</string>
     <string name="SelectPairsPromptTitle">Pairs to display</string>
     <string name="FundsInfoUpdatedtext">Account info was successfully updated</string>
-    <string name="DialogSave">Save</string>
+    <string name="DialogSaveButton">SAVE</string>
     <string name="NoPairsToDisplay">No Pairs to display</string>
-    <string name="RefreshButtonText">Refresh</string>
-    <string name="AddNotifierTitle">Add watcher</string>
+    <string name="RefreshButton">REFRESH</string>
+    <string name="AddWatcherTitle">Add watcher</string>
     <string name="OoopsError">Ooops</string>
     <string-array name="Currencies">
         <item>BTC</item>
@@ -86,7 +83,7 @@
         <item>FTC/BTC</item>
         <item>XPM/BTC</item>
     </string-array>
-    <string-array name="NotifiersTypes">
+    <string-array name="WatcherTypes">
         <item>Panic Sell</item>
         <item>Panic Buy</item>
         <item>Stop-loss</item>
@@ -138,11 +135,13 @@
     <string name="Price">Price</string>
     <string name="Currency">Currency</string>
     <string name="Amount">Amount</string>
-    <string name="UpdateButton">Update</string>
-    <string name="BuyButton">Buy</string>
-    <string name="SellButton">Sell</string>
-    <string name="DexcriptionTitle">Description:</string>
+    <string name="UpdateButton">UPDATE</string>
+    <string name="BuyButton">BUY</string>
+    <string name="SellButton">SELL</string>
+    <string name="DescriptionTitle">Description:</string>
     <string name="RemoveOrder">Remove order</string>
     <string name="AddMenu">Add</string>
     <string name="RefreshMenu">Refresh</string>
+    <string name="HelpRateAppButtonTitle">RATE APP ON PLAY STORE</string>
+    <string name="HelpSendFeedbackButtonTitle">SEND FEEDBACK</string>
 </resources>

@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
     }
 
-    /***
+    /**
      * Updates TickerStorage with new tickers
      */
     private void updateStorageWithTickers() {
@@ -173,7 +173,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
                 new AlertDialog.Builder(getActivity())
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
-                        .setNeutralButton(getResources().getString(R.string.DialogSave),
+                        .setNeutralButton(getResources().getString(R.string.DialogSaveButton),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {

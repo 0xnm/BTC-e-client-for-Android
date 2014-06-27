@@ -21,19 +21,17 @@ package com.QuarkLabs.BTCeClient.adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.view.LayoutInflater;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
-import com.QuarkLabs.BTCeClient.R;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class CheckBoxListAdapter extends BaseAdapter {
     private final String[] mItems;
-    private final LayoutInflater mInflater;
     private final Set<String> mSet;
     private String mScope;
     private Context mContext;
@@ -41,7 +39,6 @@ public class CheckBoxListAdapter extends BaseAdapter {
     public CheckBoxListAdapter(Context context, String[] items, SettingsScope settingsScope) {
         mItems = items;
         mContext = context;
-        mInflater = LayoutInflater.from(context);
         if (settingsScope == SettingsScope.CHARTS) {
             mScope = "ChartsToDisplay";
         } else if (settingsScope == SettingsScope.PAIRS) {
@@ -69,9 +66,10 @@ public class CheckBoxListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = mInflater.inflate(R.layout.charts_select_dialog_item, parent, false);
+            convertView = new CheckBox(mContext);
             viewHolder = new ViewHolder();
             viewHolder.checkBox = (CheckBox) convertView;
+            viewHolder.checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

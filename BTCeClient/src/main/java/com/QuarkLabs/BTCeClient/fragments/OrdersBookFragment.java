@@ -94,7 +94,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.fragment_ordersbook, null, false);
+        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.fragment_ordersbook, container, false);
         mAsksList = (ListView) v.findViewById(R.id.asks);
         mBidsList = (ListView) v.findViewById(R.id.bids);
         mChartArea = (FrameLayout) v.findViewById(R.id.OrdersBookChart);

@@ -22,7 +22,7 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0.0"
+            android:text="@string/ZeroFloatValue"
             android:id="@+id/tickerLastValue"
             android:layout_below="@+id/tickerPair"
             android:textStyle="bold" android:layout_marginTop="5dp"
@@ -31,9 +31,9 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0.0"
+            android:text="@string/ZeroFloatValue"
             android:id="@+id/tickerBuyValue"
-            android:textSize="10sp"
+            android:textSize="12sp"
             android:layout_toRightOf="@+id/tickerLastValue"
             android:layout_marginLeft="4dp"
             android:textColor="@android:color/white" android:layout_below="@+id/tickerPair" android:ellipsize="end"
@@ -41,9 +41,10 @@
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="0.0"
+            android:text="@string/ZeroFloatValue"
             android:id="@+id/tickerSellValue"
-            android:layout_alignStart="@+id/tickerBuyValue" android:textSize="10sp"
+            android:layout_alignStart="@+id/tickerBuyValue"
+            android:textSize="12sp"
             android:layout_below="@+id/tickerBuyValue" android:textColor="@android:color/white"
             android:ellipsize="end" android:singleLine="true"/>
 </RelativeLayout>

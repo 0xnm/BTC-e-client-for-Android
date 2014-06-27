@@ -6,15 +6,28 @@
         android:layout_height="match_parent"
         android:id="@+id/scrollView">
 
-    <FrameLayout android:layout_height="wrap_content"
-                 android:layout_width="match_parent">
+    <LinearLayout android:layout_height="wrap_content"
+                  android:layout_width="match_parent"
+                  android:orientation="vertical">
 
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/PlaceholderText"
                 android:id="@+id/aboutText"
                 android:textSize="16sp"
-                android:layout_margin="10dp"/>
-    </FrameLayout>
+                />
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HelpRateAppButtonTitle"
+                android:id="@+id/rateAppButton" android:layout_marginTop="@dimen/default_element_spacing"
+                android:layout_gravity="center_horizontal"/>
+        <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/HelpSendFeedbackButtonTitle"
+                android:id="@+id/sendFeedbackButton" android:layout_marginTop="@dimen/default_element_spacing"
+                android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
 </ScrollView>

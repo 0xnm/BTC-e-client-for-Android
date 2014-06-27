@@ -5,17 +5,17 @@
 
     <view
             android:layout_width="fill_parent"
-            android:layout_height="250sp"
+            android:layout_height="250dp"
             class="org.stockchart.StockChartView"
             android:id="@+id/StockChartView"
-            android:layout_marginTop="11dp"/>
+            />
 
     <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/IndicatorsSectionTitle"
             android:id="@+id/IndicatorsSectionTitle"
-            android:textAppearance="@android:style/TextAppearance.Large"/>
+            android:textAppearance="@android:style/TextAppearance.Large" android:layout_marginTop="4dp"/>
 
     <Switch
             android:layout_width="wrap_content"
@@ -23,7 +23,7 @@
             android:text="@string/enableEMAIndicator"
             android:id="@+id/enableEMAIndicator"
             android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="3dp"/>
+            />
 
     <Switch
             android:layout_width="wrap_content"
@@ -31,7 +31,7 @@
             android:text="@string/enableMACDIndicator"
             android:id="@+id/enableMACDIndicator"
             android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="3dp"/>
+            />
 
     <Switch
             android:layout_width="wrap_content"
@@ -39,7 +39,7 @@
             android:text="@string/enableRSIIndicator"
             android:id="@+id/enableRSIIndicator"
             android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="3dp"/>
+            />
 
     <Switch
             android:layout_width="wrap_content"
@@ -47,6 +47,6 @@
             android:text="@string/enableSMAIndicator"
             android:id="@+id/enableSMAIndicator"
             android:layout_gravity="left|center_vertical"
-            android:layout_marginLeft="3dp"/>
+            android:layout_marginBottom="16dp"/>
 
 </LinearLayout>

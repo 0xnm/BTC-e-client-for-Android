@@ -14,14 +14,14 @@
                 android:id="@+id/textView"
                 android:layout_gravity="left|center_vertical"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="16sp" android:layout_marginBottom="8dp"/>
         <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/SettingsKey"
                 android:inputType="text"
                 android:layout_gravity="left|center_vertical"
-                android:singleLine="true"/>
+                android:singleLine="true" android:layout_marginBottom="8dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -29,33 +29,32 @@
                 android:id="@+id/textView1"
                 android:layout_gravity="left|center_vertical"
                 android:textStyle="bold"
-                android:textSize="16sp"/>
+                android:textSize="16sp" android:layout_marginBottom="8dp"/>
         <EditText
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/SettingsSecret"
                 android:inputType="text"
                 android:layout_gravity="left|center_vertical"
-                android:singleLine="true"/>
+                android:singleLine="true" android:layout_marginBottom="8dp"/>
 
         <Switch
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/EnableRecurrentCheck"
                 android:id="@+id/AlarmSelector"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"/>
+                android:layout_marginBottom="8dp"/>
 
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/RecurrentPeriod"
                 android:id="@+id/SettingsCheckingPeriod"
-                android:layout_gravity="left|center_vertical"/>
+                android:layout_gravity="left|center_vertical" android:layout_marginBottom="8dp"/>
         <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/SaveSettings"
+                android:text="@string/SaveSettingsButton"
                 android:id="@+id/SaveSettingsButton"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp"/>

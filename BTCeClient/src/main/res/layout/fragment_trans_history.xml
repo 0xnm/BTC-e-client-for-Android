@@ -69,7 +69,7 @@
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/RefreshButtonText"
+            android:text="@string/RefreshButton"
             android:id="@+id/TransHistoryMakeQueryButton"
             android:layout_gravity="center|top"/>
 
@@ -84,8 +84,6 @@
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/TransHistoryContainer"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp"
                 android:divider="@null"
                 android:dividerHeight="5dp"/>
 

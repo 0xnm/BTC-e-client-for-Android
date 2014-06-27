@@ -59,7 +59,7 @@ public class OrdersBookAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         View v;
         if (convertView == null) {
-            v = mInflater.inflate(R.layout.ordersbook_item, null, false);
+            v = mInflater.inflate(R.layout.ordersbook_item, parent, false);
         } else {
             v = convertView;
         }

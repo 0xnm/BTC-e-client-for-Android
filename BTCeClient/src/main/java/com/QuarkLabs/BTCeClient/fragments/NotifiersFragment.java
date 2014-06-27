@@ -156,9 +156,9 @@ public class NotifiersFragment extends Fragment {
                     }
                 });
                 new AlertDialog.Builder(getActivity())
-                        .setTitle(getActivity().getString(R.string.AddNotifierTitle))
+                        .setTitle(getActivity().getString(R.string.AddWatcherTitle))
                         .setView(view)
-                        .setNeutralButton(getResources().getString(R.string.DialogSave),
+                        .setNeutralButton(getResources().getString(R.string.DialogSaveButton),
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
