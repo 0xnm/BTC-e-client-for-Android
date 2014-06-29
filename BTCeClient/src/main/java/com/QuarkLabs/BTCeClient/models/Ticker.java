@@ -109,7 +109,7 @@ public class Ticker {
         this.sell = sell;
     }
 
-    public double getUpdated() {
+    public long getUpdated() {
         return updated;
     }
 

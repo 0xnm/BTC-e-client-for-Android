@@ -33,16 +33,17 @@ import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
-    private Context mContext;
+    private WeakReference<Context> mContext;
     private Map<Integer, String> mMap;
 
     public UpdateWidgetsTask(Context context, Map<Integer, String> map) {
-        mContext = context;
+        mContext = new WeakReference<>(context);
         mMap = map;
     }
 
@@ -56,8 +57,11 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
         try {
             response = App.getPairInfo(set.toArray(new String[set.size()]));
             response = response == null ? new JSONObject() : response;
-
-            DBWorker dbWorker = DBWorker.getInstance(mContext);
+            Context context = mContext.get();
+            if (context == null) {
+                return null;
+            }
+            DBWorker dbWorker = DBWorker.getInstance(context);
             String[] columns = {"pair", "last"};
             Cursor cursor = dbWorker.pullWidgetData(columns);
             Map<String, Double> values = new HashMap<>();
@@ -106,10 +110,13 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
     protected void onPostExecute(JSONObject jsonObject) {
         if (jsonObject != null) {
             try {
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-
+                Context context = mContext.get();
+                if (context == null) {
+                    return;
+                }
+                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
                 for (int x : mMap.keySet()) {
-                    RemoteViews views = new RemoteViews(mContext.getPackageName(), R.layout.appwidget_layout);
+                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_layout);
                     double price = jsonObject
                             .getJSONObject(mMap.get(x).replace("/", "_").toLowerCase(Locale.US))
                             .getDouble("last");
@@ -131,9 +138,9 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
                     Bundle bundle = new Bundle();
                     bundle.putIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                            appWidgetManager.getAppWidgetIds(new ComponentName(mContext, WidgetProvider.class)));
+                            appWidgetManager.getAppWidgetIds(new ComponentName(context, WidgetProvider.class)));
                     intent.putExtras(bundle);
-                    PendingIntent pi = PendingIntent.getBroadcast(mContext,
+                    PendingIntent pi = PendingIntent.getBroadcast(context,
                             0,
                             intent,
                             PendingIntent.FLAG_UPDATE_CURRENT);

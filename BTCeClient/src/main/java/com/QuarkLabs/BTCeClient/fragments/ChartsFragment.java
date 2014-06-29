@@ -133,7 +133,7 @@ public class ChartsFragment extends Fragment {
     }
 
     /**
-     * Starts fetching charts data via AsyncTasks
+     * Starts fetching charts data via HandlerThread and Messages
      */
     private void updateCharts() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity()

@@ -51,14 +51,6 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mLoadingViewAsks = new ProgressBar(getActivity());
-        mLoadingViewBids = new ProgressBar(getActivity());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        lp.gravity = Gravity.CENTER;
-        mLoadingViewAsks.setLayoutParams(lp);
-
-        mLoadingViewBids.setLayoutParams(lp);
         mPairsSpinner = new Spinner(getActivity());
         mPairsSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1,
@@ -98,8 +90,15 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
         mAsksList = (ListView) v.findViewById(R.id.asks);
         mBidsList = (ListView) v.findViewById(R.id.bids);
         mChartArea = (FrameLayout) v.findViewById(R.id.OrdersBookChart);
-        ((LinearLayout) mAsksList.getParent()).addView(mLoadingViewAsks);
+        mLoadingViewAsks = new ProgressBar(getActivity());
+        mLoadingViewBids = new ProgressBar(getActivity());
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT);
+        lp.gravity = Gravity.CENTER;
+        mLoadingViewAsks.setLayoutParams(lp);
 
+        mLoadingViewBids.setLayoutParams(lp);
+        ((LinearLayout) mAsksList.getParent()).addView(mLoadingViewAsks);
         mAsksList.setEmptyView(mLoadingViewAsks);
         ((LinearLayout) mBidsList.getParent()).addView(mLoadingViewBids);
         mBidsList.setEmptyView(mLoadingViewBids);

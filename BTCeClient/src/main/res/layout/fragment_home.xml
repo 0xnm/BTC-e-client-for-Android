@@ -19,7 +19,8 @@
                 android:id="@+id/tickersContainer"
                 android:gravity="center_horizontal"
                 android:useDefaultMargins="true" android:choiceMode="none" android:numColumns="auto_fit"
-                android:verticalSpacing="@dimen/dashboard_spacing" android:horizontalSpacing="@dimen/dashboard_spacing">
+                android:verticalSpacing="@dimen/dashboard_spacing" android:horizontalSpacing="@dimen/dashboard_spacing"
+                android:stretchMode="columnWidth">
 
         </com.QuarkLabs.BTCeClient.FixedGridView>
 
