@@ -15,6 +15,7 @@ import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.models.Ticker;
 import org.jetbrains.annotations.NotNull;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
@@ -47,6 +48,8 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private ArrayList<Ticker> mData = new ArrayList<>();
     private TickersDashboardAdapterCallbackInterface mCallback;
     private int mNumColumns = 0;
+    private DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+            DateFormat.SHORT, Locale.getDefault());
 
     public TickersDashboardAdapter(@NotNull Context context, TickersDashboardAdapterCallbackInterface callback) {
         mContext = context;
@@ -102,7 +105,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         last.setText(String.valueOf(ticker.getLast()));
         buy.setText(String.valueOf(ticker.getBuy()));
         sell.setText(String.valueOf(ticker.getSell()));
-        Date updatedDate = new Date(ticker.getUpdated());
+        Date updatedDate = new Date(ticker.getUpdated() * 1000);
         last.setOnClickListener(this);
         buy.setOnClickListener(this);
         sell.setOnClickListener(this);
@@ -119,7 +122,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         lowBack.setText(String.valueOf(ticker.getLow()));
         buyBack.setText(String.valueOf(ticker.getBuy()));
         sellBack.setText(String.valueOf(ticker.getSell()));
-        //TODO format updated date
+        updatedBack.setText(format.format(updatedDate));
         Ticker oldTicker = TickersStorage.loadPreviousData().get(ticker.getPair());
         if (oldTicker != null) {
             last.setTextColor(ticker.getLast() < oldTicker.getLast() ? Color.RED : Color.GREEN);

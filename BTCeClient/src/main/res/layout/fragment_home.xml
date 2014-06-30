@@ -9,6 +9,12 @@
             android:layout_height="wrap_content"
             android:animateLayoutChanges="true">
 
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NO PAIRS TO SHOW"
+                android:id="@+id/emptyView" android:textStyle="bold" android:layout_gravity="center_horizontal"
+                android:textSize="16sp"/>
         <com.QuarkLabs.BTCeClient.FixedGridView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"

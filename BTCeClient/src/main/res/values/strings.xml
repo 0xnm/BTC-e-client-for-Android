@@ -144,4 +144,8 @@
     <string name="RefreshMenu">Refresh</string>
     <string name="HelpRateAppButtonTitle">RATE APP ON PLAY STORE</string>
     <string name="HelpSendFeedbackButtonTitle">SEND FEEDBACK</string>
+    <string name="tickerDashboardBackHighTitle">High:</string>
+    <string name="tickerDashboardBackLowTitle">Low:</string>
+    <string name="tickerDashboardBackBuyTitle">Buy:</string>
+    <string name="tickerDashboardBackSellTitle">Sell:</string>
 </resources>

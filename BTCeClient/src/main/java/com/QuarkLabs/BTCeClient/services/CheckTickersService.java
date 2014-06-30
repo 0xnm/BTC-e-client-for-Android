@@ -58,6 +58,9 @@ public class CheckTickersService extends IntentService {
 
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> x = sh.getStringSet("PairsToDisplay", new HashSet<String>());
+        if (x.size() == 0) {
+            return;
+        }
         String[] pairs = x.toArray(new String[x.size()]);
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();

@@ -43,7 +43,6 @@ import java.util.*;
 
 public class HomeFragment extends Fragment implements TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
 
-    private static final double DOUBLEFEE = 0.004;
     private FixedGridView mTickersContainer;
     private TickersDashboardAdapter mTickersDashboardAdapter;
     private BroadcastReceiver mGetStatsReceiver;
@@ -77,13 +76,13 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         mTickersContainer = (FixedGridView) getView().findViewById(R.id.tickersContainer);
         mTickersContainer.setExpanded(true);
         final int dashboardSpacing = getResources().getDimensionPixelSize(R.dimen.dashboard_spacing);
-        final int dahboardItemSize = getResources().getDimensionPixelSize(R.dimen.dashboard_item_size);
+        final int dashboardItemSize = getResources().getDimensionPixelSize(R.dimen.dashboard_item_size);
         mTickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
                 if (mTickersDashboardAdapter.getNumColumns() == 0) {
                     final int numColumns =
-                            (int) Math.floor(mTickersContainer.getWidth() / (dashboardSpacing + dahboardItemSize));
+                            (int) Math.floor(mTickersContainer.getWidth() / (dashboardSpacing + dashboardItemSize));
                     if (numColumns > 0) {
                         mTickersDashboardAdapter.setNumColumns(numColumns);
                         mTickersContainer.setNumColumns(numColumns);
@@ -95,6 +94,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         updateStorageWithTickers();
         mTickersDashboardAdapter.update();
         mTickersContainer.setAdapter(mTickersDashboardAdapter);
+        TextView emptyView = (TextView) getView().findViewById(R.id.emptyView);
+        mTickersContainer.setEmptyView(emptyView);
         mTickersContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -147,10 +148,25 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
     private void updateStorageWithTickers() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         Set<String> pairs = preferences.getStringSet("PairsToDisplay", new HashSet<String>());
+        if (pairs.size() == 0) {
+            //cleanup storage
+            TickersStorage.loadLatestData().clear();
+            TickersStorage.loadPreviousData().clear();
+            return;
+        }
+        //checking for added tickers
         for (String pair : pairs) {
             if (!TickersStorage.loadLatestData().containsKey(pair.replace("/", "_").toLowerCase(Locale.US))) {
                 Ticker ticker = new Ticker(pair);
                 TickersStorage.addNewTicker(ticker);
+            }
+        }
+        //checking for deleted tickers
+        for (Iterator<String> iterator = TickersStorage.loadLatestData().keySet().<String>iterator();
+             iterator.hasNext(); ) {
+            String key = iterator.next();
+            if (!pairs.contains(key)) {
+                iterator.remove();
             }
         }
     }

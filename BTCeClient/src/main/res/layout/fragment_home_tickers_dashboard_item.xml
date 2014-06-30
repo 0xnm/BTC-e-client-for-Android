@@ -62,32 +62,36 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="High: "
+                android:text="@string/tickerDashboardBackHighTitle"
                 android:id="@+id/tickerBackHighTitle" android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
                 android:textColor="@android:color/white" android:singleLine="true" android:ellipsize="end"
-                android:textSize="12sp" android:visibility="visible"/>
+                android:textSize="12sp" android:visibility="visible" android:layout_marginLeft="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackHighValue" android:layout_toRightOf="@+id/tickerBackHighTitle"
                 android:layout_alignParentTop="true" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginRight="2dp" android:layout_marginLeft="2dp"
+                android:layout_toLeftOf="@+id/dummyBack"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Low: "
+                android:text="@string/tickerDashboardBackLowTitle"
                 android:id="@+id/tickerBackLowTitle" android:layout_toRightOf="@+id/dummyBack"
                 android:layout_alignParentTop="true" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginLeft="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackLowValue" android:layout_toRightOf="@+id/tickerBackLowTitle"
                 android:layout_alignParentTop="true" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginRight="2dp" android:layout_marginLeft="2dp" android:layout_alignParentEnd="true"/>
         <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -95,38 +99,44 @@
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Buy: "
+                android:text="@string/tickerDashboardBackBuyTitle"
                 android:id="@+id/tickerBackBuyTitle" android:layout_alignParentLeft="true"
                 android:layout_below="@+id/tickerBackHighTitle" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginLeft="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackBuyValue" android:layout_toRightOf="@+id/tickerBackBuyTitle"
                 android:layout_alignBottom="@+id/tickerBackBuyTitle" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginRight="2dp" android:layout_marginLeft="2dp"
+                android:layout_toLeftOf="@+id/dummyBack"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Sell: "
+                android:text="@string/tickerDashboardBackSellTitle"
                 android:id="@+id/tickerBackSellTitle" android:layout_toRightOf="@+id/dummyBack"
                 android:layout_below="@+id/tickerBackLowTitle" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginLeft="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackSellValue" android:layout_toRightOf="@+id/tickerBackSellTitle"
                 android:layout_alignBottom="@+id/tickerBackSellTitle" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginRight="2dp" android:layout_marginLeft="2dp" android:layout_alignParentEnd="true"/>
         <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="New Text"
+                android:text="@string/PlaceholderText"
                 android:id="@+id/tickerUpdated" android:layout_centerHorizontal="true"
                 android:layout_below="@+id/tickerBackBuyTitle" android:textColor="@android:color/white"
-                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"/>
+                android:singleLine="true" android:ellipsize="end" android:textSize="12sp" android:visibility="visible"
+                android:layout_marginLeft="2dp" android:layout_marginRight="2dp" android:gravity="center"/>
     </RelativeLayout>
 </com.QuarkLabs.BTCeClient.FlippingView>
 

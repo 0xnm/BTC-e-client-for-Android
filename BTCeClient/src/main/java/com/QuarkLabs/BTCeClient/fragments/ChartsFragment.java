@@ -18,7 +18,6 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
@@ -78,7 +77,7 @@ public class ChartsFragment extends Fragment {
         });
 
         mChartsUpdater.start();
-        mChartsUpdater.getLooper();
+        mChartsUpdater.createHandler();
         return mRootView;
     }
 
@@ -296,8 +295,8 @@ public class ChartsFragment extends Fragment {
         }
     }
 
-    private static interface Listener<StockChartView> {
-        void onChartDownloaded(StockChartView token);
+    private static interface Listener<T> {
+        void onChartDownloaded(T token);
     }
 
     private class ChartsUpdater extends HandlerThread {
@@ -316,10 +315,8 @@ public class ChartsFragment extends Fragment {
             mResponseHandler = responseHandler;
         }
 
-        @SuppressLint("HandlerLeak")
-        @Override
-        protected void onLooperPrepared() {
-            mHandler = new Handler() {
+        public void createHandler() {
+            mHandler = new Handler(getLooper()) {
                 @Override
                 public void handleMessage(Message msg) {
                     if (msg.what == MESSAGE_DOWNLOAD) {
@@ -358,6 +355,9 @@ public class ChartsFragment extends Fragment {
         }
 
         public void queueChart(StockChartView token, String pair) {
+            if (mHandler == null) {
+                throw new NullPointerException("Handler was not created. You can do it by calling createHandler()");
+            }
             requestMap.put(token, pair);
             mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
         }

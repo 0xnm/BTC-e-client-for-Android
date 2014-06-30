@@ -106,14 +106,15 @@ public class FlippingView extends FrameLayout {
         }
         //keeping the height of back cover equal to front cover
         int frontCoverHeight = mFrontCover.getHeight();
-        mBackCover.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT, frontCoverHeight));
+        mBackCover.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                frontCoverHeight));
+        if (mFlipLeftIn == null || mFlipRightIn == null || mFlipLeftOut == null || mFlipRightOut == null) {
+            throw new IllegalStateException("Animators should be added at first");
+        }
         mFlipRightIn.setTarget(mFrontCover);
         mFlipRightOut.setTarget(mBackCover);
         mFlipLeftIn.setTarget(mBackCover);
         mFlipLeftOut.setTarget(mFrontCover);
-        if (mFlipLeftIn == null || mFlipRightIn == null || mFlipLeftOut == null || mFlipRightOut == null) {
-            throw new IllegalStateException("Animators should be added at first");
-        }
         if (frontCoverShowing) {
             mFlipLeftIn.start();
             mFlipLeftOut.start();
