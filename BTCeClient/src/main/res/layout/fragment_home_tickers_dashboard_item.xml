@@ -8,7 +8,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/bg_dashboard"
+            android:background="@drawable/bg_dashboard_front"
             android:padding="2dp" android:id="@+id/frontSide">
 
         <TextView
@@ -57,7 +57,7 @@
     </RelativeLayout>
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
-                    android:background="@drawable/bg_dashboard" android:id="@+id/backSide"
+                    android:background="@drawable/bg_dashboard_back" android:id="@+id/backSide"
                     android:visibility="gone">
         <TextView
                 android:layout_width="wrap_content"

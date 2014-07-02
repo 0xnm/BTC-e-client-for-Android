@@ -4,7 +4,7 @@
     <item>
         <shape android:shape="rectangle"
                android:dither="true">
-            <solid android:color="@android:color/background_dark"/>
+            <solid android:color="@color/dashboard_card_front"/>
         </shape>
     </item>
 </layer-list>
