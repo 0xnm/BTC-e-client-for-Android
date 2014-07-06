@@ -20,9 +20,11 @@ package com.QuarkLabs.BTCeClient;
 
 import android.app.*;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Shader;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.RingtoneManager;
@@ -32,10 +34,13 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ListView;
 import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import com.QuarkLabs.BTCeClient.fragments.*;
@@ -44,6 +49,7 @@ import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 public class MainActivity extends Activity implements ActivityCallbacks {
 
+    public static final String NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY = "newDashboardNotificationShown";
     public static AlarmManager alarmManager;
     public static boolean alarmSet;
     public static PendingIntent pendingIntent;
@@ -53,6 +59,7 @@ public class MainActivity extends Activity implements ActivityCallbacks {
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerListItems;
+    private boolean isDrawerLocked = false;
 
     /**
      * Displays selected fragment
@@ -111,16 +118,14 @@ public class MainActivity extends Activity implements ActivityCallbacks {
                     }
 
                     transaction.commit();
-                    ActionBar actionBar = getActionBar();
-                    if (actionBar != null) {
-                        actionBar.setTitle(mDrawerListItems[position]);
-                    }
+                    setTitle(mDrawerListItems[position]);
                 }
             }, delay);
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
-            mDrawerLayout.closeDrawer(mDrawerList);
-
+            if (!isDrawerLocked) {
+                mDrawerLayout.closeDrawer(mDrawerList);
+            }
         }
     }
 
@@ -140,7 +145,25 @@ public class MainActivity extends Activity implements ActivityCallbacks {
             actionBar.setBackgroundDrawable(bg);
         }
 
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean newDashboardNotificationShown =
+                sharedPreferences.getBoolean(NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY, false);
+        if (!newDashboardNotificationShown) {
+            new AlertDialog.Builder(this)
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY, true);
+                            editor.commit();
+                        }
+                    })
+                    .setTitle("New Dashboard")
+                    .setMessage("A new Dashboard was added at this version." +
+                            " Now all pairs are displaying as cards with 2 sides." +
+                            " You can switch between sides with long click.")
+                    .show();
+        }
 
         alarmSet = sharedPreferences.getBoolean("periodicalCheckEnabled", false);
         if (alarmSet) {
@@ -149,9 +172,19 @@ public class MainActivity extends Activity implements ActivityCallbacks {
 
         mDrawerListItems = getResources().getStringArray(R.array.NavSections);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        FrameLayout contentFrame = (FrameLayout) findViewById(R.id.content_frame);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
+        if (((ViewGroup.MarginLayoutParams) contentFrame.getLayoutParams()).leftMargin ==
+                (int) getResources().getDimension(R.dimen.drawer_size)) {
+            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, mDrawerList);
+            mDrawerLayout.setScrimColor(Color.TRANSPARENT);
+            mDrawerLayout.setFocusableInTouchMode(false);
+            isDrawerLocked = true;
+        }
+
         app = new App(this);
 
         mDrawerToggle = new ActionBarDrawerToggle(this,
@@ -173,10 +206,12 @@ public class MainActivity extends Activity implements ActivityCallbacks {
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-        // enabling action bar app icon and behaving it as toggle button
-        getActionBar().setDisplayHomeAsUpEnabled(true);
-        getActionBar().setHomeButtonEnabled(true);
+        if (!isDrawerLocked) {
+            mDrawerLayout.setDrawerListener(mDrawerToggle);
+            // enabling action bar app icon and behaving it as toggle button
+            getActionBar().setDisplayHomeAsUpEnabled(true);
+            getActionBar().setHomeButtonEnabled(true);
+        }
 
         if (savedInstanceState == null) {
             displayItem(0);
@@ -228,7 +263,7 @@ public class MainActivity extends Activity implements ActivityCallbacks {
         //Are we finishing, cap? - Yes, we are finishing, my padawan
         if (isFinishing()) {
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
                     .setContentTitle(getResources().getString(R.string.app_name))
                     .setContentText("App was closed by system. Please start it again if needed");
 
@@ -251,16 +286,13 @@ public class MainActivity extends Activity implements ActivityCallbacks {
         }
         mDrawerList.setItemChecked(switchToPosition, true);
         mDrawerList.setSelection(switchToPosition);
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setTitle(mDrawerListItems[switchToPosition]);
-        }
+        setTitle(mDrawerListItems[switchToPosition]);
     }
 
     @Override
     public void makeNotification(int id, String message) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
                 .setContentTitle(getResources().getString(R.string.app_name))
                 .setContentText(message);
 

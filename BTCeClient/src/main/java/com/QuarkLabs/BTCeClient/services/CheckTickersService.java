@@ -104,7 +104,7 @@ public class CheckTickersService extends IntentService {
                             (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                     NotificationCompat.Builder nb = new NotificationCompat.Builder(this)
                             .setContentTitle(getResources().getString(R.string.app_name))
-                            .setSmallIcon(R.drawable.ic_launcher)
+                            .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
                             .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                             .setContentText(message.substring(0, message.length() - 2));
                     notificationManager.notify(ConstantHolder.ALARM_NOTIF_ID, nb.build());

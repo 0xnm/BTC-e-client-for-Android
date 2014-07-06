@@ -7,5 +7,9 @@
     <dimen name="dashboard_spacing">2dp</dimen>
     <dimen name="default_element_spacing">8dp</dimen>
     <dimen name="title_font_size">20sp</dimen>
+    <dimen name="drawer_content_padding">0dp</dimen>
+    <dimen name="drawer_size">240dp</dimen>
+    <dimen name="action_button_min_width">56dp</dimen>
+    <dimen name="indeterminate_progress_size">32dp</dimen>
 
 </resources>

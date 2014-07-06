@@ -47,6 +47,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
     private TickersDashboardAdapter mTickersDashboardAdapter;
     private BroadcastReceiver mGetStatsReceiver;
     private ActivityCallbacks mCallback;
+    private MenuItem mRefreshItem;
 
     @Override
     public void onAttach(Activity activity) {
@@ -108,6 +109,10 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isVisible()) {
+                    if (mRefreshItem != null) {
+                        mRefreshItem.collapseActionView();
+                        mRefreshItem.setActionView(null);
+                    }
                     mTickersDashboardAdapter.update();
                 }
             }
@@ -205,6 +210,9 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
                 break;
             //refresh dashboard action
             case R.id.action_refresh:
+                mRefreshItem = item;
+                mRefreshItem.setActionView(R.layout.progress_bar_action_view);
+                mRefreshItem.expandActionView();
                 getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
                 break;
             default:

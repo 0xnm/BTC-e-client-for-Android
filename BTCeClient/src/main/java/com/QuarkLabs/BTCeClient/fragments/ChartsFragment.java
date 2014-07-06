@@ -58,6 +58,7 @@ public class ChartsFragment extends Fragment {
     private LayoutInflater mInflater;
     private List<String> mCookies = Collections.synchronizedList(new ArrayList<String>());
     private ChartsUpdater mChartsUpdater;
+    private MenuItem mRefreshItem;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -98,6 +99,7 @@ public class ChartsFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
+                mRefreshItem = item;
                 updateCharts();
                 break;
             case R.id.action_add:
@@ -144,11 +146,13 @@ public class ChartsFragment extends Fragment {
             return;
         }
         if (mCharts.size() > 0) {
-            Toast.makeText(getActivity(), "Updating charts", Toast.LENGTH_SHORT).show();
             Set<String> chartNames = mCharts.keySet();
             String[] chartsNamesSorted = chartNames.toArray(new String[chartNames.size()]);
             Arrays.sort(chartsNamesSorted);
-
+            if (mRefreshItem != null) {
+                mRefreshItem.setActionView(R.layout.progress_bar_action_view);
+                mRefreshItem.expandActionView();
+            }
             for (String x : chartsNamesSorted) {
                 String pair = x.replace("/", "_").toLowerCase(Locale.US);
                 mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.StockChartView),
@@ -345,6 +349,10 @@ public class ChartsFragment extends Fragment {
                 @Override
                 public void run() {
                     requestMap.remove(token);
+                    if (requestMap.size() == 0 && mRefreshItem != null) {
+                        mRefreshItem.collapseActionView();
+                        mRefreshItem.setActionView(null);
+                    }
                     mListener.onChartDownloaded(token);
                 }
             });

@@ -265,7 +265,7 @@ public class OrdersAdapter extends BaseAdapter {
 
             NotificationCompat.Builder mBuilder = new NotificationCompat
                     .Builder(mContext)
-                    .setSmallIcon(R.drawable.ic_launcher)
+                    .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
                     .setContentTitle(mContext.getResources().getString(R.string.app_name))
                     .setContentText(text);
 

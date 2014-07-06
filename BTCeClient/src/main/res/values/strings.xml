@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">BTC-e client</string>
-    <string name="FeeX2">2xFee</string>
     <string name="AccountInfo">My Funds</string>
     <string name="UpdateAccountInfo">Please press \"UPDATE\"</string>
     <string name="enableEMAIndicator">Show EMA</string>
@@ -13,7 +12,6 @@
     <string name="SelectPairsPromptTitle">Pairs to display</string>
     <string name="FundsInfoUpdatedtext">Account info was successfully updated</string>
     <string name="DialogSaveButton">SAVE</string>
-    <string name="NoPairsToDisplay">No Pairs to display</string>
     <string name="RefreshButton">REFRESH</string>
     <string name="AddWatcherTitle">Add watcher</string>
     <string name="OoopsError">Ooops</string>
@@ -125,7 +123,6 @@
     <string name="EndDateTitle">End Date</string>
     <string name="TimeStampTitle">Timestamp:</string>
     <string name="OrderIDTitle">OrderID:</string>
-    <string name="PairColumnHeader">Pair</string>
     <string name="NotifiersPair">Pair</string>
     <string name="TypeTitle">Type:</string>
     <string name="AmountTitle">Amount:</string>
@@ -148,4 +145,5 @@
     <string name="tickerDashboardBackLowTitle">Low:</string>
     <string name="tickerDashboardBackBuyTitle">Buy:</string>
     <string name="tickerDashboardBackSellTitle">Sell:</string>
+    <string name="NoPairsToShow">NO PAIRS TO SHOW</string>
 </resources>
