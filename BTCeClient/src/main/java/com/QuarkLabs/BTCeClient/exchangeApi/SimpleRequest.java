@@ -33,29 +33,41 @@ public class SimpleRequest {
     /**
      * Makes simple non-authenticated request
      *
-     * @param url URL of Trade API
+     * @param urlString URL of Trade API
      * @return Response of type JSONObject
      * @throws JSONException
      */
     @Nullable
-    public JSONObject makeRequest(String url) throws JSONException {
+    public JSONObject makeRequest(String urlString) throws JSONException {
 
+        HttpURLConnection connection = null;
+        BufferedReader rd = null;
         try {
-            HttpURLConnection connection = (HttpURLConnection) (new URL(url)).openConnection();
+            URL url = new URL(urlString);
+            connection = (HttpURLConnection) url.openConnection();
             InputStream response = connection.getInputStream();
             StringBuilder sb = new StringBuilder();
-            if (connection.getResponseCode() == 200) {
-                BufferedReader rd = new BufferedReader(new InputStreamReader(response));
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
+                rd = new BufferedReader(new InputStreamReader(response));
                 String line;
                 while ((line = rd.readLine()) != null) {
                     sb.append(line);
                 }
-                response.close();
-                rd.close();
                 return new JSONObject(sb.toString());
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (rd != null) {
+                try {
+                    rd.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         return null;
     }

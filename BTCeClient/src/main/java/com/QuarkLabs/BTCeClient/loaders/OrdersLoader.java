@@ -21,7 +21,7 @@ package com.QuarkLabs.BTCeClient.loaders;
 import android.content.AsyncTaskLoader;
 import android.content.Context;
 import android.os.Bundle;
-import com.QuarkLabs.BTCeClient.ListTypes;
+import com.QuarkLabs.BTCeClient.ListType;
 import com.QuarkLabs.BTCeClient.MainActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,10 +32,10 @@ import java.util.Map;
 public class OrdersLoader extends AsyncTaskLoader<JSONObject> {
 
     private final Bundle mBundle;
-    private final ListTypes mType;
+    private final ListType mType;
     private JSONObject mData;
 
-    public OrdersLoader(Context context, Bundle bundle, ListTypes type) {
+    public OrdersLoader(Context context, Bundle bundle, ListType type) {
         super(context);
         mBundle = bundle;
         mType = type;
@@ -61,7 +61,7 @@ public class OrdersLoader extends AsyncTaskLoader<JSONObject> {
                     e.printStackTrace();
                 }
                 break;
-            case TradeOrders:
+            case Trades:
                 //TODO should be fixed
                 hashMap.put("since", "0");
                 hashMap.put("end", mBundle.getString("endDate"));

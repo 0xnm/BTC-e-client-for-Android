@@ -35,6 +35,7 @@ import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.models.Ticker;
+import com.QuarkLabs.BTCeClient.views.FixedGridView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

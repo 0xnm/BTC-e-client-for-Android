@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<com.QuarkLabs.BTCeClient.FlippingView xmlns:android="http://schemas.android.com/apk/res/android"
-                                       android:layout_height="wrap_content"
-                                       android:layout_width="fill_parent"
-                                       android:id="@+id/myFlipper">
+<com.QuarkLabs.BTCeClient.views.FlippingView xmlns:android="http://schemas.android.com/apk/res/android"
+                                             android:layout_height="wrap_content"
+                                             android:layout_width="fill_parent"
+                                             android:id="@+id/myFlipper">
     <RelativeLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
@@ -201,5 +201,5 @@
                 android:layout_marginRight="2dp"
                 android:gravity="center"/>
     </RelativeLayout>
-</com.QuarkLabs.BTCeClient.FlippingView>
+</com.QuarkLabs.BTCeClient.views.FlippingView>
 

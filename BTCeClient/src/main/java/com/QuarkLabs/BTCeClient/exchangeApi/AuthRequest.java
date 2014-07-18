@@ -38,6 +38,7 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class AuthRequest {
+    private static final String TRADE_API_URL = "https://btc-e.com/tapi";
     public static String key;
     public static String secret;
     private long nonce;
@@ -119,8 +120,10 @@ public class AuthRequest {
             return null;
         }
 
+        HttpURLConnection connection = null;
+        BufferedReader bufferedReader = null;
         try {
-            HttpURLConnection connection = (HttpURLConnection) (new URL("https://btc-e.com/tapi")).openConnection();
+            connection = (HttpURLConnection) (new URL(TRADE_API_URL)).openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
@@ -133,9 +136,9 @@ public class AuthRequest {
             wr.close();
             InputStream response = connection.getInputStream();
             StringBuilder sb = new StringBuilder();
-            if (connection.getResponseCode() == 200) {
+            if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 String line;
-                BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(response));
+                bufferedReader = new BufferedReader(new InputStreamReader(response));
                 while ((line = bufferedReader.readLine()) != null) {
                     sb.append(line);
                 }
@@ -143,6 +146,17 @@ public class AuthRequest {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
+            if (bufferedReader != null) {
+                try {
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         return null;

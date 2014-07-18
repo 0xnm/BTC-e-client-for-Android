@@ -34,8 +34,8 @@ import com.QuarkLabs.BTCeClient.R;
 
 public class HelpFragment extends Fragment implements View.OnClickListener {
 
-    public static final String APP_EMAIL_ADDRESS = "quarkdev.solutions@gmail.com";
-    public static final String APP_EMAIL_SUBJECT = "Feedback on BTC-e client for Android";
+    private static final String APP_EMAIL_ADDRESS = "quarkdev.solutions@gmail.com";
+    private static final String APP_EMAIL_SUBJECT = "Feedback on BTC-e client for Android";
     private final static String APP_PNAME = "com.QuarkLabs.BTCeClient";
 
     @Override

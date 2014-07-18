@@ -73,6 +73,7 @@ class AppRater {
         editor.commit();
     }
 
+    //Keeping this method public for testing
     public static void showRateDialog(final Context context, final SharedPreferences.Editor editor) {
         final Dialog dialog = new Dialog(context);
         dialog.setTitle("Rate " + APP_TITLE);

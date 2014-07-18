@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.views;
 
 import android.content.Context;
 import android.util.AttributeSet;

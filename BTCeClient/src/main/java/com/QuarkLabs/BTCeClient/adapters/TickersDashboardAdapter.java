@@ -9,10 +9,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
-import com.QuarkLabs.BTCeClient.FlippingView;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.models.Ticker;
+import com.QuarkLabs.BTCeClient.views.FlippingView;
 import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;

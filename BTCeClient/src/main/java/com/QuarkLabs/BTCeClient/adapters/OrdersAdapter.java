@@ -31,7 +31,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
-import com.QuarkLabs.BTCeClient.ListTypes;
+import com.QuarkLabs.BTCeClient.ListType;
 import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.R;
 import org.json.JSONException;
@@ -45,10 +45,10 @@ public class OrdersAdapter extends BaseAdapter {
     private List<JSONObject> mData = new ArrayList<>();
     private Context mContext;
     private LayoutInflater mInflater;
-    private ListTypes mListType;
+    private ListType mListType;
     private SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss", Locale.US);
 
-    public OrdersAdapter(Context context, ListTypes listType) {
+    public OrdersAdapter(Context context, ListType listType) {
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         mListType = listType;
@@ -102,7 +102,7 @@ public class OrdersAdapter extends BaseAdapter {
                     e.printStackTrace();
                 }
                 break;
-            case TradeOrders:
+            case Trades:
                 if (convertView == null) {
                     v = mInflater.inflate(R.layout.fragment_trade_history_item, parent, false);
                 } else {

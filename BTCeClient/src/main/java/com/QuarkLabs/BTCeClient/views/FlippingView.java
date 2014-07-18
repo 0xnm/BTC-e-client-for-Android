@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.views;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;

@@ -11,66 +11,79 @@
             android:layout_height="wrap_content"
             android:showDividers="beginning|middle"
             android:orientation="horizontal"
-            android:stretchColumns="*">
+            android:stretchColumns="*"
+            android:layout_gravity="top">
+
         <TableRow
                 android:layout_width="fill_parent"
                 android:layout_height="fill_parent">
+
             <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/StartDateTitle"
-                    android:id="@+id/textView1" android:layout_column="0" android:layout_gravity="center_horizontal"
+                    android:id="@+id/textView1"
+                    android:layout_column="0"
+                    android:layout_gravity="center_horizontal"
                     android:textAppearance="@android:style/TextAppearance.Holo.Medium"
                     android:layout_weight="1"/>
+
             <TextView
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/EndDateTitle"
-                    android:id="@+id/textView" android:layout_column="1" android:layout_gravity="center_horizontal"
+                    android:id="@+id/textView"
+                    android:layout_column="1"
+                    android:layout_gravity="center_horizontal"
                     android:textAppearance="@android:style/TextAppearance.Holo.Medium"
                     android:layout_weight="1"/>
         </TableRow>
+
         <TableRow
                 android:layout_width="fill_parent"
-                android:layout_height="fill_parent" android:layout_marginTop="10dp">
+                android:layout_height="fill_parent"
+                android:layout_marginTop="10dp">
+
             <EditText
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/StartDateValue"
                     android:layout_gravity="center_horizontal"
-                    android:inputType="none"
+                    android:inputType="date"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:layout_weight="1" android:gravity="center"/>
+
             <EditText
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:id="@+id/EndDateValue"
                     android:layout_gravity="center_horizontal"
-                    android:inputType="none"
+                    android:inputType="date"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
                     android:layout_weight="1" android:gravity="center"/>
         </TableRow>
     </TableLayout>
+
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/RefreshButton"
-            android:id="@+id/TradeHistoryMakeQueryButton"
-            android:layout_gravity="center"/>
+            android:id="@+id/MakeQueryButton"
+            android:layout_gravity="center|top"/>
 
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_gravity="center"
+            android:layout_gravity="center|top"
             android:gravity="center">
 
         <ListView
                 android:layout_width="fill_parent"
                 android:layout_height="match_parent"
-                android:id="@+id/TradeHistoryContainer"
+                android:id="@+id/HistoryContainer"
                 android:divider="@null"
                 android:dividerHeight="5dp"/>
 

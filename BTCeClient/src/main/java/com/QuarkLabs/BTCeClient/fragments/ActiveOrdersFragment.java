@@ -29,7 +29,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.QuarkLabs.BTCeClient.ListTypes;
+import com.QuarkLabs.BTCeClient.ListType;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersAdapter;
 import com.QuarkLabs.BTCeClient.loaders.OrdersLoader;
@@ -55,7 +55,7 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
     public void onViewCreated(View view, Bundle savedInstanceState) {
         //noinspection ConstantConditions
         mListView = (ListView) getView().findViewById(R.id.ActiveOrdersContainer);
-        mAdapter = new OrdersAdapter(getActivity(), ListTypes.ActiveOrders);
+        mAdapter = new OrdersAdapter(getActivity(), ListType.ActiveOrders);
         mLoadingView = (ProgressBar) getView().findViewById(R.id.Loading);
         mNoItems = (TextView) getView().findViewById(R.id.NoItems);
         mListView.setEmptyView(mLoadingView);
@@ -69,7 +69,7 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
         if (mLoadingView != null) {
             mListView.setEmptyView(mLoadingView);
         }
-        return new OrdersLoader(getActivity(), null, ListTypes.ActiveOrders);
+        return new OrdersLoader(getActivity(), null, ListType.ActiveOrders);
     }
 
     @Override

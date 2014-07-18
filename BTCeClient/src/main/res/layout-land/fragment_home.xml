@@ -16,7 +16,7 @@
                 android:id="@+id/emptyView" android:textStyle="bold" android:layout_gravity="center_horizontal"
                 android:textSize="16sp"/>
 
-        <com.QuarkLabs.BTCeClient.FixedGridView
+        <com.QuarkLabs.BTCeClient.views.FixedGridView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:measureWithLargestChild="false"
@@ -30,7 +30,7 @@
                 android:stretchMode="columnWidth"
                 >
 
-        </com.QuarkLabs.BTCeClient.FixedGridView>
+        </com.QuarkLabs.BTCeClient.views.FixedGridView>
 
         <TextView
                 android:layout_width="fill_parent"

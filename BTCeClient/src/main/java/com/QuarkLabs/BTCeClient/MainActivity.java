@@ -49,7 +49,7 @@ import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 public class MainActivity extends Activity implements ActivityCallbacks {
 
-    public static final String NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY = "newDashboardNotificationShown";
+    private static final String NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY = "newDashboardNotificationShown";
     public static AlarmManager alarmManager;
     public static boolean alarmSet;
     public static PendingIntent pendingIntent;
@@ -81,10 +81,10 @@ public class MainActivity extends Activity implements ActivityCallbacks {
                 fragment = new ActiveOrdersFragment();
                 break;
             case 3:
-                fragment = new TradeHistoryFragment();
+                fragment = HistoryFragment.newInstance(ListType.Trades);
                 break;
             case 4:
-                fragment = new TransHistoryFragment();
+                fragment = HistoryFragment.newInstance(ListType.Transactions);
                 break;
             case 5:
                 fragment = new ChartsFragment();
