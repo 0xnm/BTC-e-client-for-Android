@@ -21,6 +21,8 @@ package com.QuarkLabs.BTCeClient.exchangeApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import com.QuarkLabs.BTCeClient.SecurityManager;
+import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
@@ -48,8 +50,10 @@ public class AuthRequest {
     public AuthRequest(long nonce, Context context) {
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
         this.nonce = nonce;
-        key = sh.getString("key", "");
-        secret = sh.getString("secret", "");
+        key = SecurityManager.getInstance(context)
+                .decryptString(sh.getString(SettingsFragment.KEY_API_KEY, ""));
+        secret = SecurityManager.getInstance(context)
+                .decryptString(sh.getString(SettingsFragment.KEY_API_SECRET, ""));
     }
 
     /**
@@ -58,7 +62,7 @@ public class AuthRequest {
      * @param array String as array of bytes
      * @return String in HEX format
      */
-    private static String byteArrayToHexString(byte[] array) {
+    private String byteArrayToHexString(byte[] array) {
 
         StringBuilder hexString = new StringBuilder();
         for (byte b : array) {
@@ -122,6 +126,7 @@ public class AuthRequest {
 
         HttpURLConnection connection = null;
         BufferedReader bufferedReader = null;
+        DataOutputStream wr = null;
         try {
             connection = (HttpURLConnection) (new URL(TRADE_API_URL)).openConnection();
             connection.setDoOutput(true);
@@ -130,10 +135,9 @@ public class AuthRequest {
             connection.setRequestProperty("Key", key);
             byte[] array = mac.doFinal(postData.getBytes("UTF-8"));
             connection.setRequestProperty("Sign", byteArrayToHexString(array));
-            DataOutputStream wr = new DataOutputStream(connection.getOutputStream());
+            wr = new DataOutputStream(connection.getOutputStream());
             wr.writeBytes(postData);
             wr.flush();
-            wr.close();
             InputStream response = connection.getInputStream();
             StringBuilder sb = new StringBuilder();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
@@ -153,6 +157,13 @@ public class AuthRequest {
             if (bufferedReader != null) {
                 try {
                     bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (wr != null) {
+                try {
+                    wr.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

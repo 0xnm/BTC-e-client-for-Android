@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <PreferenceCategory android:title="API Key"
+                        android:key="pref_api">
+        <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
+                android:defaultValue=""
+                android:key="API_Key"
+                android:title="@string/KeyTitle"/>
+
+        <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
+                android:defaultValue=""
+                android:key="API_Secret"
+                android:title="@string/SettingsSecretTitle"/>
+
+    </PreferenceCategory>
+    <PreferenceCategory
+            android:title="Periodic check"
+            android:key="pref_check">
+        <CheckBoxPreference
+                android:key="check_enabled"
+                android:title="@string/EnableRecurrentCheck"
+                android:defaultValue="false"/>
+        <ListPreference
+                android:dependency="check_enabled"
+                android:key="check_period"
+                android:dialogTitle="@string/ChoosePeriod"
+                android:entries="@array/Periods"
+                android:entryValues="@array/PeriodsInMsecs"
+                android:defaultValue="@string/period_default_value"
+                android:title="Check period"
+                android:summary="@string/CheckPeriodSummary"/>
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
                 android:stretchColumns="*"
-                android:id="@+id/FundsContainer">
+                android:id="@+id/FundsContainer" android:background="@drawable/bg_card">
 
             <TextView
                     android:layout_width="wrap_content"

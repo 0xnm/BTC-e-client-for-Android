@@ -47,13 +47,13 @@ import com.QuarkLabs.BTCeClient.fragments.*;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
-public class MainActivity extends Activity implements ActivityCallbacks {
+public class MainActivity extends Activity
+        implements ActivityCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static final String NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY = "newDashboardNotificationShown";
-    public static AlarmManager alarmManager;
-    public static boolean alarmSet;
-    public static PendingIntent pendingIntent;
     public static App app;
+    private static AlarmManager alarmManager;
+    private static boolean alarmSet;
+    private static PendingIntent pendingIntent;
     private HomeFragment mHomeFragment = new HomeFragment();
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -146,28 +146,13 @@ public class MainActivity extends Activity implements ActivityCallbacks {
         }
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean newDashboardNotificationShown =
-                sharedPreferences.getBoolean(NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY, false);
-        if (!newDashboardNotificationShown) {
-            new AlertDialog.Builder(this)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(NEW_DASHBOARD_NOTIFICATION_SHOWN_KEY, true);
-                            editor.commit();
-                        }
-                    })
-                    .setTitle("New Dashboard")
-                    .setMessage("A new Dashboard was added at this version." +
-                            " Now all pairs are displaying as cards with 2 sides." +
-                            " You can switch between sides with long click.")
-                    .show();
-        }
+        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        onVersionUpdate(sharedPreferences);
 
-        alarmSet = sharedPreferences.getBoolean("periodicalCheckEnabled", false);
+        alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
         if (alarmSet) {
-            setRecurringAlarm(sharedPreferences.getLong("periodForChecking", 30000));
+            setRecurringAlarm(Integer.parseInt(
+                    sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
         }
 
         mDrawerListItems = getResources().getStringArray(R.array.NavSections);
@@ -219,6 +204,31 @@ public class MainActivity extends Activity implements ActivityCallbacks {
 
     }
 
+    private void onVersionUpdate(final SharedPreferences sharedPreferences) {
+        final String keyToCheck = "newSecuritySystemShown";
+        boolean needNotify = sharedPreferences.getBoolean(keyToCheck, false);
+        if (needNotify) {
+            PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
+            String messageTitle = "API key security system";
+            String message = "New security system added with this update. " +
+                    "Please enter your key and secret once again in Settings section. " +
+                    "Now they will be stored in encrypted state, " +
+                    "it will save them from being compromised even if device is rooted.";
+            new AlertDialog.Builder(this)
+                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            SharedPreferences.Editor editor = sharedPreferences.edit();
+                            editor.putBoolean(keyToCheck, true);
+                            editor.commit();
+                        }
+                    })
+                    .setTitle(messageTitle)
+                    .setMessage(message)
+                    .show();
+        }
+    }
+
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
@@ -244,7 +254,8 @@ public class MainActivity extends Activity implements ActivityCallbacks {
      * @param msecs Checking period
      */
     public void setRecurringAlarm(long msecs) {
-        Intent downloader = new Intent(this, StartServiceReceiver.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent downloader = new Intent(this, StartServiceReceiver.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         pendingIntent = PendingIntent.getBroadcast(this, 0, downloader, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
@@ -253,26 +264,6 @@ public class MainActivity extends Activity implements ActivityCallbacks {
                 msecs,
                 pendingIntent);
         alarmSet = true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        if (alarmSet) {
-            alarmManager.cancel(pendingIntent);
-        }
-        //Are we finishing, cap? - Yes, we are finishing, my padawan
-        if (isFinishing()) {
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                    .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                    .setContentTitle(getResources().getString(R.string.app_name))
-                    .setContentText("App was closed by system. Please start it again if needed");
-
-            mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(100500, mBuilder.build());
-        }
-        super.onDestroy();
     }
 
     @Override
@@ -300,6 +291,24 @@ public class MainActivity extends Activity implements ActivityCallbacks {
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(id, mBuilder.build());
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(SettingsFragment.KEY_CHECK_ENABLED)) {
+            alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, false);
+            if (alarmSet) {
+                setRecurringAlarm(Integer
+                        .parseInt(sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
+            } else {
+                alarmManager.cancel(pendingIntent);
+            }
+        } else if (key.equals(SettingsFragment.KEY_CHECK_PERIOD)) {
+            setRecurringAlarm(Integer.parseInt(sharedPreferences.getString(key, "60000")));
+        }
+        if (key.equals(SettingsFragment.KEY_API_KEY) || key.equals(SettingsFragment.KEY_API_SECRET)) {
+            app = new App(this);
+        }
     }
 
     /**

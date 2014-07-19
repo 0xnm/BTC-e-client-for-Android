@@ -41,6 +41,7 @@
         <item>Watchers</item>
         <item>Help</item>
     </string-array>
+    <!--The sections below should be consistent-->
     <string-array name="Periods">
         <item>30s</item>
         <item>1m</item>
@@ -54,6 +55,21 @@
         <item>45m</item>
         <item>1h</item>
     </string-array>
+    <string-array name="PeriodsInMsecs">
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+        <item>300000</item>
+        <item>600000</item>
+        <item>900000</item>
+        <item>1200000</item>
+        <item>1800000</item>
+        <item>2700000</item>
+        <item>3600000</item>
+    </string-array>
+    <string name="period_default_value">60000</string>
+    <!--END of consistent sections-->
     <string-array name="ExchangePairs">
         <item>BTC/USD</item>
         <item>BTC/RUR</item>
@@ -103,7 +119,6 @@
     <string name="TradeTitle">Trading</string>
     <string name="EnableRecurrentCheck">Enable periodic check</string>
     <string name="RecurrentPeriod">Period:</string>
-    <string name="PeriodWasSetFor">Period was set for</string>
     <string name="ChoosePeriod">Choose period</string>
     <string name="GeneralErrorText">Something went wrong. Please try again later.</string>
     <string name="WidgetConfigTitle">Please choose pair to watch</string>
@@ -146,4 +161,5 @@
     <string name="tickerDashboardBackBuyTitle">Buy:</string>
     <string name="tickerDashboardBackSellTitle">Sell:</string>
     <string name="NoPairsToShow">NO PAIRS TO SHOW</string>
+    <string name="CheckPeriodSummary">Current check period: N/A</string>
 </resources>
