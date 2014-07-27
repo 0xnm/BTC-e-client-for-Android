@@ -5,7 +5,7 @@
 
     <android.support.v4.widget.DrawerLayout
             android:id="@+id/drawer_layout"
-            android:layout_width="match_parent"
+            android:layout_width="242dp"
             android:layout_height="match_parent">
         <ListView android:id="@+id/left_drawer"
                   android:layout_width="@dimen/drawer_size"
@@ -15,7 +15,8 @@
                   android:divider="@color/list_divider"
                   android:dividerHeight="1dp"
                   android:listSelector="@drawable/list_selector"
-                  android:background="@color/list_background" android:paddingLeft="2dp"/>
+                  android:background="@color/list_background"
+                  android:paddingLeft="2dp"/>
     </android.support.v4.widget.DrawerLayout>
     <FrameLayout
             android:id="@+id/content_frame"

@@ -205,21 +205,35 @@ public class MainActivity extends Activity
     }
 
     private void onVersionUpdate(final SharedPreferences sharedPreferences) {
-        final String keyToCheck = "newSecuritySystemShown";
-        boolean needNotify = sharedPreferences.getBoolean(keyToCheck, false);
+        final String keyToCheck = "needNotifyAboutNewSecuritySystem";
+        boolean needNotify = sharedPreferences.getBoolean(keyToCheck, true);
         if (needNotify) {
-            PreferenceManager.setDefaultValues(this, R.xml.preferences, true);
-            String messageTitle = "API key security system";
-            String message = "New security system added with this update. " +
-                    "Please enter your key and secret once again in Settings section. " +
-                    "Now they will be stored in encrypted state, " +
-                    "it will save them from being compromised even if device is rooted.";
+            //getting old values
+            String key = sharedPreferences.getString("key", "");
+            String secret = sharedPreferences.getString("secret", "");
+            PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            if (key.length() != 0) {
+                editor.putString(SettingsFragment.KEY_API_KEY,
+                        SecurityManager.getInstance(this).encryptString(key));
+            }
+            if (secret.length() != 0) {
+                editor.putString(SettingsFragment.KEY_API_SECRET,
+                        SecurityManager.getInstance(this).encryptString(secret));
+            }
+            editor.putString("key", "");
+            editor.putString("secret", "");
+            editor.commit();
+            String messageTitle = "New security system";
+            String message = "New security system is added with this update. " +
+                    "Now sensitive API credentials will be stored in encrypted state, " +
+                    "it will save them from the leak even if device is rooted.";
             new AlertDialog.Builder(this)
                     .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(keyToCheck, true);
+                            editor.putBoolean(keyToCheck, false);
                             editor.commit();
                         }
                     })

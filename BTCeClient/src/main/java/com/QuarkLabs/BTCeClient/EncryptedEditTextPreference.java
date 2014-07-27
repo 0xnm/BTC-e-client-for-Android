@@ -25,8 +25,12 @@ public class EncryptedEditTextPreference extends EditTextPreference {
 
     @Override
     protected String getPersistedString(String defaultReturnValue) {
+        String output = super.getPersistedString(defaultReturnValue);
+        if (output == null || output.length() == 0) {
+            return output;
+        }
         return SecurityManager
                 .getInstance(getContext())
-                .decryptString(super.getPersistedString(defaultReturnValue));
+                .decryptString(output);
     }
 }

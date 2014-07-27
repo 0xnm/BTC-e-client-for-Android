@@ -4,12 +4,12 @@
     <PreferenceCategory android:title="API Key"
                         android:key="pref_api">
         <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
-                android:defaultValue=""
+                android:defaultValue="@string/APIKeyDefaultText"
                 android:key="API_Key"
                 android:title="@string/KeyTitle"/>
 
         <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
-                android:defaultValue=""
+                android:defaultValue="@string/APISecretDefaultText"
                 android:key="API_Secret"
                 android:title="@string/SettingsSecretTitle"/>
 
