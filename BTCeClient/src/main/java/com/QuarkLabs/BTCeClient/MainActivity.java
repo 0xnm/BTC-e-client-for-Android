@@ -315,7 +315,9 @@ public class MainActivity extends Activity
                 setRecurringAlarm(Integer
                         .parseInt(sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
             } else {
-                alarmManager.cancel(pendingIntent);
+                if (alarmManager != null) {
+                    alarmManager.cancel(pendingIntent);
+                }
             }
         } else if (key.equals(SettingsFragment.KEY_CHECK_PERIOD)) {
             setRecurringAlarm(Integer.parseInt(sharedPreferences.getString(key, "60000")));
