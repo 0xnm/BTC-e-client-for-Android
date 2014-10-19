@@ -9,5 +9,7 @@
           android:textColor="@color/list_item_title"
           android:gravity="center_vertical"
           android:paddingRight="40dp"
-          android:paddingLeft="16dp">
+          android:paddingEnd="40dp"
+          android:paddingLeft="16dp"
+          android:paddingStart="16dp">
 </TextView>

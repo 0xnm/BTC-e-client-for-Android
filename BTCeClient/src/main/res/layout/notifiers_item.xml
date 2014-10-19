@@ -4,15 +4,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@drawable/bg_card"
-                android:layout_marginTop="10dp">
+                android:layout_marginTop="8dp">
 
     <LinearLayout
             android:orientation="vertical"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true" android:layout_alignParentTop="true"
-            android:layout_alignParentBottom="false" android:layout_alignParentRight="false"
-            android:layout_alignWithParentIfMissing="false" android:layout_toLeftOf="@+id/removeNotifier">
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentBottom="false"
+            android:layout_alignParentRight="false"
+            android:layout_alignParentEnd="false"
+            android:layout_alignWithParentIfMissing="false"
+            android:layout_toLeftOf="@+id/removeNotifier"
+            android:layout_toStartOf="@+id/removeNotifier">
 
         <LinearLayout
                 android:orientation="horizontal"
@@ -29,7 +35,9 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/PlaceholderText"
-                    android:id="@+id/NotifiersPair" android:layout_marginLeft="10dp"
+                    android:id="@+id/NotifiersPair"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:textColor="@android:color/primary_text_light"/>
         </LinearLayout>
 
@@ -47,7 +55,9 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/NotifiersType" android:layout_marginLeft="10dp"
+                    android:id="@+id/NotifiersType"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:text="@string/PlaceholderText"
                     android:textColor="@android:color/primary_text_light"/>
         </LinearLayout>
@@ -64,7 +74,9 @@
             <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:id="@+id/NotifiersValue" android:layout_marginLeft="10dp"
+                    android:id="@+id/NotifiersValue"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginStart="8dp"
                     android:text="@string/PlaceholderText"
                     android:textColor="@android:color/primary_text_light"/>
         </LinearLayout>
@@ -73,6 +85,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/removeNotifier" android:src="@drawable/remove_button"
-            android:layout_alignParentRight="true" android:layout_centerVertical="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
             android:contentDescription="@string/RemoveOrder"/>
 </RelativeLayout>

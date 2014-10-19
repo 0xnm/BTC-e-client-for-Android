@@ -3,12 +3,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent"
               android:orientation="vertical">
-    <android.support.v7.widget.Toolbar
-            xmlns:android="http://schemas.android.com/apk/res/android"
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="?attr/colorPrimaryDark"/>
+    <include layout="@layout/action_bar"/>
     <android.support.v4.widget.DrawerLayout
             android:id="@+id/drawer_layout"
             android:layout_width="match_parent"
@@ -33,6 +28,7 @@
                   android:dividerHeight="1dp"
                   android:listSelector="@drawable/list_selector"
                   android:background="@color/list_background"
-                  android:paddingLeft="2dp"/>
+                  android:paddingLeft="2dp"
+                  android:paddingStart="2dp"/>
     </android.support.v4.widget.DrawerLayout>
 </LinearLayout>

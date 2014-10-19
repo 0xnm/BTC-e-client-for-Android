@@ -15,7 +15,7 @@
             android:text="@string/enableEMAIndicator"
             android:id="@+id/enableEMAIndicator"
             android:layout_gravity="start|center_vertical"
-            />
+            android:layout_marginTop="8dp"/>
     <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -38,6 +38,6 @@
             android:text="@string/enableSMAIndicator"
             android:id="@+id/enableSMAIndicator"
             android:layout_gravity="start|center_vertical"
-            android:layout_marginBottom="16dp"/>
+            android:layout_marginBottom="8dp"/>
 
 </LinearLayout>

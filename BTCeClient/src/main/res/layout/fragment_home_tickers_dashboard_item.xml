@@ -36,6 +36,8 @@
                 android:textColor="@android:color/white"
                 android:layout_toLeftOf="@+id/dummy"
                 android:layout_marginRight="4dp"
+                android:layout_toStartOf="@+id/dummy"
+                android:layout_marginEnd="4dp"
                 android:ellipsize="end"
                 android:singleLine="true"/>
         <TextView
@@ -45,7 +47,9 @@
                 android:id="@+id/tickerBuyValue"
                 android:textSize="12sp"
                 android:layout_toRightOf="@+id/tickerLastValue"
+                android:layout_toEndOf="@+id/tickerLastValue"
                 android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
                 android:textColor="@android:color/white"
                 android:layout_below="@+id/tickerPairFront"
                 android:ellipsize="end"
@@ -61,7 +65,10 @@
                 android:ellipsize="end"
                 android:singleLine="true"
                 android:layout_toRightOf="@+id/tickerLastValue"
-                android:layout_marginLeft="4dp" android:textStyle="bold"/>
+                android:layout_toEndOf="@+id/tickerLastValue"
+                android:layout_marginLeft="4dp"
+                android:layout_marginStart="4dp"
+                android:textStyle="bold"/>
     </RelativeLayout>
     <RelativeLayout android:layout_width="fill_parent"
                     android:layout_height="fill_parent"
@@ -75,18 +82,21 @@
                 android:id="@+id/tickerBackHighTitle"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textSize="12sp"
                 android:visibility="visible"
-                android:layout_marginLeft="2dp"/>
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackHighValue"
                 android:layout_toRightOf="@+id/tickerBackHighTitle"
+                android:layout_toEndOf="@+id/tickerBackHighTitle"
                 android:layout_alignParentTop="true"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
@@ -95,26 +105,31 @@
                 android:visibility="visible"
                 android:layout_marginRight="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_toLeftOf="@+id/dummyBack" android:textStyle="bold"/>
+                android:layout_toLeftOf="@+id/dummyBack"
+                android:layout_toStartOf="@+id/dummyBack"
+                android:textStyle="bold"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tickerDashboardBackLowTitle"
                 android:id="@+id/tickerBackLowTitle"
                 android:layout_toRightOf="@+id/dummyBack"
+                android:layout_toEndOf="@+id/dummyBack"
                 android:layout_alignParentTop="true"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textSize="12sp"
                 android:visibility="visible"
-                android:layout_marginLeft="2dp"/>
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackLowValue"
                 android:layout_toRightOf="@+id/tickerBackLowTitle"
+                android:layout_toEndOf="@+id/tickerBackLowTitle"
                 android:layout_alignParentTop="true"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
@@ -123,7 +138,9 @@
                 android:visibility="visible"
                 android:layout_marginRight="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_alignParentEnd="true" android:textStyle="bold"/>
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:textStyle="bold"/>
         <Space
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -135,19 +152,22 @@
                 android:text="@string/tickerDashboardBackBuyTitle"
                 android:id="@+id/tickerBackBuyTitle"
                 android:layout_alignParentLeft="true"
+                android:layout_alignParentStart="true"
                 android:layout_below="@+id/tickerBackHighTitle"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textSize="12sp"
                 android:visibility="visible"
-                android:layout_marginLeft="2dp"/>
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackBuyValue"
                 android:layout_toRightOf="@+id/tickerBackBuyTitle"
+                android:layout_toEndOf="@+id/tickerBackBuyTitle"
                 android:layout_alignBottom="@+id/tickerBackBuyTitle"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
@@ -156,26 +176,31 @@
                 android:visibility="visible"
                 android:layout_marginRight="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_toLeftOf="@+id/dummyBack" android:textStyle="bold"/>
+                android:layout_toLeftOf="@+id/dummyBack"
+                android:layout_toStartOf="@+id/dummyBack"
+                android:textStyle="bold"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tickerDashboardBackSellTitle"
                 android:id="@+id/tickerBackSellTitle"
                 android:layout_toRightOf="@+id/dummyBack"
+                android:layout_toEndOf="@+id/dummyBack"
                 android:layout_below="@+id/tickerBackLowTitle"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
                 android:ellipsize="end"
                 android:textSize="12sp"
                 android:visibility="visible"
-                android:layout_marginLeft="2dp"/>
+                android:layout_marginLeft="2dp"
+                android:layout_marginStart="2dp"/>
         <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/PlaceholderText"
                 android:id="@+id/tickerBackSellValue"
                 android:layout_toRightOf="@+id/tickerBackSellTitle"
+                android:layout_toEndOf="@+id/tickerBackSellTitle"
                 android:layout_alignBottom="@+id/tickerBackSellTitle"
                 android:textColor="@android:color/white"
                 android:singleLine="true"
@@ -184,7 +209,9 @@
                 android:visibility="visible"
                 android:layout_marginRight="2dp"
                 android:layout_marginLeft="2dp"
-                android:layout_alignParentEnd="true" android:textStyle="bold"/>
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:textStyle="bold"/>
         <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

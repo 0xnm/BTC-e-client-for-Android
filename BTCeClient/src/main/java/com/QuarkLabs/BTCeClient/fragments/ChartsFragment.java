@@ -548,7 +548,7 @@ public class ChartsFragment extends Fragment {
                 mCookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
-                String line = "";
+                String line;
                 while ((line = reader.readLine()) != null) {
                     stringBuilder.append(line);
                 }

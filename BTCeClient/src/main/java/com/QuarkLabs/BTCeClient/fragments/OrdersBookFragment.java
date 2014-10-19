@@ -105,7 +105,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
         mBidsList.setEmptyView(mLoadingViewBids);
 
         ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
-        hostActivity.getSupportActionBar().setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.RIGHT));
+        hostActivity.getSupportActionBar().setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
         hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
         return v;
     }
