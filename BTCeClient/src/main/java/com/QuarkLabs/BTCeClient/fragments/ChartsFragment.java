@@ -23,7 +23,6 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -156,7 +155,7 @@ public class ChartsFragment extends Fragment {
             }
             for (String x : chartsNamesSorted) {
                 String pair = x.replace("/", "_").toLowerCase(Locale.US);
-                mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.StockChartView),
+                mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.stockChartView),
                         pair);
             }
         }
@@ -199,16 +198,16 @@ public class ChartsFragment extends Fragment {
             mCharts.put(x, element);
         }
 
-        CompoundButton.OnCheckedChangeListener IndicatorListener = new CompoundButton.OnCheckedChangeListener() {
+        CompoundButton.OnCheckedChangeListener indicatorChangeStateListener = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 ViewGroup viewGroup;
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                if (getResources().getConfiguration().screenWidthDp >= 350) {
                     viewGroup = (ViewGroup) buttonView.getParent().getParent().getParent();
                 } else {
                     viewGroup = (ViewGroup) buttonView.getParent();
                 }
-                StockChartView stockChartView = (StockChartView) viewGroup.findViewById(R.id.StockChartView);
+                StockChartView stockChartView = (StockChartView) viewGroup.findViewById(R.id.stockChartView);
                 IndicatorManager iManager = stockChartView.getIndicatorManager();
                 if (stockChartView.findSeriesByName("price") != null) {
                     if (isChecked) {
@@ -234,26 +233,34 @@ public class ChartsFragment extends Fragment {
                         stockChartView.invalidate();
                     } else {
                         //if switch turned off and chart has no data
-                        List<AbstractIndicator> indicators = stockChartView.getIndicatorManager().getIndicators();
-                        for (AbstractIndicator x : indicators) {
+                        Iterator<AbstractIndicator> iterator = stockChartView
+                                .getIndicatorManager()
+                                .getIndicators()
+                                .iterator();
+                        while (iterator.hasNext()) {
+                            AbstractIndicator x = iterator.next();
                             switch (buttonView.getId()) {
                                 case R.id.enableEMAIndicator:
                                     if (x instanceof EmaIndicator) {
+                                        iterator.remove();
                                         stockChartView.getIndicatorManager().removeIndicator(x);
                                     }
                                     break;
                                 case R.id.enableMACDIndicator:
                                     if (x instanceof MacdIndicator) {
+                                        iterator.remove();
                                         stockChartView.getIndicatorManager().removeIndicator(x);
                                     }
                                     break;
                                 case R.id.enableRSIIndicator:
                                     if (x instanceof RsiIndicator) {
+                                        iterator.remove();
                                         stockChartView.getIndicatorManager().removeIndicator(x);
                                     }
                                     break;
                                 case R.id.enableSMAIndicator:
                                     if (x instanceof SmaIndicator) {
+                                        iterator.remove();
                                         stockChartView.getIndicatorManager().removeIndicator(x);
                                     }
                                     break;
@@ -275,13 +282,13 @@ public class ChartsFragment extends Fragment {
         //add listeners to switches
         for (String x : mCharts.keySet()) {
             ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableEMAIndicator))
-                    .setOnCheckedChangeListener(IndicatorListener);
+                    .setOnCheckedChangeListener(indicatorChangeStateListener);
             ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableRSIIndicator))
-                    .setOnCheckedChangeListener(IndicatorListener);
+                    .setOnCheckedChangeListener(indicatorChangeStateListener);
             ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableSMAIndicator))
-                    .setOnCheckedChangeListener(IndicatorListener);
+                    .setOnCheckedChangeListener(indicatorChangeStateListener);
             ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableMACDIndicator))
-                    .setOnCheckedChangeListener(IndicatorListener);
+                    .setOnCheckedChangeListener(indicatorChangeStateListener);
         }
     }
 
@@ -300,14 +307,14 @@ public class ChartsFragment extends Fragment {
         }
     }
 
-    private static interface Listener<T> {
+    private interface Listener<T> {
         void onChartDownloaded(T token);
     }
 
     private class ChartsUpdater extends HandlerThread {
 
         private static final int MESSAGE_DOWNLOAD = 0;
-        private static final String TAG = "ChartDownloaderThread";
+        private static final String TAG = "ChartsUpdaterThread";
         private Handler mHandler;
         private Handler mResponseHandler;
         private Map<StockChartView, String> requestMap = Collections.synchronizedMap(new HashMap<StockChartView,
@@ -321,16 +328,17 @@ public class ChartsFragment extends Fragment {
         }
 
         public void createHandler() {
-            mHandler = new Handler(getLooper()) {
+            mHandler = new Handler(getLooper(), new Handler.Callback() {
                 @Override
-                public void handleMessage(Message msg) {
+                public boolean handleMessage(Message msg) {
                     if (msg.what == MESSAGE_DOWNLOAD) {
                         @SuppressWarnings("unchecked")
                         StockChartView token = (StockChartView) msg.obj;
                         handleRequest(token);
                     }
+                    return true;
                 }
-            };
+            });
         }
 
         private void handleRequest(final StockChartView token) {
@@ -539,12 +547,17 @@ public class ChartsFragment extends Fragment {
 
                 mCookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
                 BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                StringBuilder stringBuilder = new StringBuilder();
+                String line = "";
+                while ((line = reader.readLine()) != null) {
+                    stringBuilder.append(line);
+                }
                 Pattern pattern = Pattern.compile("document.cookie=\"(a=(.+?));");
-                Matcher matcher = pattern.matcher(reader.readLine());
+                Matcher matcher = pattern.matcher(stringBuilder.toString());
 
                 //if cookie not found
                 if (!matcher.find()) {
-                    showError();
+                    //showError();
                     return;
                 }
                 reader.close();

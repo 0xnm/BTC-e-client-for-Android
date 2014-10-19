@@ -7,14 +7,8 @@
     <org.stockchart.StockChartView
             android:layout_width="fill_parent"
             android:layout_height="250dp"
-            android:id="@+id/StockChartView"
+            android:id="@+id/stockChartView"
             />
-    <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/IndicatorsSectionTitle"
-            android:id="@+id/IndicatorsSectionTitle"
-            android:textAppearance="@android:style/TextAppearance.Large" android:layout_marginTop="4dp"/>
     <android.support.v7.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
