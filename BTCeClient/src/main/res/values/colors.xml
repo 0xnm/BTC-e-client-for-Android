@@ -7,5 +7,6 @@
     <color name="list_divider">#272727</color>
     <color name="dashboard_card_front">#434343</color>
     <color name="dashboard_card_back">#263238</color>
+    <color name="colorPrimary">#03A9F4</color>
 
 </resources>

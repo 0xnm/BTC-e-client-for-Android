@@ -32,6 +32,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.SwitchCompat;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -265,7 +266,7 @@ public class ChartsFragment extends Fragment {
                     }
                 } else {
                     //if chart has no data, ignore switch
-                    Switch sw = (Switch) buttonView;
+                    SwitchCompat sw = (SwitchCompat) buttonView;
                     sw.setChecked(!isChecked);
                 }
             }
@@ -273,13 +274,13 @@ public class ChartsFragment extends Fragment {
 
         //add listeners to switches
         for (String x : mCharts.keySet()) {
-            ((Switch) mCharts.get(x).findViewById(R.id.enableEMAIndicator))
+            ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableEMAIndicator))
                     .setOnCheckedChangeListener(IndicatorListener);
-            ((Switch) mCharts.get(x).findViewById(R.id.enableRSIIndicator))
+            ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableRSIIndicator))
                     .setOnCheckedChangeListener(IndicatorListener);
-            ((Switch) mCharts.get(x).findViewById(R.id.enableSMAIndicator))
+            ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableSMAIndicator))
                     .setOnCheckedChangeListener(IndicatorListener);
-            ((Switch) mCharts.get(x).findViewById(R.id.enableMACDIndicator))
+            ((SwitchCompat) mCharts.get(x).findViewById(R.id.enableMACDIndicator))
                     .setOnCheckedChangeListener(IndicatorListener);
         }
     }

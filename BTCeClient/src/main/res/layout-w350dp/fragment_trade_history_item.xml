@@ -17,7 +17,9 @@
                 android:id="@+id/textView6"
                 android:layout_column="0"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="0dp"
@@ -34,7 +36,9 @@
                 android:id="@+id/textView1"
                 android:layout_column="2"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="0dp"
@@ -57,7 +61,9 @@
                 android:id="@+id/textView5"
                 android:layout_column="0"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="0dp"
@@ -74,7 +80,9 @@
                 android:id="@+id/textView8"
                 android:layout_column="2"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="0dp"
@@ -96,7 +104,9 @@
                 android:id="@+id/textView3"
                 android:layout_column="0"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="wrap_content"
@@ -119,7 +129,9 @@
                 android:id="@+id/textView15"
                 android:layout_column="0"
                 android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold" android:layout_marginRight="10dp"/>
+                android:textStyle="bold"
+                android:layout_marginRight="10dp"
+                android:layout_marginEnd="10dp"/>
 
         <TextView
                 android:layout_width="wrap_content"

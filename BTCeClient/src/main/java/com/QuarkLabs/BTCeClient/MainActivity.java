@@ -25,15 +25,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Color;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -47,7 +47,7 @@ import com.QuarkLabs.BTCeClient.fragments.*;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends ActionBarActivity
         implements ActivityCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static App app;
@@ -138,11 +138,9 @@ public class MainActivity extends Activity
         setContentView(R.layout.main);
 
         AppRater.app_launched(this);
-        BitmapDrawable bg = (BitmapDrawable) getResources().getDrawable(R.drawable.bg_striped);
-        bg.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setBackgroundDrawable(bg);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
         }
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
@@ -160,42 +158,35 @@ public class MainActivity extends Activity
         FrameLayout contentFrame = (FrameLayout) findViewById(R.id.content_frame);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                displayItem(position);
+            }
+        });
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
         if (((ViewGroup.MarginLayoutParams) contentFrame.getLayoutParams()).leftMargin ==
                 (int) getResources().getDimension(R.dimen.drawer_size)) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, mDrawerList);
             mDrawerLayout.setScrimColor(Color.TRANSPARENT);
             mDrawerLayout.setFocusableInTouchMode(false);
+            mDrawerLayout.setDrawerListener(null);
             isDrawerLocked = true;
+            toolbar.setNavigationOnClickListener(null);
         }
 
         app = new App(this);
 
         mDrawerToggle = new ActionBarDrawerToggle(this,
                 mDrawerLayout,
-                R.drawable.ic_drawer, //nav menu toggle icon
-                R.string.app_name, // nav drawer open - description for accessibility
-                R.string.app_name // nav drawer close - description for accessibility
-        ) {
-            public void onDrawerClosed(View view) {
-
-                // calling onPrepareOptionsMenu() to show action bar icons
-                invalidateOptionsMenu();
-            }
-
-            public void onDrawerOpened(View drawerView) {
-
-                // calling onPrepareOptionsMenu() to hide action bar icons
-                invalidateOptionsMenu();
-            }
-        };
+                R.string.app_name,
+                R.string.app_name);
 
         if (!isDrawerLocked) {
             mDrawerLayout.setDrawerListener(mDrawerToggle);
             // enabling action bar app icon and behaving it as toggle button
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
         }
 
         if (savedInstanceState == null) {
@@ -326,15 +317,4 @@ public class MainActivity extends Activity
             app = new App(this);
         }
     }
-
-    /**
-     * Listener for NavigationDrawer navigation
-     */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            displayItem(position);
-        }
-    }
-
 }

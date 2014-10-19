@@ -4,15 +4,15 @@
           package="com.QuarkLabs.BTCeClient"
           android:versionCode="12"
           android:versionName="1.4">
-<!-- keeping uses-sdk in case of using other build systems, suppressing Lint warning  -->
+    <!-- keeping uses-sdk in case of using other build systems, suppressing Lint warning  -->
     <uses-sdk android:minSdkVersion="14"
-              android:targetSdkVersion="19"
+              android:targetSdkVersion="21"
               tools:ignore="GradleOverrides"/>
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <application android:label="@string/app_name"
                  android:icon="@drawable/ic_launcher"
-                 android:theme="@style/BTCEClientTheme"
+                 android:theme="@style/AppTheme"
                  android:allowBackup="false">
 
         <activity android:name=".MainActivity"
