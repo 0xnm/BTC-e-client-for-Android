@@ -24,7 +24,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
@@ -37,10 +36,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import com.QuarkLabs.BTCeClient.fragments.*;
@@ -59,7 +56,6 @@ public class MainActivity extends ActionBarActivity
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerListItems;
-    private boolean isDrawerLocked = false;
 
     /**
      * Displays selected fragment
@@ -123,7 +119,7 @@ public class MainActivity extends ActionBarActivity
             }, delay);
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
-            if (!isDrawerLocked) {
+            if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
@@ -154,8 +150,6 @@ public class MainActivity extends ActionBarActivity
         }
 
         mDrawerListItems = getResources().getStringArray(R.array.NavSections);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        FrameLayout contentFrame = (FrameLayout) findViewById(R.id.content_frame);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -164,29 +158,17 @@ public class MainActivity extends ActionBarActivity
                 displayItem(position);
             }
         });
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
-        if (((ViewGroup.MarginLayoutParams) contentFrame.getLayoutParams()).leftMargin ==
-                (int) getResources().getDimension(R.dimen.drawer_size)) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, mDrawerList);
-            mDrawerLayout.setScrimColor(Color.TRANSPARENT);
-            mDrawerLayout.setFocusableInTouchMode(false);
-            mDrawerLayout.setDrawerListener(null);
-            isDrawerLocked = true;
-            toolbar.setNavigationOnClickListener(null);
-        }
-
         app = new App(this);
-
-        mDrawerToggle = new ActionBarDrawerToggle(this,
-                mDrawerLayout,
-                R.string.app_name,
-                R.string.app_name);
-
-        if (!isDrawerLocked) {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (mDrawerLayout != null) {
+            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
+            mDrawerToggle = new ActionBarDrawerToggle(this,
+                    mDrawerLayout,
+                    R.string.app_name,
+                    R.string.app_name);
             mDrawerLayout.setDrawerListener(mDrawerToggle);
-            // enabling action bar app icon and behaving it as toggle button
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         if (savedInstanceState == null) {
@@ -237,20 +219,26 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+        if (mDrawerLayout != null) {
+            mDrawerToggle.syncState();
+        }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerLayout != null) {
+            mDrawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        if (mDrawerLayout != null) {
+            return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        } else return super.onOptionsItemSelected(item);
     }
 
     /**
