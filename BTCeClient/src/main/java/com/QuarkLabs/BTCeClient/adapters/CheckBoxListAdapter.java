@@ -22,10 +22,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import com.QuarkLabs.BTCeClient.R;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -66,7 +68,7 @@ public class CheckBoxListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = new CheckBox(mContext);
+            convertView = LayoutInflater.from(mContext).inflate(R.layout.checkbox, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.checkBox = (CheckBox) convertView;
             viewHolder.checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);

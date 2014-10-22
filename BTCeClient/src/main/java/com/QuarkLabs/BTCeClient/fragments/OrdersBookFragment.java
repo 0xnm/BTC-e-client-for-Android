@@ -52,7 +52,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPairsSpinner = new Spinner(getActivity());
+        mPairsSpinner = (Spinner) LayoutInflater.from(getActivity()).inflate(R.layout.spinner, null);
         mPairsSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
