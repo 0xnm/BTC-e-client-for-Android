@@ -24,30 +24,27 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.Shader;
-import android.graphics.drawable.BitmapDrawable;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.view.Gravity;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
 import android.widget.ListView;
 import com.QuarkLabs.BTCeClient.exchangeApi.App;
 import com.QuarkLabs.BTCeClient.fragments.*;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
-public class MainActivity extends Activity
+public class MainActivity extends ActionBarActivity
         implements ActivityCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
     public static App app;
@@ -59,7 +56,6 @@ public class MainActivity extends Activity
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerListItems;
-    private boolean isDrawerLocked = false;
 
     /**
      * Displays selected fragment
@@ -111,19 +107,18 @@ public class MainActivity extends Activity
                 public void run() {
 
                     FragmentTransaction transaction = fragmentManager.beginTransaction()
-                            .replace(R.id.content_frame, fr)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                            .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
+                            .replace(R.id.content_frame, fr);
                     if (position != 0) {
                         transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
                     }
-
                     transaction.commit();
                     setTitle(mDrawerListItems[position]);
                 }
             }, delay);
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
-            if (!isDrawerLocked) {
+            if (mDrawerLayout != null) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
@@ -138,16 +133,15 @@ public class MainActivity extends Activity
         setContentView(R.layout.main);
 
         AppRater.app_launched(this);
-        BitmapDrawable bg = (BitmapDrawable) getResources().getDrawable(R.drawable.bg_striped);
-        bg.setTileModeXY(Shader.TileMode.REPEAT, Shader.TileMode.REPEAT);
-        ActionBar actionBar = getActionBar();
-        if (actionBar != null) {
-            actionBar.setBackgroundDrawable(bg);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
         }
+        getSupportActionBar().setElevation(20);
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        onVersionUpdate(sharedPreferences);
+        //onVersionUpdate(sharedPreferences);
 
         alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
         if (alarmSet) {
@@ -156,46 +150,25 @@ public class MainActivity extends Activity
         }
 
         mDrawerListItems = getResources().getStringArray(R.array.NavSections);
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        FrameLayout contentFrame = (FrameLayout) findViewById(R.id.content_frame);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
         mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
-        if (((ViewGroup.MarginLayoutParams) contentFrame.getLayoutParams()).leftMargin ==
-                (int) getResources().getDimension(R.dimen.drawer_size)) {
-            mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_OPEN, mDrawerList);
-            mDrawerLayout.setScrimColor(Color.TRANSPARENT);
-            mDrawerLayout.setFocusableInTouchMode(false);
-            isDrawerLocked = true;
-        }
-
+        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                displayItem(position);
+            }
+        });
         app = new App(this);
-
-        mDrawerToggle = new ActionBarDrawerToggle(this,
-                mDrawerLayout,
-                R.drawable.ic_drawer, //nav menu toggle icon
-                R.string.app_name, // nav drawer open - description for accessibility
-                R.string.app_name // nav drawer close - description for accessibility
-        ) {
-            public void onDrawerClosed(View view) {
-
-                // calling onPrepareOptionsMenu() to show action bar icons
-                invalidateOptionsMenu();
-            }
-
-            public void onDrawerOpened(View drawerView) {
-
-                // calling onPrepareOptionsMenu() to hide action bar icons
-                invalidateOptionsMenu();
-            }
-        };
-
-        if (!isDrawerLocked) {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (mDrawerLayout != null) {
+            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            mDrawerToggle = new ActionBarDrawerToggle(this,
+                    mDrawerLayout,
+                    R.string.app_name,
+                    R.string.app_name);
             mDrawerLayout.setDrawerListener(mDrawerToggle);
-            // enabling action bar app icon and behaving it as toggle button
-            getActionBar().setDisplayHomeAsUpEnabled(true);
-            getActionBar().setHomeButtonEnabled(true);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         if (savedInstanceState == null) {
@@ -246,20 +219,26 @@ public class MainActivity extends Activity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+        if (mDrawerLayout != null) {
+            mDrawerToggle.syncState();
+        }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        if (mDrawerLayout != null) {
+            mDrawerToggle.onConfigurationChanged(newConfig);
+        }
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        if (mDrawerLayout != null) {
+            return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        } else return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -326,15 +305,4 @@ public class MainActivity extends Activity
             app = new App(this);
         }
     }
-
-    /**
-     * Listener for NavigationDrawer navigation
-     */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            displayItem(position);
-        }
-    }
-
 }

@@ -19,11 +19,12 @@
 package com.QuarkLabs.BTCeClient.fragments;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
@@ -51,7 +52,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPairsSpinner = new Spinner(getActivity());
+        mPairsSpinner = (Spinner) LayoutInflater.from(getActivity()).inflate(R.layout.spinner, null);
         mPairsSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
@@ -103,8 +104,9 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
         ((LinearLayout) mBidsList.getParent()).addView(mLoadingViewBids);
         mBidsList.setEmptyView(mLoadingViewBids);
 
-        getActivity().getActionBar().setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.RIGHT));
-        getActivity().getActionBar().setDisplayShowCustomEnabled(true);
+        ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
+        hostActivity.getSupportActionBar().setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
+        hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
         return v;
     }
 
@@ -239,7 +241,8 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onDestroyView() {
-        getActivity().getActionBar().setDisplayShowCustomEnabled(false);
+        ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
+        hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(false);
         super.onDestroyView();
     }
 

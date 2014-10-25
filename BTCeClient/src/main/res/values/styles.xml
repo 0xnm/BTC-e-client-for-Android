@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="BTCEClientTheme" parent="@android:Theme.Holo.Light">
-        <item name="android:windowBackground">@drawable/bg_app</item>
+    <style name="AppTheme" parent="AppTheme.Base"/>
+
+    <style name="AppTheme.Base" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
+        <item name="android:windowNoTitle">true</item>
     </style>
+
+    <style name="AppTheme.Spinner" parent="AppTheme">
+        <item name="android:textColorPrimary">@android:color/white</item>
+    </style>
+
 </resources>
