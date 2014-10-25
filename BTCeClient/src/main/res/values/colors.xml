@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="list_item_title">#fff</color>
-    <color name="list_background">#303030</color>
-    <!--<color name="list_background_pressed">#992416</color>-->
+    <color name="list_item_title">#424242</color>
+    <color name="list_background">#eeeeee</color>
     <color name="list_background_pressed">#0099CC</color>
-    <color name="list_divider">#272727</color>
+    <color name="list_divider">#e0e0e0</color>
     <color name="dashboard_card_front">#434343</color>
     <color name="dashboard_card_back">#263238</color>
-    <color name="colorPrimary1">#03A9F4</color>
-    <color name="colorPrimary">#ff5722</color>
+    <color name="colorPrimary">#ff9100</color>
 
 </resources>

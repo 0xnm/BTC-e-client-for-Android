@@ -29,11 +29,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -107,12 +107,11 @@ public class MainActivity extends ActionBarActivity
                 public void run() {
 
                     FragmentTransaction transaction = fragmentManager.beginTransaction()
-                            .replace(R.id.content_frame, fr)
-                            .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
+                            .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
+                            .replace(R.id.content_frame, fr);
                     if (position != 0) {
                         transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
                     }
-
                     transaction.commit();
                     setTitle(mDrawerListItems[position]);
                 }
@@ -138,10 +137,11 @@ public class MainActivity extends ActionBarActivity
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
+        getSupportActionBar().setElevation(20);
 
         final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        onVersionUpdate(sharedPreferences);
+        //onVersionUpdate(sharedPreferences);
 
         alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
         if (alarmSet) {
@@ -161,7 +161,7 @@ public class MainActivity extends ActionBarActivity
         app = new App(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
-            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, Gravity.START);
+            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
             mDrawerToggle = new ActionBarDrawerToggle(this,
                     mDrawerLayout,
                     R.string.app_name,
