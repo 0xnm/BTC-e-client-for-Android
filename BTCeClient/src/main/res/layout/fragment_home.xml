@@ -199,7 +199,7 @@
                         android:layout_weight="1"
                         android:layout_margin="5dp" android:enabled="true"
                         android:background="@drawable/buy_button_custom"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="?android:attr/buttonBarButtonStyle" android:textColor="@android:color/black"/>
 
                 <Button
                         android:layout_width="fill_parent"
@@ -209,7 +209,7 @@
                         android:layout_weight="1"
                         android:layout_margin="5dp"
                         android:background="@drawable/sell_button_custom"
-                        style="?android:attr/buttonBarButtonStyle"/>
+                        style="?android:attr/buttonBarButtonStyle" android:textColor="@android:color/black"/>
             </TableRow>
         </TableLayout>
     </LinearLayout>
