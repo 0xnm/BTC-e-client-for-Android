@@ -136,6 +136,7 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     int colorValue = color.equals("green") ? Color.GREEN : Color.RED;
                     views.setTextColor(R.id.widgetCurrencyValue, colorValue);
                     Intent intent = new Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                    intent.setClass(mContext.get(), WidgetProvider.class);
                     Bundle bundle = new Bundle();
                     bundle.putIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS,
                             appWidgetManager.getAppWidgetIds(new ComponentName(context, WidgetProvider.class)));
