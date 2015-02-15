@@ -91,11 +91,8 @@
         <item>EUR/RUR</item>
         <item>USD/CNH</item>
         <item>GBP/USD</item>
-        <item>TRC/BTC</item>
         <item>PPC/BTC</item>
         <item>PPC/USD</item>
-        <item>FTC/BTC</item>
-        <item>XPM/BTC</item>
     </string-array>
     <string-array name="WatcherTypes">
         <item>Panic Sell</item>
