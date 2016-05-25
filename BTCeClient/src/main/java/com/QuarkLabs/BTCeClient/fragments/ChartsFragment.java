@@ -35,6 +35,8 @@ import android.support.v7.widget.SwitchCompat;
 import android.util.TypedValue;
 import android.view.*;
 import android.widget.*;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
 import org.stockchart.StockChartView;
@@ -173,8 +175,7 @@ public class ChartsFragment extends Fragment {
         chartsContainer.removeAllViews();
 
         mCharts = new HashMap<>();
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Set<String> hashSet = sh.getStringSet("ChartsToDisplay", new HashSet<String>());
+        Set<String> hashSet = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(getActivity()));
 
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT);
@@ -496,13 +497,11 @@ public class ChartsFragment extends Fragment {
 
     private class ChartDataDownloader {
 
-        private static final String mBaseUrl = "https://btc-e.com/exchange/";
-
         String[] getChartData(String pair) {
 
             StringBuilder out = new StringBuilder();
             try {
-                URL url = new URL(mBaseUrl + pair);
+                URL url = new URL(BtcEApplication.getHostUrl() + "/exchange/" + pair);
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
                 for (String cookie : mCookies) {
@@ -537,7 +536,7 @@ public class ChartsFragment extends Fragment {
 
         void getCookies() {
             try {
-                URL url = new URL("https://btc-e.com/");
+                URL url = new URL(BtcEApplication.getHostUrl());
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
                 if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {

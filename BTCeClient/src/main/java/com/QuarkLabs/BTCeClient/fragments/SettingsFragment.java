@@ -32,6 +32,7 @@ public class SettingsFragment extends PreferenceFragment
     public static final String KEY_API_SECRET = "API_Secret";
     public static final String KEY_CHECK_ENABLED = "check_enabled";
     public static final String KEY_CHECK_PERIOD = "check_period";
+    public static final String KEY_USE_MIRROR = "use_mirror";
     private String mDefaultCheckPeriodSummaryText;
     private String[] mCheckPeriodEntries;
     private String[] mCheckPeriodValues;
@@ -56,7 +57,7 @@ public class SettingsFragment extends PreferenceFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String currentPeriodText = findCheckPeriodText(sharedPreferences);
-        if (key.equals(KEY_CHECK_ENABLED)) {
+        if (KEY_CHECK_ENABLED.equals(key)) {
             boolean checkEnabled = sharedPreferences.getBoolean(key, false);
             Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
             if (checkEnabled) {
@@ -65,7 +66,7 @@ public class SettingsFragment extends PreferenceFragment
             } else {
                 checkPeriod.setSummary(mDefaultCheckPeriodSummaryText);
             }
-        } else if (key.equals(KEY_CHECK_PERIOD)) {
+        } else if (KEY_CHECK_PERIOD.equals(key)) {
             Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
             checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
                     .replace("N/A", currentPeriodText));

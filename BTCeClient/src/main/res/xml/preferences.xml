@@ -30,6 +30,10 @@
                 android:defaultValue="@string/period_default_value"
                 android:title="Check period"
                 android:summary="@string/CheckPeriodSummary"/>
+        <CheckBoxPreference
+                android:key="use_mirror"
+                android:title="@string/UseMirror"
+                android:defaultValue="false"/>
     </PreferenceCategory>
 
 </PreferenceScreen>

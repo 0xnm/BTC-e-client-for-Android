@@ -19,6 +19,7 @@
 package com.QuarkLabs.BTCeClient.exchangeApi;
 
 import android.content.Context;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,7 +45,7 @@ public class App {
      * @throws JSONException
      */
     public static JSONObject getPairInfo(String[] pairs) throws JSONException {
-        String url = "https://btc-e.com/api/3/ticker/";
+        String url = BtcEApplication.getHostUrl() + "/api/3/ticker/";
         for (String x : pairs) {
             url += x.replace("/", "_").toLowerCase(Locale.US) + "-";
         }

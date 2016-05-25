@@ -25,7 +25,6 @@ import android.content.*;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
 import android.view.*;
@@ -152,9 +151,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
      * Updates TickerStorage with new tickers
      */
     private void updateStorageWithTickers() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        Set<String> pairs = preferences.getStringSet("PairsToDisplay", new HashSet<String>());
-        if (pairs.size() == 0) {
+        List<String> pairs = PairUtils.getTickersToDisplayThatSupported(getActivity());
+        if (pairs.isEmpty()) {
             //cleanup storage
             TickersStorage.loadLatestData().clear();
             TickersStorage.loadPreviousData().clear();

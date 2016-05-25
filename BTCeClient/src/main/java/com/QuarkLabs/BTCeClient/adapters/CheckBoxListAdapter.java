@@ -27,6 +27,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 
 import java.util.HashSet;
@@ -43,10 +44,13 @@ public class CheckBoxListAdapter extends BaseAdapter {
         mContext = context;
         if (settingsScope == SettingsScope.CHARTS) {
             mScope = "ChartsToDisplay";
+            mSet = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));
         } else if (settingsScope == SettingsScope.PAIRS) {
             mScope = "PairsToDisplay";
+            mSet = new HashSet<>(PairUtils.getTickersToDisplayThatSupported(context));
+        } else {
+            throw new RuntimeException("Unsupported scope");
         }
-        mSet = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(mScope, new HashSet<String>());
     }
 
     @Override
