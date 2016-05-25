@@ -20,10 +20,9 @@
         <item>LTC</item>
         <item>NMC</item>
         <item>NVC</item>
-        <item>XPM</item>
-        <item>TRC</item>
         <item>PPC</item>
-        <item>FTC</item>
+        <item>DSH</item>
+        <item>ETH</item>
         <item>USD</item>
         <item>GBP</item>
         <item>CNH</item>
@@ -74,14 +73,10 @@
         <item>BTC/USD</item>
         <item>BTC/RUR</item>
         <item>BTC/EUR</item>
-        <item>BTC/CNH</item>
-        <item>BTC/GBP</item>
         <item>LTC/BTC</item>
         <item>LTC/USD</item>
         <item>LTC/RUR</item>
         <item>LTC/EUR</item>
-        <item>LTC/CNH</item>
-        <item>LTC/GBP</item>
         <item>NMC/BTC</item>
         <item>NMC/USD</item>
         <item>NVC/BTC</item>
@@ -89,13 +84,12 @@
         <item>USD/RUR</item>
         <item>EUR/USD</item>
         <item>EUR/RUR</item>
-        <item>USD/CNH</item>
-        <item>GBP/USD</item>
-        <item>TRC/BTC</item>
         <item>PPC/BTC</item>
         <item>PPC/USD</item>
-        <item>FTC/BTC</item>
-        <item>XPM/BTC</item>
+        <item>DSH/BTC</item>
+        <item>ETH/BTC</item>
+        <item>ETH/USD</item>
+        <item>ETH/LTC</item>
     </string-array>
     <string-array name="WatcherTypes">
         <item>Panic Sell</item>
@@ -164,4 +158,5 @@
     <string name="CheckPeriodSummary">Current check period: N/A</string>
     <string name="APIKeyDefaultText">please enter key</string>
     <string name="APISecretDefaultText">please enter secret</string>
+    <string name="UseMirror">Use btc-e.nz</string>
 </resources>

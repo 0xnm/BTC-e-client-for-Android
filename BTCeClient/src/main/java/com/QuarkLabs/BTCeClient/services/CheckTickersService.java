@@ -22,19 +22,14 @@ import android.app.IntentService;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.DBWorker;
-import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
+import com.QuarkLabs.BTCeClient.*;
 import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
 import com.QuarkLabs.BTCeClient.models.Ticker;
 import org.json.JSONException;
@@ -43,7 +38,6 @@ import org.json.JSONObject;
 import java.util.*;
 
 public class CheckTickersService extends IntentService {
-    private static final String BASE_URL = "https://btc-e.com/api/3/ticker/";
     private final static int PANIC_BUY_TYPE = 0;
     private final static int PANIC_SELL_TYPE = 1;
     private final static int STOP_LOSS_TYPE = 2;
@@ -56,17 +50,15 @@ public class CheckTickersService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> x = sh.getStringSet("PairsToDisplay", new HashSet<String>());
-        if (x.size() == 0) {
-            return;
-        }
-        String[] pairs = x.toArray(new String[x.size()]);
         ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        String url = BASE_URL;
-        for (String xx : pairs) {
-            url += xx.replace("/", "_").toLowerCase(Locale.US) + "-";
+        String url = BtcEApplication.getHostUrl() + "/api/3/ticker/";
+        List<String> pairsToCheck = PairUtils.getTickersToDisplayThatSupported(this);
+        if (pairsToCheck.isEmpty()) {
+            return;
+        }
+        for (String pair : pairsToCheck) {
+            url += pair.replace("/", "_").toLowerCase(Locale.US) + "-";
         }
         SimpleRequest reqSim = new SimpleRequest();
 

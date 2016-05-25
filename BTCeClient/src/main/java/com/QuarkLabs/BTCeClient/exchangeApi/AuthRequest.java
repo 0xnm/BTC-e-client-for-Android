@@ -21,6 +21,7 @@ package com.QuarkLabs.BTCeClient.exchangeApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.SecurityManager;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import org.jetbrains.annotations.NotNull;
@@ -40,9 +41,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class AuthRequest {
-    private static final String TRADE_API_URL = "https://btc-e.com/tapi";
-    public static String key;
-    public static String secret;
+    private final String key;
+    private final String secret;
     private long nonce;
     private Mac mac;
     private SecretKeySpec _key;
@@ -128,7 +128,7 @@ public class AuthRequest {
         BufferedReader bufferedReader = null;
         DataOutputStream wr = null;
         try {
-            connection = (HttpURLConnection) (new URL(TRADE_API_URL)).openConnection();
+            connection = (HttpURLConnection) (new URL(BtcEApplication.getHostUrl() + "/tapi")).openConnection();
             connection.setDoOutput(true);
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");

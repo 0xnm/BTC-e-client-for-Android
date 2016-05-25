@@ -29,6 +29,10 @@ import android.widget.TextView;
 import com.QuarkLabs.BTCeClient.R;
 import org.json.JSONArray;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
+
 public class OrdersBookAdapter extends BaseAdapter {
 
     private JSONArray mData;
@@ -68,8 +72,8 @@ public class OrdersBookAdapter extends BaseAdapter {
         double volume = value.optDouble(1);
         TextView text1 = (TextView) v.findViewById(R.id.orderBookPrice);
         TextView text2 = (TextView) v.findViewById(R.id.ordersBookVolume);
-        text1.setText(String.valueOf(price));
-        text2.setText(String.valueOf(volume));
+        text1.setText(decimalToStringWithoutExponent(price));
+        text2.setText(decimalToStringWithoutExponent(volume));
         if (volume == mMaxValue) {
             text1.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             text2.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
@@ -79,6 +83,12 @@ public class OrdersBookAdapter extends BaseAdapter {
         }
 
         return v;
+    }
+
+    private String decimalToStringWithoutExponent(double value) {
+        DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        df.setMaximumFractionDigits(340);
+        return df.format(value);
     }
 
     /**

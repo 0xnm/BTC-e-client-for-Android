@@ -119,9 +119,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onLoadFinished(Loader<JSONObject> loader, JSONObject data) {
-        if (data == null) {
-            Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG).show();
-        } else if (data.length() == 0) {
+        if (data == null || data.length() == 0) {
             Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG).show();
         } else {
             final JSONArray asks = data.optJSONArray("asks");
@@ -146,7 +144,6 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
                 bidsSeries.addPoint(sumBids);
             }
             for (int i = 0; i < asks.length(); i++) {
-
                 asksSeries.addPoint(sumAsks);
                 sumAsks += asks.optJSONArray(i).optDouble(1);
             }

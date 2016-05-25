@@ -20,6 +20,7 @@ package com.QuarkLabs.BTCeClient.loaders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -43,7 +44,8 @@ public class OrderBookLoader extends AsyncTaskLoader<JSONObject> {
 
     @Override
     public JSONObject loadInBackground() {
-        String urlString = "https://btc-e.com/api/2/" + mPair.toLowerCase(Locale.US).replace("/", "_") + "/depth";
+        String urlString = BtcEApplication.getHostUrl() + "/api/2/"
+                + mPair.toLowerCase(Locale.US).replace("/", "_") + "/depth";
         String out = "";
         try {
             URL url = new URL(urlString);
