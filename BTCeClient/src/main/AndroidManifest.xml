@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
           package="com.QuarkLabs.BTCeClient"
-          android:versionCode="17"
-          android:versionName="1.5.4">
+          android:versionCode="18"
+          android:versionName="1.5.5">
 <!-- keeping uses-sdk in case of using other build systems, suppressing Lint warning  -->
     <uses-sdk android:minSdkVersion="14"
               android:targetSdkVersion="22"

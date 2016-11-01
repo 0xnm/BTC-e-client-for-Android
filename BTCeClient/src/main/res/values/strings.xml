@@ -87,9 +87,12 @@
         <item>PPC/BTC</item>
         <item>PPC/USD</item>
         <item>DSH/BTC</item>
+        <item>DSH/USD</item>
         <item>ETH/BTC</item>
         <item>ETH/USD</item>
+        <item>ETH/EUR</item>
         <item>ETH/LTC</item>
+        <item>ETH/RUR</item>
     </string-array>
     <string-array name="WatcherTypes">
         <item>Panic Sell</item>
