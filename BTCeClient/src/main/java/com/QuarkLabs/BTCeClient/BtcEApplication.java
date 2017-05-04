@@ -16,7 +16,8 @@ public class BtcEApplication extends Application {
     }
 
     public static String getHostUrl() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(appContext);
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(appContext);
         return sharedPreferences.getBoolean(SettingsFragment.KEY_USE_MIRROR, false)
                 ? "https://btc-e.nz" : "https://btc-e.com";
     }

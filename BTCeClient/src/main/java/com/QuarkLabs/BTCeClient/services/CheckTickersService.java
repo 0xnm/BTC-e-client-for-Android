@@ -19,38 +19,53 @@
 package com.QuarkLabs.BTCeClient.services;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.media.RingtoneManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import com.QuarkLabs.BTCeClient.*;
+
+import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.MainActivity;
+import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.TickersStorage;
+import com.QuarkLabs.BTCeClient.Watcher;
 import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
 import com.QuarkLabs.BTCeClient.models.Ticker;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class CheckTickersService extends IntentService {
-    private final static int PANIC_BUY_TYPE = 0;
-    private final static int PANIC_SELL_TYPE = 1;
-    private final static int STOP_LOSS_TYPE = 2;
-    private final static int TAKE_PROFIT_TYPE = 3;
+
+    private static final String LOCAL_PAIR_DELIMITER = "/";
+    private static final String SERVER_PAIR_DELIMITER = "_";
 
     public CheckTickersService() {
-        super("checkTickers");
+        super(CheckTickersService.class.getSimpleName());
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        ConnectivityManager connMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         String url = BtcEApplication.getHostUrl() + "/api/3/ticker/";
         List<String> pairsToCheck = PairUtils.getTickersToDisplayThatSupported(this);
@@ -58,14 +73,16 @@ public class CheckTickersService extends IntentService {
             return;
         }
         for (String pair : pairsToCheck) {
-            url += pair.replace("/", "_").toLowerCase(Locale.US) + "-";
+            url += pair.replace(LOCAL_PAIR_DELIMITER, SERVER_PAIR_DELIMITER)
+                    .toLowerCase(Locale.US) + "-";
         }
-        SimpleRequest reqSim = new SimpleRequest();
+
+        SimpleRequest request = new SimpleRequest();
 
         if (networkInfo != null && networkInfo.isConnected()) {
             JSONObject data = null;
             try {
-                data = reqSim.makeRequest(url);
+                data = request.call(url);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -73,33 +90,39 @@ public class CheckTickersService extends IntentService {
             if (data != null && data.optInt("success", 1) != 0) {
 
                 ArrayList<Ticker> tickers = new ArrayList<>();
-                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys(); iterator.hasNext(); ) {
-                    String key = iterator.next();
-                    JSONObject pairData = data.optJSONObject(key);
-                    Ticker ticker = new Ticker(key);
-                    ticker.setUpdated(pairData.optLong("updated"));
-                    ticker.setAvg(pairData.optDouble("avg"));
-                    ticker.setBuy(pairData.optDouble("buy"));
-                    ticker.setSell(pairData.optDouble("sell"));
-                    ticker.setHigh(pairData.optDouble("high"));
-                    ticker.setLast(pairData.optDouble("last"));
-                    ticker.setLow(pairData.optDouble("low"));
-                    ticker.setVol(pairData.optDouble("vol"));
-                    ticker.setVolCur(pairData.optDouble("vol_cur"));
-                    tickers.add(ticker);
+                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys();
+                     iterator.hasNext(); ) {
+                    String pair = iterator.next();
+                    JSONObject pairData = data.optJSONObject(pair);
+                    tickers.add(Ticker.createFromServer(pair, pairData));
                 }
 
-                String message = checkNotifiers(tickers, TickersStorage.loadLatestData());
+                List<NotificationMessage> messages =
+                        createNotificationMessages(tickers, TickersStorage.loadLatestData());
 
-                if (message.length() != 0) {
+                for (NotificationMessage message : messages) {
                     NotificationManager notificationManager =
                             (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                    NotificationCompat.Builder nb = new NotificationCompat.Builder(this)
-                            .setContentTitle(getResources().getString(R.string.app_name))
+
+                    Notification notification = new NotificationCompat.Builder(this)
+                            .setContentTitle(getString(R.string.app_name))
                             .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                            .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
-                            .setContentText(message.substring(0, message.length() - 2));
-                    notificationManager.notify(ConstantHolder.ALARM_NOTIF_ID, nb.build());
+                            .setColor(getResources().getColor(R.color.colorPrimary))
+                            .setSound(
+                                    RingtoneManager.getDefaultUri(
+                                            RingtoneManager.TYPE_NOTIFICATION))
+                            .setContentTitle(message.title)
+                            .setContentText(message.details)
+                            .setTicker(message.title)
+                            .setContentIntent(
+                                    PendingIntent.getActivity(
+                                            this, 0, new Intent(this, MainActivity.class),
+                                            PendingIntent.FLAG_UPDATE_CURRENT)
+                            )
+                            .setAutoCancel(true)
+                            .build();
+
+                    notificationManager.notify((int) System.currentTimeMillis(), notification);
                 }
 
                 Map<String, Ticker> newData = new HashMap<>();
@@ -109,78 +132,122 @@ public class CheckTickersService extends IntentService {
                 TickersStorage.saveData(newData);
                 LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("UpdateTickers"));
             }
-        } else {
-            new Handler().post(new Runnable() {
-                @Override
-                public void run() {
-                    //Toast.makeText(CheckTickersService.this, "Unable to fetch data", Toast.LENGTH_SHORT).show();
-                }
-            });
-
         }
     }
 
     /**
      * Processes new data, adds notifications if any
      *
-     * @param tickersList JSONObject with new tickers data
-     * @param oldData     JSONObject with old tickers data
-     * @return String with all notifications
+     * @param tickers New tickers data
+     * @param oldData Old tickers data
+     * @return Notification messages
      */
-    private String checkNotifiers(ArrayList<Ticker> tickersList, Map<String, Ticker> oldData) {
+    @NonNull
+    private List<NotificationMessage> createNotificationMessages(
+            @NonNull List<Ticker> tickers, @NonNull Map<String, Ticker> oldData) {
 
-        DBWorker dbWorker = DBWorker.getInstance(this);
-        Cursor cursor = dbWorker.getNotifiers();
+        Cursor notifiers = DBWorker.getInstance(this).getNotifiers();
 
-        StringBuilder stringBuilder = new StringBuilder();
-        for (Ticker ticker : tickersList) {
-            cursor.moveToFirst();
+        List<NotificationMessage> messages = new ArrayList<>();
+
+        for (Ticker ticker : tickers) {
+            notifiers.moveToFirst();
             String pair = ticker.getPair();
-            if (oldData.size() != 0 && oldData.containsKey(pair)) {
+
+            if (oldData.containsKey(pair)) {
                 double oldValue = oldData.get(pair).getLast();
                 double newValue = ticker.getLast();
-                while (!cursor.isAfterLast()) {
-                    boolean pairMatched = pair.replace("_", "/")
-                            .toUpperCase(Locale.US)
-                            .equals(cursor.getString(cursor.getColumnIndex("Pair")));
+
+                while (!notifiers.isAfterLast()) {
+                    String pairAsLocal = pair.replace(SERVER_PAIR_DELIMITER, LOCAL_PAIR_DELIMITER)
+                            .toUpperCase(Locale.US);
+
+                    boolean pairMatched = pairAsLocal
+                            .equals(notifiers.getString(
+                                    notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
                     if (pairMatched) {
                         float percent;
-                        switch (cursor.getInt(cursor.getColumnIndex("Type"))) {
-                            case PANIC_BUY_TYPE:
-                                percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
+                        @Watcher int watcherType = notifiers.getInt(
+                                notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
+                        switch (watcherType) {
+                            case Watcher.PANIC_BUY:
+                                percent = watcherValue(notifiers) / 100;
                                 if (newValue > ((1 + percent) * oldValue)) {
-                                    stringBuilder.append("Panic Buy for ").append(pair.replace("_", "/")
-                                            .toUpperCase(Locale.US)).append("; ");
+                                    messages.add(createPanicBuyMessage(pairAsLocal, percent));
                                 }
                                 break;
-                            case PANIC_SELL_TYPE:
-                                percent = cursor.getFloat(cursor.getColumnIndex("Value")) / 100;
+                            case Watcher.PANIC_SELL:
+                                percent = watcherValue(notifiers) / 100;
                                 if (newValue < ((1 - percent) * oldValue)) {
-                                    stringBuilder.append("Panic Sell for ").append(pair.replace("_", "/")
-                                            .toUpperCase(Locale.US)).append("; ");
+                                    messages.add(createPanicSellMessage(pairAsLocal, percent));
                                 }
                                 break;
-                            case STOP_LOSS_TYPE:
-                                if (newValue < cursor.getFloat(cursor.getColumnIndex("Value"))) {
-                                    stringBuilder.append("Stop Loss for ").append(pair.replace("_", "/")
-                                            .toUpperCase(Locale.US)).append("; ");
+                            case Watcher.STOP_LOSS:
+                                if (newValue < watcherValue(notifiers)) {
+                                    messages.add(createStopLossMessage(pairAsLocal,
+                                            watcherValue(notifiers)));
                                 }
                                 break;
-                            case TAKE_PROFIT_TYPE:
-                                if (newValue > cursor.getFloat(cursor.getColumnIndex("Value"))) {
-                                    stringBuilder.append("Take Profit for ").append(pair.replace("_", "/")
-                                            .toUpperCase(Locale.US)).append("; ");
+                            case Watcher.TAKE_PROFIT:
+                                if (newValue > watcherValue(notifiers)) {
+                                    messages.add(createTakeProfitMessage(pairAsLocal,
+                                            watcherValue(notifiers)));
                                 }
                                 break;
                             default:
                                 break;
                         }
                     }
-                    cursor.moveToNext();
+                    notifiers.moveToNext();
                 }
             }
         }
-        cursor.close();
-        return stringBuilder.toString();
+        notifiers.close();
+        return messages;
+    }
+
+    private NotificationMessage createStopLossMessage(String pair, float value) {
+        NotificationMessage message = new NotificationMessage();
+        message.title = getString(R.string.watcher_alarm,
+                getString(R.string.watcher_stop_loss), pair);
+        message.details = getString(R.string.watcher_alarm_stop_loss_details,
+                pair, String.valueOf(value), pair.split("/")[1]);
+        return message;
+    }
+
+    private NotificationMessage createTakeProfitMessage(String pair, float value) {
+        NotificationMessage message = new NotificationMessage();
+        message.title = getString(R.string.watcher_alarm,
+                getString(R.string.watcher_take_profit), pair);
+        message.details = getString(R.string.watcher_alarm_take_profit_details,
+                pair, String.valueOf(value), pair.split("/")[1]);
+        return message;
+    }
+
+    private NotificationMessage createPanicBuyMessage(String pair, float value) {
+        NotificationMessage message = new NotificationMessage();
+        message.title = getString(R.string.watcher_alarm,
+                getString(R.string.watcher_panic_buy), pair);
+        message.details = getString(R.string.watcher_alarm_panic_buy_details,
+                pair, String.valueOf(value));
+        return message;
+    }
+
+    private NotificationMessage createPanicSellMessage(String pair, float value) {
+        NotificationMessage message = new NotificationMessage();
+        message.title = getString(R.string.watcher_alarm,
+                getString(R.string.watcher_panic_sell), pair);
+        message.details = getString(R.string.watcher_alarm_panic_sell_details,
+                pair, String.valueOf(value));
+        return message;
+    }
+
+    private static final class NotificationMessage {
+        String title;
+        String details;
+    }
+
+    private float watcherValue(Cursor cursor) {
+        return cursor.getFloat(cursor.getColumnIndex(DBWorker.NOTIFIERS_VALUE_COLUMN));
     }
 }

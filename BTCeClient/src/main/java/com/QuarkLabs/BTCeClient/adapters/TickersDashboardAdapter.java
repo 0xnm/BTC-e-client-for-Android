@@ -4,6 +4,7 @@ import android.animation.AnimatorInflater;
 import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Color;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +14,6 @@ import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.models.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;
-import org.jetbrains.annotations.NotNull;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -51,13 +51,18 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());
 
-    public TickersDashboardAdapter(@NotNull Context context, TickersDashboardAdapterCallbackInterface callback) {
+    public TickersDashboardAdapter(@NonNull Context context,
+                                   TickersDashboardAdapterCallbackInterface callback) {
         mContext = context;
         mCallback = callback;
-        mLeftOut = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.animator.card_flip_left_out);
-        mLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.animator.card_flip_left_in);
-        mRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.animator.card_flip_right_out);
-        mRightIn = (AnimatorSet) AnimatorInflater.loadAnimator(mContext, R.animator.card_flip_right_in);
+        mLeftOut = (AnimatorSet) AnimatorInflater.loadAnimator(
+                mContext, R.animator.card_flip_left_out);
+        mLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(
+                mContext, R.animator.card_flip_left_in);
+        mRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(
+                mContext, R.animator.card_flip_right_out);
+        mRightIn = (AnimatorSet) AnimatorInflater.loadAnimator(
+                mContext, R.animator.card_flip_right_in);
     }
 
     public int getNumColumns() {
@@ -172,6 +177,6 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     }
 
     public interface TickersDashboardAdapterCallbackInterface {
-        public void onPriceClicked(String pair, double price);
+        void onPriceClicked(String pair, double price);
     }
 }

@@ -39,14 +39,15 @@ public class HelpFragment extends Fragment implements View.OnClickListener {
     private final static String APP_PNAME = "com.QuarkLabs.BTCeClient";
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_help, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         @SuppressWarnings("ConstantConditions") TextView aboutText = (TextView) getView().findViewById(R.id.aboutText);
-        aboutText.setText(Html.fromHtml(getResources().getString(R.string.AboutText)));
+        aboutText.setText(Html.fromHtml(getString(R.string.AboutText)));
         aboutText.setMovementMethod(LinkMovementMethod.getInstance());
 
         Button sendFeedbackButton = (Button) getView().findViewById(R.id.sendFeedbackButton);
@@ -64,7 +65,8 @@ public class HelpFragment extends Fragment implements View.OnClickListener {
                             Uri.parse("market://details?id=" + APP_PNAME)));
                 } catch (ActivityNotFoundException e) {
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/apps/details?id=" + APP_PNAME)));
+                            Uri.parse("http://play.google.com/store/apps/details?id="
+                                    + APP_PNAME)));
                 }
                 break;
             case R.id.sendFeedbackButton:

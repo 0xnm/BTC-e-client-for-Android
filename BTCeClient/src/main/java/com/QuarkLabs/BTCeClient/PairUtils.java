@@ -3,15 +3,19 @@ package com.QuarkLabs.BTCeClient;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public final class PairUtils {
 
-    private PairUtils() {
-    }
+    private PairUtils() { }
 
-    public static List<String> getTickersToDisplayThatSupported(Context context) {
+    public static List<String> getTickersToDisplayThatSupported(@NonNull Context context) {
         Set<String> supportedPairs = supportedPairs(context);
 
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
@@ -28,7 +32,7 @@ public final class PairUtils {
         return supportedPairsToDisplay;
     }
 
-    public static List<String> getChartsToDisplayThatSupported(Context context) {
+    public static List<String> getChartsToDisplayThatSupported(@NonNull Context context) {
         Set<String> supportedPairs = supportedPairs(context);
 
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
@@ -45,9 +49,10 @@ public final class PairUtils {
         return supportedChartsToDisplay;
     }
 
-    private static Set<String> supportedPairs(Context context) {
+    private static Set<String> supportedPairs(@NonNull Context context) {
         Set<String> supportedPairs = new HashSet<>();
-        Collections.addAll(supportedPairs, context.getResources().getStringArray(R.array.ExchangePairs));
+        Collections.addAll(supportedPairs,
+                context.getResources().getStringArray(R.array.ExchangePairs));
         return supportedPairs;
     }
 

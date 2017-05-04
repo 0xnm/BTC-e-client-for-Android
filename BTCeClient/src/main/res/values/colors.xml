@@ -6,6 +6,6 @@
     <color name="list_divider">#e0e0e0</color>
     <color name="dashboard_card_front">#434343</color>
     <color name="dashboard_card_back">#263238</color>
-    <color name="colorPrimary">#ff9100</color>
+    <color name="colorPrimary">#ffff9100</color>
 
 </resources>

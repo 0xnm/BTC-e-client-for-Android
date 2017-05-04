@@ -93,7 +93,8 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     response.getJSONObject(pair).put("color", "green");
                 }
 
-                int result = dbWorker.updateWidgetData(cv, pair.replace("_", "/").toUpperCase(Locale.US));
+                int result = dbWorker.updateWidgetData(cv,
+                        pair.replace("_", "/").toUpperCase(Locale.US));
                 if (result == 0) {
                     cv.put("pair", pair.replace("_", "/").toUpperCase(Locale.US));
                     dbWorker.insertToWidgetData(cv);
@@ -116,7 +117,8 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                 }
                 AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
                 for (int x : mMap.keySet()) {
-                    RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.appwidget_layout);
+                    RemoteViews views = new RemoteViews(context.getPackageName(),
+                            R.layout.appwidget_layout);
                     double price = jsonObject
                             .getJSONObject(mMap.get(x).replace("/", "_").toLowerCase(Locale.US))
                             .getDouble("last");
@@ -139,7 +141,8 @@ class UpdateWidgetsTask extends AsyncTask<Void, Void, JSONObject> {
                     intent.setClass(mContext.get(), WidgetProvider.class);
                     Bundle bundle = new Bundle();
                     bundle.putIntArray(AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                            appWidgetManager.getAppWidgetIds(new ComponentName(context, WidgetProvider.class)));
+                            appWidgetManager.getAppWidgetIds(new ComponentName(context,
+                                    WidgetProvider.class)));
                     intent.putExtras(bundle);
                     PendingIntent pi = PendingIntent.getBroadcast(context,
                             0,

@@ -41,15 +41,17 @@ public class SettingsFragment extends PreferenceFragment
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.preferences);
-        PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
-        mDefaultCheckPeriodSummaryText = getResources().getString(R.string.CheckPeriodSummary);
+        PreferenceManager.getDefaultSharedPreferences(
+                getActivity()).registerOnSharedPreferenceChangeListener(this);
+        mDefaultCheckPeriodSummaryText = getString(R.string.CheckPeriodSummary);
         mCheckPeriodEntries = getResources().getStringArray(R.array.Periods);
         mCheckPeriodValues = getResources().getStringArray(R.array.PeriodsInMsecs);
         Preference checkEnabled = findPreference(KEY_CHECK_ENABLED);
         if (checkEnabled.isEnabled()) {
             findPreference(KEY_CHECK_PERIOD).setSummary(
                     mDefaultCheckPeriodSummaryText.replace("N/A",
-                            findCheckPeriodText(PreferenceManager.getDefaultSharedPreferences(getActivity())))
+                            findCheckPeriodText(PreferenceManager
+                                    .getDefaultSharedPreferences(getActivity())))
             );
         }
     }

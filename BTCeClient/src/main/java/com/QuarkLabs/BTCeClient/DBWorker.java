@@ -35,10 +35,18 @@ public class DBWorker extends SQLiteOpenHelper {
     private static final String WIDGET_TABLE_CREATE = "CREATE TABLE " + WIDGET_DATA_TABLE_NAME +
             " (pair TEXT NOT NULL, last REAL NOT NULL DEFAULT 0.0, " +
             "sell REAL NOT NULL DEFAULT 0.0, buy REAL NOT NULL DEFAULT 0.0)";
+
     private static final String NOTIFIERS_DATA_TABLE_NAME = "Notifiers";
-    private static final String NOTIFIERS_TABLE_CREATE = "CREATE TABLE " + NOTIFIERS_DATA_TABLE_NAME +
-            " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, Pair TEXT NOT NULL, " +
-            "Type INTEGER NOT NULL, Value FLOAT NOT NULL)";
+    public static final String NOTIFIERS_PAIR_COLUMN = "Pair";
+    public static final String NOTIFIERS_TYPE_COLUMN = "Type";
+    public static final String NOTIFIERS_VALUE_COLUMN = "Value";
+    private static final String NOTIFIERS_TABLE_CREATE = "CREATE TABLE "
+            + NOTIFIERS_DATA_TABLE_NAME
+            + " (_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, "
+            + NOTIFIERS_PAIR_COLUMN + " TEXT NOT NULL, "
+            + NOTIFIERS_TYPE_COLUMN + " INTEGER NOT NULL, "
+            + NOTIFIERS_VALUE_COLUMN + " FLOAT NOT NULL)";
+
     private static DBWorker sInstance;
 
     private DBWorker(Context context) {

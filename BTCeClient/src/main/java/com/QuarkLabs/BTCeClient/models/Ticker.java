@@ -18,6 +18,8 @@ package com.QuarkLabs.BTCeClient.models;
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import org.json.JSONObject;
+
 public class Ticker {
 
     private String pair;
@@ -115,5 +117,19 @@ public class Ticker {
 
     public void setUpdated(long updated) {
         this.updated = updated;
+    }
+
+    public static Ticker createFromServer(String pair, JSONObject pairData) {
+        Ticker ticker = new Ticker(pair);
+        ticker.setUpdated(pairData.optLong("updated"));
+        ticker.setAvg(pairData.optDouble("avg"));
+        ticker.setBuy(pairData.optDouble("buy"));
+        ticker.setSell(pairData.optDouble("sell"));
+        ticker.setHigh(pairData.optDouble("high"));
+        ticker.setLast(pairData.optDouble("last"));
+        ticker.setLow(pairData.optDouble("low"));
+        ticker.setVol(pairData.optDouble("vol"));
+        ticker.setVolCur(pairData.optDouble("vol_cur"));
+        return ticker;
     }
 }

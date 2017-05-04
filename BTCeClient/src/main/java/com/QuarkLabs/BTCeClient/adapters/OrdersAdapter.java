@@ -38,7 +38,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.TimeZone;
 
 public class OrdersAdapter extends BaseAdapter {
 
@@ -46,7 +53,8 @@ public class OrdersAdapter extends BaseAdapter {
     private Context mContext;
     private LayoutInflater mInflater;
     private ListType mListType;
-    private SimpleDateFormat mDateFormat = new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss", Locale.US);
+    private SimpleDateFormat mDateFormat =
+            new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss", Locale.US);
 
     public OrdersAdapter(Context context, ListType listType) {
         mContext = context;
@@ -267,7 +275,8 @@ public class OrdersAdapter extends BaseAdapter {
                     .Builder(mContext)
                     .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
                     .setContentTitle(mContext.getResources().getString(R.string.app_name))
-                    .setContentText(text);
+                    .setContentText(text)
+                    .setColor(mContext.getResources().getColor(R.color.colorPrimary));
 
             mBuilder.setSound(RingtoneManager
                     .getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
