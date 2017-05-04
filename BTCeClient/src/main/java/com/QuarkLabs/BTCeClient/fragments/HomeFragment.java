@@ -21,15 +21,42 @@ package com.QuarkLabs.BTCeClient.fragments;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
-import android.content.*;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
-import android.view.*;
-import android.widget.*;
-import com.QuarkLabs.BTCeClient.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ScrollView;
+import android.widget.Spinner;
+import android.widget.TableLayout;
+import android.widget.TableRow;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.QuarkLabs.BTCeClient.ConstantHolder;
+import com.QuarkLabs.BTCeClient.MainActivity;
+import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.StartServiceReceiver;
+import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
@@ -41,7 +68,8 @@ import org.json.JSONObject;
 
 import java.util.*;
 
-public class HomeFragment extends Fragment implements TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
+public class HomeFragment extends Fragment implements
+        TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
 
     private FixedGridView mTickersContainer;
     private TickersDashboardAdapter mTickersDashboardAdapter;
@@ -66,7 +94,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_home, container, false);
     }
@@ -74,7 +103,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        mTickersContainer = (FixedGridView) getView().findViewById(R.id.tickersContainer);
+        mTickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         mTickersContainer.setExpanded(true);
         final int dashboardSpacing = getResources().getDimensionPixelSize(R.dimen.dashboard_spacing);
         final int dashboardItemSize = getResources().getDimensionPixelSize(R.dimen.dashboard_item_size);
@@ -83,7 +112,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
             public void onGlobalLayout() {
                 if (mTickersDashboardAdapter.getNumColumns() == 0) {
                     final int numColumns =
-                            (int) Math.floor(mTickersContainer.getWidth() / (dashboardSpacing + dashboardItemSize));
+                            (int) Math.floor(mTickersContainer.getWidth() /
+                                    (dashboardSpacing + dashboardItemSize));
                     if (numColumns > 0) {
                         mTickersDashboardAdapter.setNumColumns(numColumns);
                         mTickersContainer.setNumColumns(numColumns);
@@ -95,7 +125,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         updateStorageWithTickers();
         mTickersDashboardAdapter.update();
         mTickersContainer.setAdapter(mTickersDashboardAdapter);
-        TextView emptyView = (TextView) getView().findViewById(R.id.emptyView);
+        TextView emptyView = (TextView) view.findViewById(R.id.emptyView);
         mTickersContainer.setEmptyView(emptyView);
         mTickersContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -125,16 +155,17 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         View.OnClickListener tradeListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new RegisterTradeRequestTask().execute((v.getId() == R.id.BuyButton) ? "buy" : "sell");
+                new RegisterTradeRequestTask()
+                        .execute((v.getId() == R.id.BuyButton) ? "buy" : "sell");
             }
         };
 
-        Button SellButton = (Button) getView().findViewById(R.id.SellButton);
-        Button BuyButton = (Button) getView().findViewById(R.id.BuyButton);
+        Button SellButton = (Button) view.findViewById(R.id.SellButton);
+        Button BuyButton = (Button) view.findViewById(R.id.BuyButton);
         SellButton.setOnClickListener(tradeListener);
         BuyButton.setOnClickListener(tradeListener);
 
-        Button UpdateAccountInfoButton = (Button) getView().findViewById(R.id.UpdateAccountInfoButton);
+        Button UpdateAccountInfoButton = (Button) view.findViewById(R.id.UpdateAccountInfoButton);
 
         UpdateAccountInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -160,7 +191,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         }
         //checking for added tickers
         for (String pair : pairs) {
-            if (!TickersStorage.loadLatestData().containsKey(pair.replace("/", "_").toLowerCase(Locale.US))) {
+            if (!TickersStorage.loadLatestData()
+                    .containsKey(pair.replace("/", "_").toLowerCase(Locale.US))) {
                 Ticker ticker = new Ticker(pair);
                 TickersStorage.addNewTicker(ticker);
             }
@@ -185,7 +217,8 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         switch (item.getItemId()) {
             //add pair to dashboard action
             case R.id.action_add:
-                final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(getActivity(),
+                final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(
+                        getActivity(),
                         getResources().getStringArray(R.array.ExchangePairs),
                         CheckBoxListAdapter.SettingsScope.PAIRS);
                 ListView listView = new ListView(getActivity());
@@ -193,7 +226,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
                 new AlertDialog.Builder(getActivity())
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
-                        .setNeutralButton(getResources().getString(R.string.DialogSaveButton),
+                        .setNeutralButton(R.string.DialogSaveButton,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
@@ -234,7 +267,7 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
     private void refreshFunds(JSONObject response) {
         try {
             if (response == null) {
-                Toast.makeText(getActivity(), getResources().getString(R.string.GeneralErrorText), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG).show();
                 return;
             }
             String notificationText;
@@ -245,18 +278,22 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
                     public void onClick(View v) {
                         ScrollView scrollView = (ScrollView) getView();
                         if (scrollView != null) {
-                            EditText tradeAmount = (EditText) scrollView.findViewById(R.id.TradeAmount);
+                            EditText tradeAmount
+                                    = (EditText) scrollView.findViewById(R.id.TradeAmount);
                             tradeAmount.setText(((TextView) v).getText());
-                            scrollView.smoothScrollTo(0, scrollView.findViewById(R.id.tradingSection).getBottom());
+                            scrollView.smoothScrollTo(
+                                    0, scrollView.findViewById(R.id.tradingSection).getBottom());
                         }
                     }
                 };
 
-                notificationText = getResources().getString(R.string.FundsInfoUpdatedtext);
-                TableLayout fundsContainer = (TableLayout) getView().findViewById(R.id.FundsContainer);
+                notificationText = getString(R.string.FundsInfoUpdatedtext);
+                TableLayout fundsContainer
+                        = (TableLayout) getView().findViewById(R.id.FundsContainer);
                 fundsContainer.removeAllViews();
                 JSONObject funds = response.getJSONObject("return").getJSONObject("funds");
-                JSONArray fundsNames = response.getJSONObject("return").getJSONObject("funds").names();
+                JSONArray fundsNames
+                        = response.getJSONObject("return").getJSONObject("funds").names();
                 List<String> arrayList = new ArrayList<>();
 
                 for (int i = 0; i < fundsNames.length(); i++) {
@@ -302,12 +339,14 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
         try {
             ScrollView scrollView = (ScrollView) getView();
             if (scrollView != null) {
-                scrollView.smoothScrollTo(0, scrollView.findViewById(R.id.tradingSection).getBottom());
+                scrollView.smoothScrollTo(
+                        0, scrollView.findViewById(R.id.tradingSection).getBottom());
                 String[] currencies = pair.split("/");
                 EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
                 tradePrice.setText(String.valueOf(price));
                 Spinner tradeCurrency = (Spinner) scrollView.findViewById(R.id.TradeCurrency);
-                Spinner tradePriceCurrency = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
+                Spinner tradePriceCurrency
+                        = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
                 tradeCurrency.setSelection(
                         ((ArrayAdapter<String>) tradeCurrency.getAdapter())
                                 .getPosition(currencies[0]));
@@ -325,21 +364,29 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
      */
     private class RegisterTradeRequestTask extends AsyncTask<String, Void, JSONObject> {
 
-        private Context mContext;
+        private volatile String tradeAmount;
+        private volatile String tradeCurrency;
+        private volatile String tradePrice;
+        private volatile String tradePriceCurrency;
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
+                    .getText().toString();
+            tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
+                    .getSelectedItem().toString();
+            tradePrice = ((EditText) getView().findViewById(R.id.TradePrice))
+                    .getText().toString();
+            tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
+                    .getSelectedItem().toString();
+        }
 
         @Override
         protected JSONObject doInBackground(String... params) {
-            mContext = getActivity().getApplicationContext();
-            String tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
-                    .getText().toString();
-            String tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
-                    .getSelectedItem().toString();
-            String tradePrice = ((EditText) getView().findViewById(R.id.TradePrice))
-                    .getText().toString();
-            String tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
-                    .getSelectedItem().toString();
             String tradeAction = params[0];
-            String pair = tradeCurrency.toLowerCase(Locale.US) + "_" + tradePriceCurrency.toLowerCase(Locale.US);
+            String pair = tradeCurrency.toLowerCase(Locale.US)
+                    + "_" + tradePriceCurrency.toLowerCase(Locale.US);
             JSONObject response = null;
             try {
                 response = MainActivity.app.trade(pair, tradeAction, tradePrice, tradeAmount);
@@ -361,8 +408,10 @@ public class HomeFragment extends Fragment implements TickersDashboardAdapter.Ti
                 }
                 mCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID, message);
             } else {
-                Toast.makeText(mContext, getResources()
-                        .getString(R.string.GeneralErrorText), Toast.LENGTH_LONG).show();
+                if (getActivity() != null) {
+                    Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG)
+                            .show();
+                }
             }
         }
     }

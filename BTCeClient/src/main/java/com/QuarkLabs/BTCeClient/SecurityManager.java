@@ -4,7 +4,12 @@ import android.content.Context;
 import android.provider.Settings;
 import android.util.Base64;
 
-import javax.crypto.*;
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
@@ -16,11 +21,9 @@ public class SecurityManager {
     private static SecurityManager sInstance;
     private SecretKey mKey;
 
-    private SecurityManager() {
-    }
-
     private SecurityManager(Context context) {
-        String androidId = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        String androidId = Settings.Secure
+                .getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
         try {
             DESKeySpec keySpec = new DESKeySpec(androidId.getBytes("UTF8"));
             SecretKeyFactory keyFactory = SecretKeyFactory.getInstance("DES");

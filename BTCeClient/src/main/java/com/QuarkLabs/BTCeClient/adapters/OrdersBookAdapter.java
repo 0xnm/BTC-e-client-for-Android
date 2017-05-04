@@ -70,16 +70,16 @@ public class OrdersBookAdapter extends BaseAdapter {
         JSONArray value = mData.optJSONArray(position);
         double price = value.optDouble(0);
         double volume = value.optDouble(1);
-        TextView text1 = (TextView) v.findViewById(R.id.orderBookPrice);
-        TextView text2 = (TextView) v.findViewById(R.id.ordersBookVolume);
-        text1.setText(decimalToStringWithoutExponent(price));
-        text2.setText(decimalToStringWithoutExponent(volume));
+        TextView priceView = (TextView) v.findViewById(R.id.orderBookPrice);
+        TextView volumeView = (TextView) v.findViewById(R.id.ordersBookVolume);
+        priceView.setText(decimalToStringWithoutExponent(price));
+        volumeView.setText(decimalToStringWithoutExponent(volume));
         if (volume == mMaxValue) {
-            text1.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
-            text2.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            priceView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            volumeView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         } else {
-            text1.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
-            text2.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+            priceView.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
+            volumeView.setTypeface(Typeface.defaultFromStyle(Typeface.NORMAL));
         }
 
         return v;
@@ -99,7 +99,8 @@ public class OrdersBookAdapter extends BaseAdapter {
     public void pushData(JSONArray data) {
         mData = data;
         for (int i = 0; i < data.length(); i++) {
-            mMaxValue = mMaxValue < data.optJSONArray(i).optDouble(1) ? data.optJSONArray(i).optDouble(1) : mMaxValue;
+            mMaxValue = mMaxValue < data.optJSONArray(i).optDouble(1) ?
+                    data.optJSONArray(i).optDouble(1) : mMaxValue;
         }
         notifyDataSetChanged();
     }

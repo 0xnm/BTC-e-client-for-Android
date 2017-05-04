@@ -25,44 +25,60 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.view.*;
-import android.widget.*;
+import android.support.annotation.NonNull;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.CursorAdapter;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.TextView;
+
 import com.QuarkLabs.BTCeClient.DBWorker;
 import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.Watcher;
 
 public class NotifiersFragment extends Fragment {
-    private final static int PANIC_BUY_TYPE = 0;
-    private final static int PANIC_SELL_TYPE = 1;
-    private final static int STOP_LOSS_TYPE = 2;
-    private final static int TAKE_PROFIT_TYPE = 3;
+
     private Cursor mCursor;
     private CursorAdapter mCursorAdapter;
     private DBWorker mDbWorker;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         return inflater.inflate(R.layout.fragment_notifiers, container, false);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        ListView listView = (ListView) ((ViewGroup) getView()).getChildAt(0);
+        ListView listView = (ListView) view.findViewById(R.id.watchers_list);
+
         mDbWorker = DBWorker.getInstance(getActivity());
         mCursor = mDbWorker.getNotifiers();
         mCursor.moveToFirst();
+
         mCursorAdapter = new CursorAdapter(getActivity(), mCursor, true) {
             @Override
             public View newView(Context context, Cursor cursor, ViewGroup parent) {
-                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                return inflater.inflate(R.layout.notifiers_item, parent, false);
+                return LayoutInflater.from(context).inflate(R.layout.notifiers_item, parent, false);
             }
 
+            @SuppressLint("SetTextI18n")
             @Override
             public void bindView(View view, Context context, Cursor cursor) {
-                TextView type = (TextView) view.findViewById(R.id.NotifiersType);
-                TextView value = (TextView) view.findViewById(R.id.NotifiersValue);
-                TextView pair = (TextView) view.findViewById(R.id.NotifiersPair);
+
+                TextView typeView = (TextView) view.findViewById(R.id.NotifiersType);
+                TextView valueView = (TextView) view.findViewById(R.id.NotifiersValue);
+                TextView pairView = (TextView) view.findViewById(R.id.NotifiersPair);
                 final int id = cursor.getInt(cursor.getColumnIndex("_id"));
 
                 ImageView remove = (ImageView) view.findViewById(R.id.removeNotifier);
@@ -74,25 +90,30 @@ public class NotifiersFragment extends Fragment {
                         mCursorAdapter.swapCursor(mCursor);
                     }
                 });
-                int typeValue = cursor.getInt(cursor.getColumnIndex("Type"));
-                String pairText = cursor.getString(cursor.getColumnIndex("Pair"));
-                pair.setText(pairText);
-                switch (typeValue) {
-                    case PANIC_BUY_TYPE:
-                        type.setText("Panic Buy");
-                        value.setText(cursor.getString(cursor.getColumnIndex("Value")) + "%");
+
+                @Watcher int watcherType = cursor.getInt(
+                        cursor.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
+                String pair = cursor.getString(
+                        cursor.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN));
+                pairView.setText(pair);
+                final String value = cursor.getString(
+                        cursor.getColumnIndex(DBWorker.NOTIFIERS_VALUE_COLUMN));
+                switch (watcherType) {
+                    case Watcher.PANIC_BUY:
+                        typeView.setText(R.string.watcher_panic_buy);
+                        valueView.setText(value + "%");
                         break;
-                    case PANIC_SELL_TYPE:
-                        type.setText("Panic Sell");
-                        value.setText(cursor.getString(cursor.getColumnIndex("Value")) + "%");
+                    case Watcher.PANIC_SELL:
+                        typeView.setText(R.string.watcher_panic_sell);
+                        valueView.setText(value + "%");
                         break;
-                    case STOP_LOSS_TYPE:
-                        type.setText("Stop Loss");
-                        value.setText(cursor.getString(cursor.getColumnIndex("Value")) + " " + pairText.substring(4));
+                    case Watcher.STOP_LOSS:
+                        typeView.setText(R.string.watcher_stop_loss);
+                        valueView.setText(value + " " + pair.substring(4));
                         break;
-                    case TAKE_PROFIT_TYPE:
-                        type.setText("Take Profit");
-                        value.setText(cursor.getString(cursor.getColumnIndex("Value")) + " " + pairText.substring(4));
+                    case Watcher.TAKE_PROFIT:
+                        typeView.setText(R.string.watcher_take_profit);
+                        valueView.setText(value + " " + pair.substring(4));
                         break;
                     default:
                         break;
@@ -101,7 +122,7 @@ public class NotifiersFragment extends Fragment {
         };
 
         listView.setAdapter(mCursorAdapter);
-        listView.setEmptyView(getView().findViewById(R.id.NoItems));
+        listView.setEmptyView(view.findViewById(R.id.NoItems));
 
     }
 
@@ -115,80 +136,7 @@ public class NotifiersFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_add:
-                LayoutInflater inflater = (LayoutInflater) getActivity()
-                        .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.notifiers_add_dialog, null);
-                final TextView valueTitle = (TextView) view.findViewById(R.id.ValueTitle);
-                final TextView notifDesc = (TextView) view.findViewById(R.id.NotifDescription);
-                Spinner type = (Spinner) view.findViewById(R.id.TypeSpinner);
-                type.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        switch (position) {
-                            case 0:
-                                valueTitle.setText("Delta (%)");
-                                notifDesc.setText(getActivity().getResources()
-                                        .getString(R.string.PanicSellDescription));
-                                break;
-                            case 1:
-                                valueTitle.setText("Delta (%)");
-                                notifDesc.setText(getActivity().getResources()
-                                        .getString(R.string.PanicBuyDescription));
-                                break;
-                            case 2:
-                                valueTitle.setText("Value");
-                                notifDesc.setText(getActivity().getResources()
-                                        .getString(R.string.StopLossDescription));
-                                break;
-                            case 3:
-                                valueTitle.setText("Value");
-                                notifDesc.setText(getActivity().getResources()
-                                        .getString(R.string.TakeProfitDescription));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {
-
-                    }
-                });
-                new AlertDialog.Builder(getActivity())
-                        .setTitle(getActivity().getString(R.string.AddWatcherTitle))
-                        .setView(view)
-                        .setNeutralButton(getResources().getString(R.string.DialogSaveButton),
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        AlertDialog alertDialog = (AlertDialog) dialog;
-                                        String typeString = ((Spinner) alertDialog.findViewById(R.id.TypeSpinner))
-                                                .getSelectedItem().toString();
-                                        int type = 0;
-                                        if (typeString.equals("Panic Sell")) {
-                                            type = 1;
-                                        } else if (typeString.equals("Panic Buy")) {
-                                            type = 0;
-                                        } else if (typeString.equals("Stop-loss")) {
-                                            type = 2;
-                                        } else if (typeString.equals("Take-profit")) {
-                                            type = 3;
-                                        }
-
-                                        String pair = ((Spinner) alertDialog.findViewById(R.id.PairSpinner))
-                                                .getSelectedItem().toString();
-                                        float value = Float.parseFloat(((EditText) alertDialog.findViewById(R.id.NotifValue))
-                                                .getText().toString());
-
-
-                                        mDbWorker.addNewNotifier(type, pair, value);
-                                        mCursor = mDbWorker.getNotifiers();
-                                        mCursorAdapter.swapCursor(mCursor);
-                                    }
-                                }
-                        ).show();
-
+                showAddWatcherDialog();
                 break;
             default:
                 break;
@@ -196,9 +144,106 @@ public class NotifiersFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
+    private void showAddWatcherDialog() {
+        LayoutInflater inflater = LayoutInflater.from(getActivity());
+        @SuppressLint("InflateParams") View dialogContentView = inflater
+                .inflate(R.layout.notifiers_add_dialog, null);
+
+        final TextView valueTitle = (TextView) dialogContentView.findViewById(R.id.ValueTitle);
+        final TextView notifDesc = (TextView) dialogContentView.findViewById(R.id.NotifDescription);
+
+        Spinner watcherTypeSpinner = (Spinner) dialogContentView.findViewById(R.id.TypeSpinner);
+
+        ArrayAdapter<CharSequence> adapter =
+                new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item,
+                        new CharSequence[]{
+                                getString(R.string.watcher_panic_sell),
+                                getString(R.string.watcher_panic_buy),
+                                getString(R.string.watcher_stop_loss),
+                                getString(R.string.watcher_take_profit)
+
+                        });
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        watcherTypeSpinner.setAdapter(adapter);
+
+        watcherTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        valueTitle.setText(R.string.watcher_value_delta);
+                        notifDesc.setText(R.string.PanicSellDescription);
+                        break;
+                    case 1:
+                        valueTitle.setText(R.string.watcher_value_delta);
+                        notifDesc.setText(R.string.PanicBuyDescription);
+                        break;
+                    case 2:
+                        valueTitle.setText(R.string.watcher_value_number);
+                        notifDesc.setText(R.string.StopLossDescription);
+                        break;
+                    case 3:
+                        valueTitle.setText(R.string.watcher_value_number);
+                        notifDesc.setText(R.string.TakeProfitDescription);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
+        new AlertDialog.Builder(getActivity())
+                .setTitle(R.string.AddWatcherTitle)
+                .setView(dialogContentView)
+                .setNeutralButton(android.R.string.cancel, null)
+                .setPositiveButton(R.string.DialogSaveButton,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                saveWatcher((AlertDialog) dialog);
+                            }
+                        }
+                ).show();
+    }
+
+    private void saveWatcher(AlertDialog watcherDialog) {
+        String typeName = ((Spinner) watcherDialog.findViewById(R.id.TypeSpinner))
+                .getSelectedItem().toString();
+        @Watcher int type = 0;
+        if (getString(R.string.watcher_panic_sell).equals(typeName)) {
+            type = Watcher.PANIC_SELL;
+        } else if (getString(R.string.watcher_panic_buy).equals(typeName)) {
+            type = Watcher.PANIC_BUY;
+        } else if (getString(R.string.watcher_stop_loss).equals(typeName)) {
+            type = Watcher.STOP_LOSS;
+        } else if (getString(R.string.watcher_take_profit).equals(typeName)) {
+            type = Watcher.TAKE_PROFIT;
+        } else {
+            throw new RuntimeException("Unknown watcher type = " + typeName);
+        }
+
+        String pair = ((Spinner) watcherDialog.findViewById(R.id.PairSpinner))
+                .getSelectedItem().toString();
+        float value = Float.parseFloat(((EditText) watcherDialog.findViewById(R.id.NotifValue))
+                .getText().toString());
+
+        saveWatcher(type, pair, value);
+    }
+
+    private void saveWatcher(@Watcher int watcherType, @NonNull String pair, float value) {
+        mDbWorker.addNewNotifier(watcherType, pair, value);
+        mCursor = mDbWorker.getNotifiers();
+        mCursorAdapter.swapCursor(mCursor);
+    }
+
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
         mCursor.close();
+        super.onDestroyView();
     }
 }

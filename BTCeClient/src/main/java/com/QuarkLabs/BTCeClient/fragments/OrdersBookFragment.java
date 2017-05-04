@@ -18,16 +18,30 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
-import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.TypedValue;
-import android.view.*;
-import android.widget.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.Spinner;
+import android.widget.Toast;
+
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersBookAdapter;
 import com.QuarkLabs.BTCeClient.loaders.OrderBookLoader;
@@ -52,7 +66,8 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPairsSpinner = (Spinner) LayoutInflater.from(getActivity()).inflate(R.layout.spinner, null);
+        mPairsSpinner = (Spinner) LayoutInflater.from(getActivity())
+                .inflate(R.layout.spinner, null);
         mPairsSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
@@ -85,16 +100,24 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        @SuppressLint("InflateParams") View v = inflater.inflate(R.layout.fragment_ordersbook, container, false);
-        mAsksList = (ListView) v.findViewById(R.id.asks);
-        mBidsList = (ListView) v.findViewById(R.id.bids);
-        mChartArea = (FrameLayout) v.findViewById(R.id.OrdersBookChart);
+
+        return inflater.inflate(R.layout.fragment_ordersbook, container, false);
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        mAsksList = (ListView) view.findViewById(R.id.asks);
+        mBidsList = (ListView) view.findViewById(R.id.bids);
+        mChartArea = (FrameLayout) view.findViewById(R.id.OrdersBookChart);
         mLoadingViewAsks = new ProgressBar(getActivity());
         mLoadingViewBids = new ProgressBar(getActivity());
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.MATCH_PARENT
+        );
         lp.gravity = Gravity.CENTER;
         mLoadingViewAsks.setLayoutParams(lp);
 
@@ -105,9 +128,9 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
         mBidsList.setEmptyView(mLoadingViewBids);
 
         ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
-        hostActivity.getSupportActionBar().setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
+        hostActivity.getSupportActionBar()
+                .setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
         hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
-        return v;
     }
 
     @Override
@@ -173,7 +196,8 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
                             }
                             return asks.optJSONArray(index).optString(0);
                         }
-                        return bids.optJSONArray(bidsSeries.getPointCount() - 1 - index).optString(0);
+                        return bids
+                                .optJSONArray(bidsSeries.getPointCount() - 1 - index).optString(0);
                     }
                     return null;
 

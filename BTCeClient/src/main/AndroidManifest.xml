@@ -1,50 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          xmlns:tools="http://schemas.android.com/tools"
-          package="com.QuarkLabs.BTCeClient"
-          android:versionCode="18"
-          android:versionName="1.5.5">
-<!-- keeping uses-sdk in case of using other build systems, suppressing Lint warning  -->
-    <uses-sdk android:minSdkVersion="14"
-              android:targetSdkVersion="22"
-              tools:ignore="GradleOverrides"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
-    <application android:label="@string/app_name"
-                 android:icon="@drawable/ic_launcher"
-                 android:theme="@style/AppTheme"
-                 android:allowBackup="false"
-                 android:supportsRtl="true"
-                 android:name=".BtcEApplication">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.QuarkLabs.BTCeClient"
+    android:versionCode="19"
+    android:versionName="1.5.6">
+    <!-- keeping uses-sdk in case of using other build systems, suppressing Lint warning  -->
+    <uses-sdk
+        android:minSdkVersion="14"
+        android:targetSdkVersion="22"
+        tools:ignore="GradleOverrides" />
 
-        <activity android:name=".MainActivity"
-                  android:label="@string/app_name"
-                  android:windowSoftInputMode="stateHidden">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".BtcEApplication"
+        android:allowBackup="false"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+
+        <activity
+            android:name=".MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:windowSoftInputMode="stateHidden">
 
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <!-- suppressing Lint message -->
-        <service android:name=".services.CheckTickersService"
-                 tools:ignore="MissingRegistered"
-                 android:exported="false"/>
-        <receiver android:name=".StartServiceReceiver"
-                  android:enabled="true"/>
+        <service
+            android:name=".services.CheckTickersService"
+            android:exported="false"
+            tools:ignore="MissingRegistered" />
+
+        <receiver
+            android:name=".StartServiceReceiver"
+            android:enabled="true" />
         <receiver android:name=".WidgetProvider">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <intent-filter>
-                <action android:name="WifiManager.WIFI_STATE_CHANGED_ACTION"/>
+                <action android:name="WifiManager.WIFI_STATE_CHANGED_ACTION" />
             </intent-filter>
-            <meta-data android:name="android.appwidget.provider"
-                       android:resource="@xml/appwidget_info"/>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/appwidget_info" />
         </receiver>
+
         <activity android:name=".WidgetConfigure">
             <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
         </activity>
     </application>

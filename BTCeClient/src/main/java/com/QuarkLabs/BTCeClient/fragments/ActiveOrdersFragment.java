@@ -37,7 +37,8 @@ import org.json.JSONObject;
 
 import java.util.Locale;
 
-public class ActiveOrdersFragment extends Fragment implements LoaderManager.LoaderCallbacks<JSONObject> {
+public class ActiveOrdersFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<JSONObject> {
 
     private static final int LOADER_ID = 2;
     private OrdersAdapter mAdapter;
@@ -46,7 +47,8 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
     private TextView mNoItems;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
         return inflater.inflate(R.layout.fragment_active_orders, container, false);
     }
@@ -75,9 +77,9 @@ public class ActiveOrdersFragment extends Fragment implements LoaderManager.Load
     @Override
     public void onLoadFinished(Loader<JSONObject> loader, JSONObject data) {
         if (data == null) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.GeneralErrorText), Toast.LENGTH_LONG)
+            Toast.makeText(getActivity(), getString(R.string.GeneralErrorText), Toast.LENGTH_LONG)
                     .show();
-            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase(Locale.US));
+            mNoItems.setText(getString(R.string.OoopsError).toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else if (data.optInt("success") == 0) {

@@ -50,7 +50,7 @@ public class App {
             url += x.replace("/", "_").toLowerCase(Locale.US) + "-";
         }
         SimpleRequest reqSim = new SimpleRequest();
-        return reqSim.makeRequest(url.substring(0, url.length() - 1));
+        return reqSim.call(url.substring(0, url.length() - 1));
     }
 
     /**
@@ -109,7 +109,8 @@ public class App {
      * @return JSONObject with trade response, https://btc-e.com/api/documentation
      * @throws JSONException
      */
-    public JSONObject trade(String pair, String type, String rate, String amount) throws JSONException {
+    public JSONObject trade(String pair, String type, String rate, String amount)
+            throws JSONException {
 
         HashMap<String, String> temp = new HashMap<>(4);
         temp.put("pair", pair);

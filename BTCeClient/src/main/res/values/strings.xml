@@ -88,18 +88,31 @@
         <item>PPC/USD</item>
         <item>DSH/BTC</item>
         <item>DSH/USD</item>
+        <item>DSH/RUR</item>
+        <item>DSH/EUR</item>
+        <item>DSH/LTC</item>
+        <item>DSH/ETH</item>
         <item>ETH/BTC</item>
         <item>ETH/USD</item>
         <item>ETH/EUR</item>
         <item>ETH/LTC</item>
         <item>ETH/RUR</item>
     </string-array>
-    <string-array name="WatcherTypes">
-        <item>Panic Sell</item>
-        <item>Panic Buy</item>
-        <item>Stop-loss</item>
-        <item>Take-profit</item>
-    </string-array>
+
+    <string name="watcher_panic_sell">Panic Sell</string>
+    <string name="watcher_panic_buy">Panic Buy</string>
+    <string name="watcher_stop_loss">Stop-loss</string>
+    <string name="watcher_take_profit">Take-profit</string>
+
+    <string name="watcher_value_delta">Delta (%)</string>
+    <string name="watcher_value_number">Value</string>
+
+    <string name="watcher_alarm">%1$s for %2$s</string>
+    <string name="watcher_alarm_panic_sell_details">%1$s dropped more than %2$s%%</string>
+    <string name="watcher_alarm_panic_buy_details">%1$s raised more than %2$s%%</string>
+    <string name="watcher_alarm_stop_loss_details">%1$s went below %2$s %3$s</string>
+    <string name="watcher_alarm_take_profit_details">%1$s went above %2$s %3$s</string>
+
     <string name="AboutText"><![CDATA[<b>Used libraries: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
     <br /><br /><b>Watchers: </b><br />Please note, that to make a watcher work you <b>should</b> have its pair added at the Dashboard<br /><br />
     <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies

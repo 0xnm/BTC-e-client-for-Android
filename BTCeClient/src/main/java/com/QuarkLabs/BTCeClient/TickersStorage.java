@@ -18,6 +18,8 @@
 
 package com.QuarkLabs.BTCeClient;
 
+import android.support.annotation.NonNull;
+
 import com.QuarkLabs.BTCeClient.models.Ticker;
 
 import java.util.HashMap;
@@ -32,10 +34,22 @@ public class TickersStorage {
         mLatestTickers = newData;
     }
 
+    /**
+     * Provides previous data
+     *
+     * @return Map in format pair - ticker
+     */
+    @NonNull
     public static Map<String, Ticker> loadPreviousData() {
         return mPreviousTickers;
     }
 
+    /**
+     * Provides latest data
+     *
+     * @return Map in format pair - ticker
+     */
+    @NonNull
     public static Map<String, Ticker> loadLatestData() {
         return mLatestTickers;
     }

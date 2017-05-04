@@ -22,7 +22,6 @@ import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -30,27 +29,57 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v7.widget.SwitchCompat;
 import android.util.TypedValue;
-import android.view.*;
-import android.widget.*;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+
 import org.stockchart.StockChartView;
-import org.stockchart.core.*;
-import org.stockchart.indicators.*;
+import org.stockchart.core.Appearance;
+import org.stockchart.core.Area;
+import org.stockchart.core.Axis;
+import org.stockchart.core.Crosshair;
+import org.stockchart.core.IndicatorManager;
+import org.stockchart.core.Plot;
+import org.stockchart.indicators.AbstractIndicator;
+import org.stockchart.indicators.EmaIndicator;
+import org.stockchart.indicators.MacdIndicator;
+import org.stockchart.indicators.RsiIndicator;
+import org.stockchart.indicators.SmaIndicator;
 import org.stockchart.series.StockSeries;
 
 import javax.net.ssl.HttpsURLConnection;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +92,8 @@ public class ChartsFragment extends Fragment {
     private MenuItem mRefreshItem;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         setHasOptionsMenu(true);
         mInflater = inflater;
         if (mRootView == null) {
@@ -105,13 +135,14 @@ public class ChartsFragment extends Fragment {
                 updateCharts();
                 break;
             case R.id.action_add:
-                final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(getActivity(),
-                        getResources().getStringArray(R.array.ExchangePairs),
-                        CheckBoxListAdapter.SettingsScope.CHARTS);
+                final CheckBoxListAdapter checkBoxListAdapter =
+                        new CheckBoxListAdapter(getActivity(),
+                                getResources().getStringArray(R.array.ExchangePairs),
+                                CheckBoxListAdapter.SettingsScope.CHARTS);
                 ListView v = new ListView(getActivity());
                 v.setAdapter(checkBoxListAdapter);
                 new AlertDialog.Builder(getActivity())
-                        .setTitle(getResources().getString(R.string.SelectPairsPromptTitle))
+                        .setTitle(R.string.SelectPairsPromptTitle)
                         .setView(v)
                         .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                             @Override
@@ -157,8 +188,8 @@ public class ChartsFragment extends Fragment {
             }
             for (String x : chartsNamesSorted) {
                 String pair = x.replace("/", "_").toLowerCase(Locale.US);
-                mChartsUpdater.queueChart((StockChartView) mCharts.get(x).findViewById(R.id.stockChartView),
-                        pair);
+                mChartsUpdater.queueChart(
+                        (StockChartView) mCharts.get(x).findViewById(R.id.stockChartView), pair);
             }
         }
     }
@@ -175,10 +206,13 @@ public class ChartsFragment extends Fragment {
         chartsContainer.removeAllViews();
 
         mCharts = new HashMap<>();
-        Set<String> hashSet = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(getActivity()));
+        Set<String> hashSet = new HashSet<>(
+                PairUtils.getChartsToDisplayThatSupported(getActivity()));
 
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.MATCH_PARENT);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+        );
         lp.gravity = Gravity.CENTER;
 
         TextView noCharts = new TextView(getActivity());
@@ -199,7 +233,8 @@ public class ChartsFragment extends Fragment {
             mCharts.put(x, element);
         }
 
-        CompoundButton.OnCheckedChangeListener indicatorChangeStateListener = new CompoundButton.OnCheckedChangeListener() {
+        CompoundButton.OnCheckedChangeListener indicatorChangeStateListener
+                = new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 ViewGroup viewGroup;
@@ -208,7 +243,8 @@ public class ChartsFragment extends Fragment {
                 } else {
                     viewGroup = (ViewGroup) buttonView.getParent();
                 }
-                StockChartView stockChartView = (StockChartView) viewGroup.findViewById(R.id.stockChartView);
+                StockChartView stockChartView
+                        = (StockChartView) viewGroup.findViewById(R.id.stockChartView);
                 IndicatorManager iManager = stockChartView.getIndicatorManager();
                 if (stockChartView.findSeriesByName("price") != null) {
                     if (isChecked) {
@@ -297,12 +333,12 @@ public class ChartsFragment extends Fragment {
      * Shows error, helper function
      */
     private void showError() {
-        final String errorText = getResources().getString(R.string.GeneralErrorText);
         if (isVisible() && getActivity() != null) {
             getActivity().runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Toast.makeText(getActivity(), errorText, Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(),
+                            R.string.GeneralErrorText, Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -318,8 +354,8 @@ public class ChartsFragment extends Fragment {
         private static final String TAG = "ChartsUpdaterThread";
         private Handler mHandler;
         private Handler mResponseHandler;
-        private Map<StockChartView, String> requestMap = Collections.synchronizedMap(new HashMap<StockChartView,
-                String>());
+        private Map<StockChartView, String> requestMap
+                = Collections.synchronizedMap(new HashMap<StockChartView, String>());
         private Listener<StockChartView> mListener;
 
 
@@ -374,7 +410,8 @@ public class ChartsFragment extends Fragment {
 
         public void queueChart(StockChartView token, String pair) {
             if (mHandler == null) {
-                throw new NullPointerException("Handler was not created. You can do it by calling createHandler()");
+                throw new NullPointerException("Handler was not created. You can" +
+                        " do it by calling createHandler()");
             }
             requestMap.put(token, pair);
             mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
@@ -511,7 +548,8 @@ public class ChartsFragment extends Fragment {
                     showError();
                     return null;
                 }
-                BufferedReader rd = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                BufferedReader rd = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream()));
                 String line;
                 while ((line = rd.readLine()) != null) {
                     out.append(line);
@@ -545,7 +583,8 @@ public class ChartsFragment extends Fragment {
                 }
 
                 mCookies.addAll(connection.getHeaderFields().get("Set-Cookie"));
-                BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(connection.getInputStream()));
                 StringBuilder stringBuilder = new StringBuilder();
                 String line;
                 while ((line = reader.readLine()) != null) {

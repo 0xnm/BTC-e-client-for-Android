@@ -21,17 +21,24 @@ package com.QuarkLabs.BTCeClient.exchangeApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.SecurityManager;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.io.*;
+
+import java.io.BufferedReader;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.security.InvalidKeyException;
@@ -83,7 +90,8 @@ public class AuthRequest {
      * @throws JSONException
      */
     @Nullable
-    public JSONObject makeRequest(@NotNull String method, Map<String, String> arguments) throws JSONException {
+    public JSONObject makeRequest(@NonNull String method,
+                                  Map<String, String> arguments) throws JSONException {
 
         if (key.length() == 0 || secret.length() == 0) {
             return new JSONObject("{success:0,error:'No key/secret provided'}");

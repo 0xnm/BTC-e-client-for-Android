@@ -5,8 +5,19 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Loader;
 import android.os.Bundle;
-import android.view.*;
-import android.widget.*;
+import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import com.QuarkLabs.BTCeClient.ListType;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersAdapter;
@@ -55,7 +66,8 @@ public class HistoryFragment extends Fragment
 
     public static HistoryFragment newInstance(ListType historyType) {
         if (historyType == ListType.ActiveOrders) {
-            throw new IllegalArgumentException("ActiveOrders type is not supported by this Fragment");
+            throw new IllegalArgumentException(
+                    "ActiveOrders type is not supported by this Fragment");
         }
         Bundle bundle = new Bundle();
         bundle.putSerializable(mListTypeTag, historyType);
@@ -92,7 +104,8 @@ public class HistoryFragment extends Fragment
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_trade_trans_history, container, false);
     }
 
@@ -100,12 +113,12 @@ public class HistoryFragment extends Fragment
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mAdapter = new OrdersAdapter(getActivity(), mHistoryType);
-        mListView = (ListView) getView().findViewById(R.id.HistoryContainer);
-        final EditText startDate = (EditText) getView().findViewById(R.id.StartDateValue);
-        final EditText endDate = (EditText) getView().findViewById(R.id.EndDateValue);
+        mListView = (ListView) view.findViewById(R.id.HistoryContainer);
+        final EditText startDate = (EditText) view.findViewById(R.id.StartDateValue);
+        final EditText endDate = (EditText) view.findViewById(R.id.EndDateValue);
         startDate.setText(mDateFormat.format(mStartDateValue));
         endDate.setText(mDateFormat.format(mEndDateValue));
-        Button makeQuery = (Button) getView().findViewById(R.id.MakeQueryButton);
+        Button makeQuery = (Button) view.findViewById(R.id.MakeQueryButton);
         View.OnClickListener showDatePicker = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -165,8 +178,8 @@ public class HistoryFragment extends Fragment
 
             }
         });
-        mLoadingView = (ProgressBar) getView().findViewById(R.id.Loading);
-        mNoItems = (TextView) getView().findViewById(R.id.NoItems);
+        mLoadingView = (ProgressBar) view.findViewById(R.id.Loading);
+        mNoItems = (TextView) view.findViewById(R.id.NoItems);
         mListView.setEmptyView(mLoadingView);
     }
 
@@ -196,9 +209,9 @@ public class HistoryFragment extends Fragment
     @Override
     public void onLoadFinished(Loader<JSONObject> loader, JSONObject data) {
         if (data == null) {
-            Toast.makeText(getActivity(), getResources().getString(R.string.GeneralErrorText), Toast.LENGTH_LONG)
+            Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG)
                     .show();
-            mNoItems.setText(getResources().getString(R.string.OoopsError).toUpperCase(Locale.US));
+            mNoItems.setText(getString(R.string.OoopsError).toUpperCase(Locale.US));
             mListView.setEmptyView(mNoItems);
             mLoadingView.setVisibility(View.GONE);
         } else if (data.optInt("success") == 0) {

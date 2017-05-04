@@ -18,7 +18,8 @@
 
 package com.QuarkLabs.BTCeClient.exchangeApi;
 
-import org.jetbrains.annotations.Nullable;
+import android.support.annotation.Nullable;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -38,7 +39,7 @@ public class SimpleRequest {
      * @throws JSONException
      */
     @Nullable
-    public JSONObject makeRequest(String urlString) throws JSONException {
+    public JSONObject call(String urlString) throws JSONException {
 
         HttpURLConnection connection = null;
         BufferedReader rd = null;

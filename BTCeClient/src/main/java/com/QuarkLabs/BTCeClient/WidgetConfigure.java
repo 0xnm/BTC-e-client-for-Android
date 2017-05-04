@@ -68,7 +68,8 @@ public class WidgetConfigure extends ListActivity {
                 Map<Integer, String> map = new HashMap<>();
                 map.put(mAppWidgetId, mAdapter.getItem(position));
 
-                AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(WidgetConfigure.this);
+                AppWidgetManager appWidgetManager
+                        = AppWidgetManager.getInstance(WidgetConfigure.this);
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.appwidget_layout);
                 views.setTextViewText(R.id.widgetPair, mAdapter.getItem(position));
                 SimpleDateFormat df = new SimpleDateFormat(DATE_TIME_PATTERN, Locale.US);
@@ -77,7 +78,8 @@ public class WidgetConfigure extends ListActivity {
 
                 appWidgetManager.updateAppWidget(mAppWidgetId, views);
 
-                UpdateWidgetsTask updateWidgetsTask = new UpdateWidgetsTask(WidgetConfigure.this, map);
+                UpdateWidgetsTask updateWidgetsTask
+                        = new UpdateWidgetsTask(WidgetConfigure.this, map);
                 updateWidgetsTask.execute();
 
                 Intent resultValue = new Intent();

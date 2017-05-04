@@ -18,9 +18,13 @@
 
 package com.QuarkLabs.BTCeClient;
 
-import android.app.*;
+import android.app.AlarmManager;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -40,7 +44,14 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.QuarkLabs.BTCeClient.exchangeApi.App;
-import com.QuarkLabs.BTCeClient.fragments.*;
+import com.QuarkLabs.BTCeClient.fragments.ActiveOrdersFragment;
+import com.QuarkLabs.BTCeClient.fragments.ChartsFragment;
+import com.QuarkLabs.BTCeClient.fragments.HelpFragment;
+import com.QuarkLabs.BTCeClient.fragments.HistoryFragment;
+import com.QuarkLabs.BTCeClient.fragments.HomeFragment;
+import com.QuarkLabs.BTCeClient.fragments.NotifiersFragment;
+import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
+import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
 
@@ -118,10 +129,16 @@ public class MainActivity extends ActionBarActivity
             }, delay);
             mDrawerList.setItemChecked(position, true);
             mDrawerList.setSelection(position);
-            if (mDrawerLayout != null) {
+            if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerList)) {
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        displayItem(0);
     }
 
     /**
@@ -139,9 +156,9 @@ public class MainActivity extends ActionBarActivity
         }
         getSupportActionBar().setElevation(20);
 
-        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final SharedPreferences sharedPreferences
+                = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        //onVersionUpdate(sharedPreferences);
 
         alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
         if (alarmSet) {
@@ -151,7 +168,8 @@ public class MainActivity extends ActionBarActivity
 
         mDrawerListItems = getResources().getStringArray(R.array.NavSections);
         mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_list_item, mDrawerListItems));
+        mDrawerList.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, mDrawerListItems));
         mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -175,45 +193,6 @@ public class MainActivity extends ActionBarActivity
             displayItem(0);
         }
 
-    }
-
-    private void onVersionUpdate(final SharedPreferences sharedPreferences) {
-        final String keyToCheck = "needNotifyAboutNewSecuritySystem";
-        boolean needNotify = sharedPreferences.getBoolean(keyToCheck, true);
-        if (needNotify) {
-            //getting old values
-            String key = sharedPreferences.getString("key", "");
-            String secret = sharedPreferences.getString("secret", "");
-            PreferenceManager.setDefaultValues(this, R.xml.preferences, false);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            if (key.length() != 0) {
-                editor.putString(SettingsFragment.KEY_API_KEY,
-                        SecurityManager.getInstance(this).encryptString(key));
-            }
-            if (secret.length() != 0) {
-                editor.putString(SettingsFragment.KEY_API_SECRET,
-                        SecurityManager.getInstance(this).encryptString(secret));
-            }
-            editor.putString("key", "");
-            editor.putString("secret", "");
-            editor.commit();
-            String messageTitle = "New security system";
-            String message = "New security system is added with this update. " +
-                    "Now sensitive API credentials will be stored in encrypted state, " +
-                    "it will save them from the leak even if device is rooted.";
-            new AlertDialog.Builder(this)
-                    .setNeutralButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            SharedPreferences.Editor editor = sharedPreferences.edit();
-                            editor.putBoolean(keyToCheck, false);
-                            editor.commit();
-                        }
-                    })
-                    .setTitle(messageTitle)
-                    .setMessage(message)
-                    .show();
-        }
     }
 
     @Override
@@ -249,7 +228,8 @@ public class MainActivity extends ActionBarActivity
     public void setRecurringAlarm(long msecs) {
         Intent downloader = new Intent(this, StartServiceReceiver.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pendingIntent = PendingIntent.getBroadcast(this, 0, downloader, PendingIntent.FLAG_UPDATE_CURRENT);
+        pendingIntent = PendingIntent.getBroadcast(this, 0,
+                downloader, PendingIntent.FLAG_UPDATE_CURRENT);
         alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
@@ -277,7 +257,8 @@ public class MainActivity extends ActionBarActivity
     public void makeNotification(int id, String message) {
         NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                .setContentTitle(getResources().getString(R.string.app_name))
+                .setContentTitle(getString(R.string.app_name))
+                .setColor(getResources().getColor(R.color.colorPrimary))
                 .setContentText(message);
 
         mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
