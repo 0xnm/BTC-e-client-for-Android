@@ -1,39 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="API Key"
-                        android:key="pref_api">
+    <PreferenceCategory
+        android:key="pref_api"
+        android:title="API Key">
         <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
-                android:defaultValue="@string/APIKeyDefaultText"
-                android:key="API_Key"
-                android:title="@string/KeyTitle"/>
+            android:defaultValue="@string/APIKeyDefaultText"
+            android:key="API_Key"
+            android:singleLine="true"
+            android:title="@string/KeyTitle" />
 
         <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
-                android:defaultValue="@string/APISecretDefaultText"
-                android:key="API_Secret"
-                android:title="@string/SettingsSecretTitle"/>
+            android:defaultValue="@string/APISecretDefaultText"
+            android:key="API_Secret"
+            android:singleLine="true"
+            android:title="@string/SettingsSecretTitle" />
 
     </PreferenceCategory>
     <PreferenceCategory
-            android:title="Periodic check"
-            android:key="pref_check">
+        android:key="pref_check"
+        android:title="Periodic check">
         <CheckBoxPreference
-                android:key="check_enabled"
-                android:title="@string/EnableRecurrentCheck"
-                android:defaultValue="false"/>
+            android:defaultValue="false"
+            android:key="check_enabled"
+            android:title="@string/EnableRecurrentCheck" />
         <ListPreference
-                android:dependency="check_enabled"
-                android:key="check_period"
-                android:dialogTitle="@string/ChoosePeriod"
-                android:entries="@array/Periods"
-                android:entryValues="@array/PeriodsInMsecs"
-                android:defaultValue="@string/period_default_value"
-                android:title="Check period"
-                android:summary="@string/CheckPeriodSummary"/>
+            android:defaultValue="@string/period_default_value"
+            android:dependency="check_enabled"
+            android:dialogTitle="@string/ChoosePeriod"
+            android:entries="@array/Periods"
+            android:entryValues="@array/PeriodsInMsecs"
+            android:key="check_period"
+            android:summary="@string/CheckPeriodSummary"
+            android:title="Check period" />
         <CheckBoxPreference
-                android:key="use_mirror"
-                android:title="@string/UseMirror"
-                android:defaultValue="false"/>
+            android:defaultValue="false"
+            android:key="use_mirror"
+            android:title="@string/UseMirror" />
     </PreferenceCategory>
 
 </PreferenceScreen>

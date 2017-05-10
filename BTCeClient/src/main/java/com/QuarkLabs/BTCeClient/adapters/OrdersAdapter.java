@@ -52,14 +52,14 @@ public class OrdersAdapter extends BaseAdapter {
     private List<JSONObject> mData = new ArrayList<>();
     private Context mContext;
     private LayoutInflater mInflater;
-    private ListType mListType;
+    private ListType listType;
     private SimpleDateFormat mDateFormat =
             new SimpleDateFormat("EEE, MMM d, yyyy HH:mm:ss", Locale.US);
 
     public OrdersAdapter(Context context, ListType listType) {
         mContext = context;
         mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        mListType = listType;
+        this.listType = listType;
         mDateFormat.setTimeZone(TimeZone.getDefault());
     }
 
@@ -88,7 +88,8 @@ public class OrdersAdapter extends BaseAdapter {
         TextView amount;
         TextView pair;
         TextView rate;
-        switch (mListType) {
+
+        switch (listType) {
             case Transactions:
                 if (convertView == null) {
                     v = mInflater.inflate(R.layout.fragment_trans_history_item, parent, false);
@@ -125,6 +126,7 @@ public class OrdersAdapter extends BaseAdapter {
 
                 try {
                     String pairValue = dataToDisplay.getString("pair");
+                    checkPairFormat(pairValue, dataToDisplay);
                     Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                     orderID.setText(dataToDisplay.getString("order_id"));
                     calendar.setTimeInMillis(Long.parseLong(dataToDisplay.getString("timestamp")) * 1000L);
@@ -172,6 +174,7 @@ public class OrdersAdapter extends BaseAdapter {
 
                 try {
                     String pairValue = dataToDisplay.getString("pair");
+                    checkPairFormat(pairValue, dataToDisplay);
                     Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
                     pair.setText(pairValue.replace("_", "/").toUpperCase(Locale.US));
                     type.setText(dataToDisplay.getString("type"));
@@ -188,6 +191,13 @@ public class OrdersAdapter extends BaseAdapter {
         }
 
         return v;
+    }
+
+    private void checkPairFormat(String pair, JSONObject parentJson) {
+        if (pair == null || pair.length() < 7) {
+            throw new IllegalArgumentException("Pair of unknown format in the following object: "
+                    + parentJson);
+        }
     }
 
     /**

@@ -57,10 +57,14 @@ public class AuthRequest {
     public AuthRequest(long nonce, Context context) {
         SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
         this.nonce = nonce;
-        key = SecurityManager.getInstance(context)
-                .decryptString(sh.getString(SettingsFragment.KEY_API_KEY, ""));
-        secret = SecurityManager.getInstance(context)
-                .decryptString(sh.getString(SettingsFragment.KEY_API_SECRET, ""));
+        key = dropNewLine(SecurityManager.getInstance(context)
+                .decryptString(sh.getString(SettingsFragment.KEY_API_KEY, "")));
+        secret = dropNewLine(SecurityManager.getInstance(context)
+                .decryptString(sh.getString(SettingsFragment.KEY_API_SECRET, "")));
+    }
+
+    private String dropNewLine(String input) {
+        return input.replaceAll("\r", "").replaceAll("\n", "");
     }
 
     /**
