@@ -1,75 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="fill_parent"
-             android:layout_height="wrap_content"
-             android:stretchColumns="1" android:shrinkColumns="1" android:background="@drawable/bg_card"
-             android:layout_marginTop="8dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:background="@drawable/bg_card"
+    android:shrinkColumns="1"
+    android:stretchColumns="1">
 
     <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/TimeStampTitle"
-                android:id="@+id/textView10"
-                android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold"/>
+            android:id="@+id/textView10"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/TimeStampTitle"
+            android:textColor="@android:color/primary_text_light"
+            android:textStyle="bold" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/PlaceholderText"
-                android:id="@+id/TransHistoryTimestamp"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:textColor="@android:color/primary_text_light"/>
+            android:id="@+id/TransHistoryTimestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/PlaceholderText"
+            android:textColor="@android:color/primary_text_light" />
     </TableRow>
 
     <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/DescriptionTitle"
-                android:id="@+id/textView6"
-                android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold"/>
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/DescriptionTitle"
+            android:textColor="@android:color/primary_text_light"
+            android:textStyle="bold" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/TransHistoryDesc"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/PlaceholderText"
-                android:textColor="@android:color/primary_text_light"/>
+            android:id="@+id/TransHistoryDesc"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/PlaceholderText"
+            android:textColor="@android:color/primary_text_light" />
     </TableRow>
 
     <TableRow
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/AmountTitle"
-                android:id="@+id/textView156"
-                android:textColor="@android:color/primary_text_light"
-                android:textStyle="bold"/>
+            android:id="@+id/textView156"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/AmountTitle"
+            android:textColor="@android:color/primary_text_light"
+            android:textStyle="bold" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/TransHistoryAmount"
-                android:layout_marginLeft="8dp"
-                android:layout_marginStart="8dp"
-                android:text="@string/PlaceholderText"
-                android:textColor="@android:color/primary_text_light"/>
+            android:id="@+id/TransHistoryAmount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:text="@string/PlaceholderText"
+            android:textColor="@android:color/primary_text_light" />
     </TableRow>
 
 </TableLayout>

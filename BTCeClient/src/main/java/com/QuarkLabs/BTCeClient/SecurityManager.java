@@ -3,6 +3,7 @@ package com.QuarkLabs.BTCeClient;
 import android.content.Context;
 import android.provider.Settings;
 import android.util.Base64;
+import android.util.Log;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -11,12 +12,15 @@ import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
+
 import java.io.UnsupportedEncodingException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
 public class SecurityManager {
+
+    private static final String TAG = SecurityManager.class.getSimpleName();
 
     private static SecurityManager sInstance;
     private SecretKey mKey;
@@ -30,7 +34,7 @@ public class SecurityManager {
             mKey = keyFactory.generateSecret(keySpec);
         } catch (InvalidKeyException | UnsupportedEncodingException
                 | NoSuchAlgorithmException | InvalidKeySpecException e) {
-            e.printStackTrace();
+            logException(e);
         }
     }
 
@@ -50,7 +54,7 @@ public class SecurityManager {
             output = new String(Base64.encode(cipher.doFinal(clearText), Base64.DEFAULT), "UTF8");
         } catch (UnsupportedEncodingException | NoSuchAlgorithmException | NoSuchPaddingException
                 | InvalidKeyException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
+            logException(e);
         }
         return output;
     }
@@ -63,9 +67,14 @@ public class SecurityManager {
             cipher.init(Cipher.DECRYPT_MODE, mKey);
             output = new String(cipher.doFinal(encrypedPwdBytes), "UTF8");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
-                | UnsupportedEncodingException | IllegalBlockSizeException | BadPaddingException e) {
-            e.printStackTrace();
+                | UnsupportedEncodingException | IllegalBlockSizeException
+                | BadPaddingException e) {
+            logException(e);
         }
         return output;
+    }
+
+    private void logException(Exception e) {
+        Log.e(TAG, "Exception during encoding/decoding sensitive data", e);
     }
 }

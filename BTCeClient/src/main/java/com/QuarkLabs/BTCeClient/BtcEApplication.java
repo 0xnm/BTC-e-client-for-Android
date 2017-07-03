@@ -4,21 +4,62 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+
+import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 
-public class BtcEApplication extends Application {
-    private static Context appContext;
+public class BtcEApplication extends Application implements
+        SharedPreferences.OnSharedPreferenceChangeListener {
+    private SharedPreferences defaultPreferences;
+
+    private Api api;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        appContext = getApplicationContext();
+        defaultPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        defaultPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        SecurityManager securityManager = SecurityManager.getInstance(this);
+
+        String apiKey = securityManager
+                .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_KEY, ""));
+        String apiSecret = securityManager
+                .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_SECRET, ""));
+        api = new Api(getString(R.string.general_error_text), getHostUrl(), apiKey, apiSecret);
     }
 
-    public static String getHostUrl() {
-        SharedPreferences sharedPreferences = PreferenceManager
-                .getDefaultSharedPreferences(appContext);
-        return sharedPreferences.getBoolean(SettingsFragment.KEY_USE_MIRROR, false)
+    private void refreshApiCredentials() {
+        SecurityManager securityManager = SecurityManager.getInstance(this);
+
+        String apiKey = securityManager
+                .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_KEY, ""));
+        String apiSecret = securityManager
+                .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_SECRET, ""));
+        api.setCredentials(apiKey, apiSecret);
+    }
+
+    public String getHostUrl() {
+        return defaultPreferences.getBoolean(SettingsFragment.KEY_USE_MIRROR, false)
                 ? "https://btc-e.nz" : "https://btc-e.com";
+    }
+
+    public Api getApi() {
+        return api;
+    }
+
+    public static BtcEApplication get(@NonNull Context context) {
+        return (BtcEApplication) context.getApplicationContext();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (SettingsFragment.KEY_API_KEY.equals(key)
+                || SettingsFragment.KEY_API_SECRET.equals(key)) {
+            refreshApiCredentials();
+        } else {
+            api.setHostUrl(getHostUrl());
+        }
     }
 }

@@ -18,8 +18,13 @@
 
 package com.QuarkLabs.BTCeClient;
 
-public class ConstantHolder {
+public final class ConstantHolder {
+
+    private ConstantHolder() { }
+
     public static final int ALARM_NOTIF_ID = 1000;
     public static final int ACCOUNT_INFO_NOTIF_ID = 2000;
     public static final int TRADE_REGISTERED_NOTIF_ID = 3000;
+
+    public static final String UPDATE_TICKERS_ACTION = "UpdateTickers";
 }

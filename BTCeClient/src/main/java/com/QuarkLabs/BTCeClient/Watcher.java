@@ -1,6 +1,5 @@
 package com.QuarkLabs.BTCeClient;
 
-
 import android.support.annotation.IntDef;
 
 import java.lang.annotation.ElementType;

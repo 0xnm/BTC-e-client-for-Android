@@ -33,21 +33,19 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
 import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.Watcher;
-import com.QuarkLabs.BTCeClient.exchangeApi.SimpleRequest;
-import com.QuarkLabs.BTCeClient.models.Ticker;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.QuarkLabs.BTCeClient.api.Api;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.Ticker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -67,72 +65,60 @@ public class CheckTickersService extends IntentService {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        String url = BtcEApplication.getHostUrl() + "/api/3/ticker/";
+        Api api = BtcEApplication.get(this).getApi();
+
         List<String> pairsToCheck = PairUtils.getTickersToDisplayThatSupported(this);
         if (pairsToCheck.isEmpty()) {
             return;
         }
-        for (String pair : pairsToCheck) {
-            url += pair.replace(LOCAL_PAIR_DELIMITER, SERVER_PAIR_DELIMITER)
-                    .toLowerCase(Locale.US) + "-";
+
+        if (networkInfo == null || !networkInfo.isConnected()) {
+            return;
         }
 
-        SimpleRequest request = new SimpleRequest();
+        CallResult<List<Ticker>> result = api.getPairInfo(pairsToCheck);
 
-        if (networkInfo != null && networkInfo.isConnected()) {
-            JSONObject data = null;
-            try {
-                data = request.call(url);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            if (data != null && data.optInt("success", 1) != 0) {
-
-                ArrayList<Ticker> tickers = new ArrayList<>();
-                for (@SuppressWarnings("unchecked") Iterator<String> iterator = data.keys();
-                     iterator.hasNext(); ) {
-                    String pair = iterator.next();
-                    JSONObject pairData = data.optJSONObject(pair);
-                    tickers.add(Ticker.createFromServer(pair, pairData));
-                }
-
-                List<NotificationMessage> messages =
-                        createNotificationMessages(tickers, TickersStorage.loadLatestData());
-
-                for (NotificationMessage message : messages) {
-                    NotificationManager notificationManager =
-                            (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-
-                    Notification notification = new NotificationCompat.Builder(this)
-                            .setContentTitle(getString(R.string.app_name))
-                            .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                            .setColor(getResources().getColor(R.color.colorPrimary))
-                            .setSound(
-                                    RingtoneManager.getDefaultUri(
-                                            RingtoneManager.TYPE_NOTIFICATION))
-                            .setContentTitle(message.title)
-                            .setContentText(message.details)
-                            .setTicker(message.title)
-                            .setContentIntent(
-                                    PendingIntent.getActivity(
-                                            this, 0, new Intent(this, MainActivity.class),
-                                            PendingIntent.FLAG_UPDATE_CURRENT)
-                            )
-                            .setAutoCancel(true)
-                            .build();
-
-                    notificationManager.notify((int) System.currentTimeMillis(), notification);
-                }
-
-                Map<String, Ticker> newData = new HashMap<>();
-                for (Ticker ticker : tickers) {
-                    newData.put(ticker.getPair(), ticker);
-                }
-                TickersStorage.saveData(newData);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent("UpdateTickers"));
-            }
+        if (!result.isSuccess()) {
+            return;
         }
+
+        List<Ticker> tickers = result.getPayload();
+
+        List<NotificationMessage> messages =
+                createNotificationMessages(tickers, TickersStorage.loadLatestData());
+
+        for (NotificationMessage message : messages) {
+            NotificationManager notificationManager =
+                    (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+            Notification notification = new NotificationCompat.Builder(this)
+                    .setContentTitle(getString(R.string.app_name))
+                    .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
+                    .setColor(getResources().getColor(R.color.colorPrimary))
+                    .setSound(
+                            RingtoneManager.getDefaultUri(
+                                    RingtoneManager.TYPE_NOTIFICATION))
+                    .setContentTitle(message.title)
+                    .setContentText(message.details)
+                    .setTicker(message.title)
+                    .setContentIntent(
+                            PendingIntent.getActivity(
+                                    this, 0, new Intent(this, MainActivity.class),
+                                    PendingIntent.FLAG_UPDATE_CURRENT)
+                    )
+                    .setAutoCancel(true)
+                    .build();
+
+            notificationManager.notify((int) System.currentTimeMillis(), notification);
+        }
+
+        Map<String, Ticker> newData = new HashMap<>();
+        for (Ticker ticker : tickers) {
+            newData.put(ticker.getPair(), ticker);
+        }
+        TickersStorage.saveData(newData);
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_ACTION));
     }
 
     /**

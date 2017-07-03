@@ -18,39 +18,34 @@
 
 package com.QuarkLabs.BTCeClient.adapters;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
 import com.QuarkLabs.BTCeClient.R;
-import org.json.JSONArray;
+import com.QuarkLabs.BTCeClient.api.PriceVolumePair;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.List;
 import java.util.Locale;
 
 public class OrdersBookAdapter extends BaseAdapter {
 
-    private JSONArray mData;
-    private LayoutInflater mInflater;
-    private double mMaxValue = 0;
-
-    public OrdersBookAdapter(Context context) {
-        mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
+    private List<PriceVolumePair> data;
+    private double maxVolume = 0;
 
     @Override
     public int getCount() {
-        return mData.length();
+        return data.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mData.opt(position);
+        return data.get(position);
     }
 
     @Override
@@ -58,23 +53,23 @@ public class OrdersBookAdapter extends BaseAdapter {
         return position;
     }
 
-    @SuppressLint("InflateParams")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View v;
         if (convertView == null) {
-            v = mInflater.inflate(R.layout.ordersbook_item, parent, false);
+            v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.ordersbook_item, parent, false);
         } else {
             v = convertView;
         }
-        JSONArray value = mData.optJSONArray(position);
-        double price = value.optDouble(0);
-        double volume = value.optDouble(1);
+        PriceVolumePair priceVolume = (PriceVolumePair) getItem(position);
+        double price = priceVolume.getPrice();
+        double volume = priceVolume.getVolume();
         TextView priceView = (TextView) v.findViewById(R.id.orderBookPrice);
         TextView volumeView = (TextView) v.findViewById(R.id.ordersBookVolume);
         priceView.setText(decimalToStringWithoutExponent(price));
         volumeView.setText(decimalToStringWithoutExponent(volume));
-        if (volume == mMaxValue) {
+        if (volume == maxVolume) {
             priceView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             volumeView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         } else {
@@ -94,13 +89,13 @@ public class OrdersBookAdapter extends BaseAdapter {
     /**
      * Updates data in adapter
      *
-     * @param data JSONArray with price-volume pairs
+     * @param data List of {@link PriceVolumePair}
      */
-    public void pushData(JSONArray data) {
-        mData = data;
-        for (int i = 0; i < data.length(); i++) {
-            mMaxValue = mMaxValue < data.optJSONArray(i).optDouble(1) ?
-                    data.optJSONArray(i).optDouble(1) : mMaxValue;
+    public void pushData(List<PriceVolumePair> data) {
+        this.data = data;
+        for (int i = 0; i < data.size(); i++) {
+            maxVolume = maxVolume < data.get(i).getVolume() ?
+                    data.get(i).getVolume() : maxVolume;
         }
         notifyDataSetChanged();
     }

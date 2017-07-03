@@ -32,12 +32,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!-- suppressing Lint message -->
         <service
             android:name=".services.CheckTickersService"
-            android:exported="false"
-            tools:ignore="MissingRegistered" />
-
+            android:exported="false" />
         <receiver
             android:name=".StartServiceReceiver"
             android:enabled="true" />

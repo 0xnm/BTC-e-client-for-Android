@@ -20,11 +20,12 @@ package com.QuarkLabs.BTCeClient.fragments;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -44,33 +45,46 @@ import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersBookAdapter;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.Depth;
+import com.QuarkLabs.BTCeClient.api.PriceVolumePair;
 import com.QuarkLabs.BTCeClient.loaders.OrderBookLoader;
-import org.json.JSONArray;
-import org.json.JSONObject;
+
 import org.stockchart.StockChartView;
 import org.stockchart.core.Axis;
 import org.stockchart.series.LinearSeries;
 
-public class OrdersBookFragment extends Fragment implements LoaderManager.LoaderCallbacks<JSONObject> {
+import java.util.List;
+
+public class OrdersBookFragment extends Fragment
+        implements LoaderManager.LoaderCallbacks<CallResult<Depth>> {
     private static final int LOADER_ID = 1;
     private ListView mAsksList;
     private ListView mBidsList;
     private FrameLayout mChartArea;
+
     private OrdersBookAdapter mAsksAdapter;
     private OrdersBookAdapter mBidsAdapter;
     private Spinner mPairsSpinner;
+
     private ProgressBar mLoadingViewAsks;
     private ProgressBar mLoadingViewBids;
+
     private boolean mFragmentOpenedFirstTime = true;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        mPairsSpinner = (Spinner) LayoutInflater.from(getActivity())
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
+
+        Context themedContext = hostActivity.getSupportActionBar()
+                .getThemedContext();
+        mPairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
-        mPairsSpinner.setAdapter(new ArrayAdapter<>(getActivity(),
+        mPairsSpinner.setAdapter(new ArrayAdapter<>(themedContext,
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
+
         //restoring spinner position
         if (savedInstanceState != null) {
             mPairsSpinner.setSelection(savedInstanceState.getInt("position"));
@@ -95,20 +109,24 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
             }
         });
 
-        mAsksAdapter = new OrdersBookAdapter(getActivity());
-        mBidsAdapter = new OrdersBookAdapter(getActivity());
+        mAsksAdapter = new OrdersBookAdapter();
+        mBidsAdapter = new OrdersBookAdapter();
+
+        hostActivity.getSupportActionBar()
+                .setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
+        hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-
         return inflater.inflate(R.layout.fragment_ordersbook, container, false);
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+
         mAsksList = (ListView) view.findViewById(R.id.asks);
         mBidsList = (ListView) view.findViewById(R.id.bids);
         mChartArea = (FrameLayout) view.findViewById(R.id.OrdersBookChart);
@@ -126,27 +144,23 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
         mAsksList.setEmptyView(mLoadingViewAsks);
         ((LinearLayout) mBidsList.getParent()).addView(mLoadingViewBids);
         mBidsList.setEmptyView(mLoadingViewBids);
-
-        ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
-        hostActivity.getSupportActionBar()
-                .setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
-        hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
     }
 
     @Override
-    public Loader<JSONObject> onCreateLoader(int id, Bundle args) {
+    public Loader<CallResult<Depth>> onCreateLoader(int id, Bundle args) {
         mAsksList.setAdapter(null);
         mBidsList.setAdapter(null);
         return new OrderBookLoader(getActivity(), args.getString("pair"));
     }
 
     @Override
-    public void onLoadFinished(Loader<JSONObject> loader, JSONObject data) {
-        if (data == null || data.length() == 0) {
-            Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG).show();
+    public void onLoadFinished(Loader<CallResult<Depth>> loader, CallResult<Depth> result) {
+        if (!result.isSuccess()) {
+            Toast.makeText(getActivity(), R.string.general_error_text, Toast.LENGTH_LONG).show();
         } else {
-            final JSONArray asks = data.optJSONArray("asks");
-            final JSONArray bids = data.optJSONArray("bids");
+            final List<PriceVolumePair> asks = result.getPayload().getAsks();
+            final List<PriceVolumePair> bids = result.getPayload().getBids();
+
             mAsksAdapter.pushData(asks);
             mBidsAdapter.pushData(bids);
             mAsksList.setAdapter(mAsksAdapter);
@@ -159,16 +173,16 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
             bidsSeries.getAppearance().setOutlineColor(0xff0099cc);
             double sumAsks = 0.0;
             double sumBids = 0.0;
-            for (int i = 0; i < bids.length(); i++) {
-                sumBids += bids.optJSONArray(i).optDouble(1);
+            for (int i = 0; i < bids.size(); i++) {
+                sumBids += bids.get(i).getVolume();
             }
-            for (int i = bids.length() - 1; i >= 0; i--) {
-                sumBids -= bids.optJSONArray(i).optDouble(1);
+            for (int i = bids.size() - 1; i >= 0; i--) {
+                sumBids -= bids.get(i).getVolume();
                 bidsSeries.addPoint(sumBids);
             }
-            for (int i = 0; i < asks.length(); i++) {
+            for (int i = 0; i < asks.size(); i++) {
                 asksSeries.addPoint(sumAsks);
-                sumAsks += asks.optJSONArray(i).optDouble(1);
+                sumAsks += asks.get(i).getVolume();
             }
 
             asksSeries.setIndexOffset(bidsSeries.getPointCount());
@@ -194,10 +208,10 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
                                     index = asksSeries.getPointCount() - 1;
                                 }
                             }
-                            return asks.optJSONArray(index).optString(0);
+                            return String.valueOf(asks.get(index).getPrice());
                         }
-                        return bids
-                                .optJSONArray(bidsSeries.getPointCount() - 1 - index).optString(0);
+                        return String.valueOf(bids
+                                .get(bidsSeries.getPointCount() - 1 - index).getPrice());
                     }
                     return null;
 
@@ -250,7 +264,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
     }
 
     @Override
-    public void onLoaderReset(Loader<JSONObject> loader) {
+    public void onLoaderReset(Loader<CallResult<Depth>> loader) {
         mAsksList.setAdapter(null);
         mBidsList.setAdapter(null);
     }
@@ -262,7 +276,7 @@ public class OrdersBookFragment extends Fragment implements LoaderManager.Loader
 
     @Override
     public void onDestroyView() {
-        ActionBarActivity hostActivity = (ActionBarActivity) getActivity();
+        AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
         hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(false);
         super.onDestroyView();
     }

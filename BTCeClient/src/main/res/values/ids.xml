@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <item name="LTCInfoLast" type="id">LTCInfoLast</item>
-    <item name="LTCInfoBuy" type="id">LTCInfoBuy</item>
-    <item name="LTCInfoSell" type="id">LTCInfoSell</item>
-    <item name="TickerInfoBuy" type="id">TickerInfoBuy</item>
-</resources>

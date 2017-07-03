@@ -33,6 +33,7 @@ public class SettingsFragment extends PreferenceFragment
     public static final String KEY_CHECK_ENABLED = "check_enabled";
     public static final String KEY_CHECK_PERIOD = "check_period";
     public static final String KEY_USE_MIRROR = "use_mirror";
+
     private String mDefaultCheckPeriodSummaryText;
     private String[] mCheckPeriodEntries;
     private String[] mCheckPeriodValues;

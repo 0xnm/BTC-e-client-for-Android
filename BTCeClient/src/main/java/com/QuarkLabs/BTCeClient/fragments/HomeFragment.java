@@ -19,7 +19,6 @@
 package com.QuarkLabs.BTCeClient.fragments;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,7 +28,10 @@ import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -51,45 +53,51 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.StartServiceReceiver;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
+import com.QuarkLabs.BTCeClient.api.AccountInfo;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.TradeResponse;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
-import com.QuarkLabs.BTCeClient.models.Ticker;
+import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class HomeFragment extends Fragment implements
         TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
 
-    private FixedGridView mTickersContainer;
-    private TickersDashboardAdapter mTickersDashboardAdapter;
-    private BroadcastReceiver mGetStatsReceiver;
-    private ActivityCallbacks mCallback;
-    private MenuItem mRefreshItem;
+    private FixedGridView tickersContainer;
+    private TickersDashboardAdapter tickersAdapter;
+    private BroadcastReceiver statsReceiver;
+    private ActivityCallbacks activityCallback;
+    private MenuItem refreshItem;
 
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
         try {
-            mCallback = (ActivityCallbacks) activity;
+            activityCallback = (ActivityCallbacks) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement ActivityCallbacks");
+            throw new ClassCastException(activity.toString() + " must implement "
+                    + ActivityCallbacks.class.getSimpleName());
         }
     }
 
     @Override
     public void onDetach() {
-        mCallback = null;
+        activityCallback = null;
         super.onDetach();
     }
 
@@ -103,31 +111,34 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
-        mTickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
-        mTickersContainer.setExpanded(true);
-        final int dashboardSpacing = getResources().getDimensionPixelSize(R.dimen.dashboard_spacing);
-        final int dashboardItemSize = getResources().getDimensionPixelSize(R.dimen.dashboard_item_size);
-        mTickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+        tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
+        tickersContainer.setExpanded(true);
+        final int dashboardSpacing = getResources()
+                .getDimensionPixelSize(R.dimen.dashboard_spacing);
+        final int dashboardItemSize = getResources()
+                .getDimensionPixelSize(R.dimen.dashboard_item_size);
+        tickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
             public void onGlobalLayout() {
-                if (mTickersDashboardAdapter.getNumColumns() == 0) {
+                if (tickersAdapter.getNumColumns() == 0) {
                     final int numColumns =
-                            (int) Math.floor(mTickersContainer.getWidth() /
+                            (int) Math.floor(tickersContainer.getWidth() /
                                     (dashboardSpacing + dashboardItemSize));
                     if (numColumns > 0) {
-                        mTickersDashboardAdapter.setNumColumns(numColumns);
-                        mTickersContainer.setNumColumns(numColumns);
+                        tickersAdapter.setNumColumns(numColumns);
+                        tickersContainer.setNumColumns(numColumns);
                     }
                 }
             }
         });
-        mTickersDashboardAdapter = new TickersDashboardAdapter(getActivity(), this);
+        tickersAdapter = new TickersDashboardAdapter(getActivity(), this);
         updateStorageWithTickers();
-        mTickersDashboardAdapter.update();
-        mTickersContainer.setAdapter(mTickersDashboardAdapter);
+        tickersAdapter.update();
+        tickersContainer.setAdapter(tickersAdapter);
         TextView emptyView = (TextView) view.findViewById(R.id.emptyView);
-        mTickersContainer.setEmptyView(emptyView);
-        mTickersContainer.setOnTouchListener(new View.OnTouchListener() {
+        tickersContainer.setEmptyView(emptyView);
+        tickersContainer.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return event.getAction() == MotionEvent.ACTION_MOVE;
@@ -135,21 +146,22 @@ public class HomeFragment extends Fragment implements
         });
 
         //Broadcast receiver initialization
-        mGetStatsReceiver = new BroadcastReceiver() {
+        statsReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 if (isVisible()) {
-                    if (mRefreshItem != null) {
-                        mRefreshItem.collapseActionView();
-                        mRefreshItem.setActionView(null);
+                    if (refreshItem != null) {
+                        refreshItem.collapseActionView();
+                        refreshItem.setActionView(null);
                     }
-                    mTickersDashboardAdapter.update();
+                    tickersAdapter.update();
                 }
             }
         };
 
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
-                .registerReceiver(mGetStatsReceiver, new IntentFilter("UpdateTickers"));
+                .registerReceiver(statsReceiver,
+                        new IntentFilter(ConstantHolder.UPDATE_TICKERS_ACTION));
 
         //Trade listener, once "Buy" or "Sell" clicked, send the order to server
         View.OnClickListener tradeListener = new View.OnClickListener() {
@@ -160,14 +172,12 @@ public class HomeFragment extends Fragment implements
             }
         };
 
-        Button SellButton = (Button) view.findViewById(R.id.SellButton);
-        Button BuyButton = (Button) view.findViewById(R.id.BuyButton);
-        SellButton.setOnClickListener(tradeListener);
-        BuyButton.setOnClickListener(tradeListener);
+        view.findViewById(R.id.SellButton).setOnClickListener(tradeListener);
+        view.findViewById(R.id.BuyButton).setOnClickListener(tradeListener);
 
-        Button UpdateAccountInfoButton = (Button) view.findViewById(R.id.UpdateAccountInfoButton);
+        Button updateAccountInfoButton = (Button) view.findViewById(R.id.UpdateAccountInfoButton);
 
-        UpdateAccountInfoButton.setOnClickListener(new View.OnClickListener() {
+        updateAccountInfoButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 new UpdateFundsTask().execute();
@@ -198,7 +208,8 @@ public class HomeFragment extends Fragment implements
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = TickersStorage.loadLatestData().keySet().<String>iterator();
+        for (Iterator<String> iterator = TickersStorage
+                .loadLatestData().keySet().<String>iterator();
              iterator.hasNext(); ) {
             String key = iterator.next();
             if (!pairs.contains(key)) {
@@ -232,7 +243,7 @@ public class HomeFragment extends Fragment implements
                                     public void onClick(DialogInterface dialog, int which) {
                                         checkBoxListAdapter.saveValuesToPreferences();
                                         updateStorageWithTickers();
-                                        mTickersDashboardAdapter.update();
+                                        tickersAdapter.update();
                                         getActivity().sendBroadcast(new Intent(getActivity(),
                                                 StartServiceReceiver.class));
                                     }
@@ -242,9 +253,9 @@ public class HomeFragment extends Fragment implements
                 break;
             //refresh dashboard action
             case R.id.action_refresh:
-                mRefreshItem = item;
-                mRefreshItem.setActionView(R.layout.progress_bar_action_view);
-                mRefreshItem.expandActionView();
+                refreshItem = item;
+                refreshItem.setActionView(R.layout.progress_bar_action_view);
+                refreshItem.expandActionView();
                 getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
                 break;
             default:
@@ -255,81 +266,53 @@ public class HomeFragment extends Fragment implements
 
     @Override
     public void onDestroyView() {
-        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mGetStatsReceiver);
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(statsReceiver);
         super.onDestroyView();
     }
 
-    /**
-     * Refreshes funds table with fetched data
-     *
-     * @param response JSONObject with funds data
-     */
-    private void refreshFunds(JSONObject response) {
-        try {
-            if (response == null) {
-                Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG).show();
-                return;
-            }
-            String notificationText;
-            if (response.getInt("success") == 1) {
+    private void refreshFundsView(@NonNull Map<String, Double> funds) {
 
-                View.OnClickListener fillAmount = new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        ScrollView scrollView = (ScrollView) getView();
-                        if (scrollView != null) {
-                            EditText tradeAmount
-                                    = (EditText) scrollView.findViewById(R.id.TradeAmount);
-                            tradeAmount.setText(((TextView) v).getText());
-                            scrollView.smoothScrollTo(
-                                    0, scrollView.findViewById(R.id.tradingSection).getBottom());
-                        }
-                    }
-                };
-
-                notificationText = getString(R.string.FundsInfoUpdatedtext);
-                TableLayout fundsContainer
-                        = (TableLayout) getView().findViewById(R.id.FundsContainer);
-                fundsContainer.removeAllViews();
-                JSONObject funds = response.getJSONObject("return").getJSONObject("funds");
-                JSONArray fundsNames
-                        = response.getJSONObject("return").getJSONObject("funds").names();
-                List<String> arrayList = new ArrayList<>();
-
-                for (int i = 0; i < fundsNames.length(); i++) {
-                    arrayList.add(fundsNames.getString(i));
+        View.OnClickListener fillAmount = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ScrollView scrollView = (ScrollView) getView();
+                if (scrollView != null) {
+                    EditText tradeAmount
+                            = (EditText) scrollView.findViewById(R.id.TradeAmount);
+                    tradeAmount.setText(((TextView) v).getText());
+                    scrollView.smoothScrollTo(
+                            0, scrollView.findViewById(R.id.tradingSection).getBottom());
                 }
-                Collections.sort(arrayList);
-                TableRow.LayoutParams layoutParams = new TableRow
-                        .LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
-
-                for (String anArrayList : arrayList) {
-
-                    TableRow row = new TableRow(getActivity());
-                    TextView currency = new TextView(getActivity());
-                    TextView amount = new TextView(getActivity());
-                    currency.setText(anArrayList.toUpperCase(Locale.US));
-                    amount.setText(funds.getString(anArrayList));
-                    currency.setLayoutParams(layoutParams);
-                    currency.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-                    currency.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                    currency.setGravity(Gravity.CENTER);
-                    amount.setLayoutParams(layoutParams);
-                    amount.setGravity(Gravity.CENTER);
-                    amount.setOnClickListener(fillAmount);
-                    row.addView(currency);
-                    row.addView(amount);
-                    fundsContainer.addView(row);
-                }
-
-            } else {
-                notificationText = response.getString("error");
             }
+        };
 
-            mCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID, notificationText);
+        TableLayout fundsContainer
+                = (TableLayout) getView().findViewById(R.id.FundsContainer);
+        fundsContainer.removeAllViews();
 
-        } catch (JSONException e) {
-            e.printStackTrace();
+        List<String> currencies = new ArrayList<>(funds.keySet());
+        Collections.sort(currencies);
+
+        TableRow.LayoutParams layoutParams = new TableRow
+                .LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+
+        for (String currency : currencies) {
+
+            TableRow row = new TableRow(getActivity());
+            TextView currencyView = new TextView(getActivity());
+            TextView amountView = new TextView(getActivity());
+            currencyView.setText(currency.toUpperCase(Locale.US));
+            amountView.setText(String.valueOf(funds.get(currency)));
+            currencyView.setLayoutParams(layoutParams);
+            currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+            currencyView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            currencyView.setGravity(Gravity.CENTER);
+            amountView.setLayoutParams(layoutParams);
+            amountView.setGravity(Gravity.CENTER);
+            amountView.setOnClickListener(fillAmount);
+            row.addView(currencyView);
+            row.addView(amountView);
+            fundsContainer.addView(row);
         }
     }
 
@@ -355,14 +338,15 @@ public class HomeFragment extends Fragment implements
                                 .getPosition(currencies[1]));
             }
         } catch (ClassCastException | NullPointerException e) {
-            e.printStackTrace();
+            Log.e(HomeFragment.class.getSimpleName(), "Failure on setting trading price", e);
         }
     }
 
     /**
      * AsyncTask to register trade request on the exchange
      */
-    private class RegisterTradeRequestTask extends AsyncTask<String, Void, JSONObject> {
+    private class RegisterTradeRequestTask extends AsyncTask<String, Void,
+            CallResult<TradeResponse>> {
 
         private volatile String tradeAmount;
         private volatile String tradeCurrency;
@@ -383,60 +367,57 @@ public class HomeFragment extends Fragment implements
         }
 
         @Override
-        protected JSONObject doInBackground(String... params) {
+        protected CallResult<TradeResponse> doInBackground(String... params) {
             String tradeAction = params[0];
             String pair = tradeCurrency.toLowerCase(Locale.US)
                     + "_" + tradePriceCurrency.toLowerCase(Locale.US);
-            JSONObject response = null;
-            try {
-                response = MainActivity.app.trade(pair, tradeAction, tradePrice, tradeAmount);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return response;
+            return BtcEApplication.get(HomeFragment.this.getActivity()).getApi()
+                    .trade(pair, tradeAction, tradePrice, tradeAmount);
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
+        protected void onPostExecute(@NonNull CallResult<TradeResponse> callResult) {
             String message;
-            if (jsonObject != null && isVisible()) {
-                if (jsonObject.optInt("success") == 1) {
-                    message = "Order was successfully added";
-                    refreshFunds(jsonObject);
-                } else {
-                    message = jsonObject.optString("error");
+            if (callResult.isSuccess()) {
+                message = "Order was successfully added";
+                if (isVisible()) {
+                    refreshFundsView(callResult.getPayload().getFunds());
                 }
-                mCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID, message);
             } else {
+                message = callResult.getError();
                 if (getActivity() != null) {
-                    Toast.makeText(getActivity(), R.string.GeneralErrorText, Toast.LENGTH_LONG)
+                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG)
                             .show();
                 }
             }
+            activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
+                    message);
         }
     }
 
     /**
      * AsyncTask to update funds
      */
-    private class UpdateFundsTask extends AsyncTask<Void, Void, JSONObject> {
+    private class UpdateFundsTask extends AsyncTask<Void, Void, CallResult<AccountInfo>> {
 
         @Override
-        protected JSONObject doInBackground(Void... params) {
-            JSONObject response = null;
-            try {
-                response = MainActivity.app.getAccountInfo();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return response;
+        protected CallResult<AccountInfo> doInBackground(Void... params) {
+            return BtcEApplication.get(getActivity()).getApi().getAccountInfo();
         }
 
         @Override
-        protected void onPostExecute(JSONObject jsonObject) {
-            if (isVisible()) {
-                refreshFunds(jsonObject);
+        protected void onPostExecute(CallResult<AccountInfo> result) {
+            String notificationText;
+            if (result.isSuccess()) {
+                notificationText = getString(R.string.FundsInfoUpdatedtext);
+                if (isVisible()) {
+                    refreshFundsView(result.getPayload().getFunds());
+                }
+            } else {
+                notificationText = result.getError();
             }
+            activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
+                    notificationText);
         }
     }
 }

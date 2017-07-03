@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:drawable="@drawable/buy_button_pressed"
+    <item android:color="#33B5E5"
           android:state_pressed="true"/>
-    <item android:drawable="@drawable/buy_button_enabled"
+    <item android:color="#0099cc"
           android:state_enabled="true"/>
 </selector>

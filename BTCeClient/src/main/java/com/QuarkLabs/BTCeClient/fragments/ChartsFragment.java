@@ -18,12 +18,12 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -113,7 +113,7 @@ public class ChartsFragment extends Fragment {
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.SelectPairsPromptTitle)
                         .setView(v)
-                        .setNeutralButton("OK", new DialogInterface.OnClickListener() {
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 checkBoxListAdapter.saveValuesToPreferences();
@@ -154,7 +154,7 @@ public class ChartsFragment extends Fragment {
         TextView noCharts = new TextView(getActivity());
         noCharts.setLayoutParams(lp);
         noCharts.setGravity(Gravity.CENTER);
-        noCharts.setText("NO CHARTS");
+        noCharts.setText(R.string.no_charts_text);
         noCharts.setTypeface(Typeface.DEFAULT_BOLD);
         //if no pairs to display found in prefs, display "NO CHARTS" text
         if (hashSet.size() == 0) {

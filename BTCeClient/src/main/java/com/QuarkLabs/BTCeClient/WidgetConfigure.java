@@ -29,6 +29,8 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RemoteViews;
 
+import com.QuarkLabs.BTCeClient.tasks.UpdateWidgetsTask;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
