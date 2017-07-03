@@ -1,106 +1,108 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent"
-              android:gravity="center">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical">
 
     <TableLayout
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:showDividers="beginning|middle"
-            android:orientation="horizontal"
-            android:stretchColumns="*"
-            android:layout_gravity="top">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top"
+        android:orientation="horizontal"
+        android:showDividers="beginning|middle"
+        android:stretchColumns="*">
 
         <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/StartDateTitle"
-                    android:id="@+id/textView1"
-                    android:layout_column="0"
-                    android:layout_gravity="center_horizontal"
-                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
-                    android:layout_weight="1"/>
+                android:id="@+id/textView1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="0"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="@string/StartDateTitle"
+                android:textAppearance="@android:style/TextAppearance.Holo.Medium" />
 
             <TextView
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/EndDateTitle"
-                    android:id="@+id/textView"
-                    android:layout_column="1"
-                    android:layout_gravity="center_horizontal"
-                    android:textAppearance="@android:style/TextAppearance.Holo.Medium"
-                    android:layout_weight="1"/>
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_column="1"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:text="@string/EndDateTitle"
+                android:textAppearance="@android:style/TextAppearance.Holo.Medium" />
         </TableRow>
 
         <TableRow
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_marginTop="8dp">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="8dp">
 
             <EditText
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/StartDateValue"
-                    android:layout_gravity="center_horizontal"
-                    android:inputType="date"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:layout_weight="1" android:gravity="center"/>
+                android:id="@+id/StartDateValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center"
+                android:inputType="date" />
 
             <EditText
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/EndDateValue"
-                    android:layout_gravity="center_horizontal"
-                    android:inputType="date"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
-                    android:layout_weight="1" android:gravity="center"/>
+                android:id="@+id/EndDateValue"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:gravity="center"
+                android:inputType="date" />
         </TableRow>
     </TableLayout>
 
     <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/RefreshButton"
-            android:id="@+id/MakeQueryButton"
-            android:layout_gravity="center|top"/>
+        android:id="@+id/MakeQueryButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center|top"
+        android:text="@string/RefreshButton" />
 
     <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_gravity="center|top"
-            android:gravity="center">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center|top"
+        android:gravity="center"
+        android:orientation="vertical">
 
         <ListView
-                android:layout_width="fill_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/HistoryContainer"
-                android:divider="@null"
-                android:dividerHeight="5dp"/>
+            android:id="@+id/HistoryContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:dividerHeight="5dp" />
 
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/PlaceholderText"
-                android:id="@id/NoItems"
-                android:layout_gravity="center"
-                android:visibility="gone"
-                android:gravity="center" android:textStyle="bold"/>
+            android:id="@id/NoItems"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="@string/PlaceholderText"
+            android:textStyle="bold"
+            android:visibility="gone" />
 
         <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@id/Loading"
-                android:layout_gravity="center"
-                android:visibility="gone"/>
+            android:id="@id/Loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:visibility="gone" />
     </LinearLayout>
 </LinearLayout>

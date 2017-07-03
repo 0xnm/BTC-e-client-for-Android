@@ -5,6 +5,7 @@ import android.animation.AnimatorSet;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,12 +13,13 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
-import com.QuarkLabs.BTCeClient.models.Ticker;
+import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 /*
@@ -44,25 +46,24 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet mLeftIn;
     private final AnimatorSet mRightOut;
     private final AnimatorSet mRightIn;
-    private Context mContext;
-    private ArrayList<Ticker> mData = new ArrayList<>();
+    private List<Ticker> tickers = new ArrayList<>();
+
     private TickersDashboardAdapterCallbackInterface mCallback;
     private int mNumColumns = 0;
-    private DateFormat format = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());
 
     public TickersDashboardAdapter(@NonNull Context context,
                                    TickersDashboardAdapterCallbackInterface callback) {
-        mContext = context;
         mCallback = callback;
         mLeftOut = (AnimatorSet) AnimatorInflater.loadAnimator(
-                mContext, R.animator.card_flip_left_out);
+                context, R.animator.card_flip_left_out);
         mLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(
-                mContext, R.animator.card_flip_left_in);
+                context, R.animator.card_flip_left_in);
         mRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(
-                mContext, R.animator.card_flip_right_out);
+                context, R.animator.card_flip_right_out);
         mRightIn = (AnimatorSet) AnimatorInflater.loadAnimator(
-                mContext, R.animator.card_flip_right_in);
+                context, R.animator.card_flip_right_in);
     }
 
     public int getNumColumns() {
@@ -75,12 +76,12 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
 
     @Override
     public int getCount() {
-        return mData.size();
+        return tickers.size();
     }
 
     @Override
     public Object getItem(int position) {
-        return mData.get(position);
+        return tickers.get(position);
     }
 
     @Override
@@ -90,68 +91,91 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        FlippingView v;
+        FlippingView view;
         if (convertView == null) {
-            LayoutInflater inflater = LayoutInflater.from(mContext);
-            v = (FlippingView) inflater.inflate(R.layout.fragment_home_tickers_dashboard_item, parent, false);
-            v.addAnimators(mLeftOut, mLeftIn, mRightOut, mRightIn);
-            v.setOnLongClickListener(this);
+            LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+            view = (FlippingView) inflater.inflate(R.layout.fragment_home_tickers_dashboard_item,
+                    parent, false);
+            view.addAnimators(mLeftOut, mLeftIn, mRightOut, mRightIn);
+            view.setOnLongClickListener(this);
         } else {
-            v = (FlippingView) convertView;
+            view = (FlippingView) convertView;
         }
-        Ticker ticker = mData.get(position);
-        //front side config
-        TextView pairFront = (TextView) v.findViewById(R.id.tickerPairFront);
-        TextView last = (TextView) v.findViewById(R.id.tickerLastValue);
-        TextView buy = (TextView) v.findViewById(R.id.tickerBuyValue);
-        TextView sell = (TextView) v.findViewById(R.id.tickerSellValue);
-        String pairValue = ticker.getPair().replace("_", "/").toUpperCase(Locale.US);
-        pairFront.setText(pairValue);
-        last.setText(String.valueOf(ticker.getLast()));
-        buy.setText(String.valueOf(ticker.getBuy()));
-        sell.setText(String.valueOf(ticker.getSell()));
-        Date updatedDate = new Date(ticker.getUpdated() * 1000);
-        last.setOnClickListener(this);
-        buy.setOnClickListener(this);
-        sell.setOnClickListener(this);
-        last.setTag(pairValue);
-        buy.setTag(pairValue);
-        sell.setTag(pairValue);
-        //back side config
-        TextView highBack = (TextView) v.findViewById(R.id.tickerBackHighValue);
-        TextView lowBack = (TextView) v.findViewById(R.id.tickerBackLowValue);
-        TextView buyBack = (TextView) v.findViewById(R.id.tickerBackBuyValue);
-        TextView sellBack = (TextView) v.findViewById(R.id.tickerBackSellValue);
-        TextView updatedBack = (TextView) v.findViewById(R.id.tickerUpdated);
-        highBack.setText(String.valueOf(ticker.getHigh()));
-        lowBack.setText(String.valueOf(ticker.getLow()));
-        buyBack.setText(String.valueOf(ticker.getBuy()));
-        sellBack.setText(String.valueOf(ticker.getSell()));
-        updatedBack.setText(format.format(updatedDate));
+        Ticker ticker = tickers.get(position);
         Ticker oldTicker = TickersStorage.loadPreviousData().get(ticker.getPair());
+
+        bindFrontSide(view, ticker, oldTicker);
+        bindBackSide(view, ticker, oldTicker);
+
+        return view;
+    }
+
+    private void bindFrontSide(@NonNull View itemView, @NonNull Ticker ticker,
+                               @Nullable Ticker oldTicker) {
+        TextView pairFrontView = (TextView) itemView.findViewById(R.id.tickerPairFront);
+        TextView lastView = (TextView) itemView.findViewById(R.id.tickerLastValue);
+        TextView buyView = (TextView) itemView.findViewById(R.id.tickerBuyValue);
+        TextView sellView = (TextView) itemView.findViewById(R.id.tickerSellValue);
+
+        String pairValue = ticker.getPair().replace("_", "/").toUpperCase(Locale.US);
+
+        pairFrontView.setText(pairValue);
+        lastView.setText(String.valueOf(ticker.getLast()));
+        buyView.setText(String.valueOf(ticker.getBuy()));
+        sellView.setText(String.valueOf(ticker.getSell()));
+        lastView.setOnClickListener(this);
+        buyView.setOnClickListener(this);
+        sellView.setOnClickListener(this);
+        lastView.setTag(pairValue);
+        buyView.setTag(pairValue);
+        sellView.setTag(pairValue);
         if (oldTicker != null) {
-            last.setTextColor(ticker.getLast() < oldTicker.getLast() ? Color.RED : Color.GREEN);
-            buy.setTextColor(ticker.getBuy() < oldTicker.getBuy() ? Color.RED : Color.GREEN);
-            sell.setTextColor(ticker.getSell() < oldTicker.getSell() ? Color.RED : Color.GREEN);
-            highBack.setTextColor(ticker.getHigh() < oldTicker.getHigh() ? Color.RED : Color.GREEN);
-            lowBack.setTextColor(ticker.getLow() < oldTicker.getLow() ? Color.RED : Color.GREEN);
-            buyBack.setTextColor(ticker.getBuy() < oldTicker.getBuy() ? Color.RED : Color.GREEN);
-            sellBack.setTextColor(ticker.getSell() < oldTicker.getSell() ? Color.RED : Color.GREEN);
+            lastView.setTextColor(ticker.getLast() < oldTicker.getLast() ?
+                    Color.RED : Color.GREEN);
+            buyView.setTextColor(ticker.getBuy() < oldTicker.getBuy() ?
+                    Color.RED : Color.GREEN);
+            sellView.setTextColor(ticker.getSell() < oldTicker.getSell() ?
+                    Color.RED : Color.GREEN);
         } else {
-            last.setTextColor(Color.GREEN);
-            buy.setTextColor(Color.GREEN);
-            sell.setTextColor(Color.GREEN);
-            highBack.setTextColor(Color.GREEN);
-            lowBack.setTextColor(Color.GREEN);
-            buyBack.setTextColor(Color.GREEN);
-            sellBack.setTextColor(Color.GREEN);
+            lastView.setTextColor(Color.GREEN);
+            buyView.setTextColor(Color.GREEN);
+            sellView.setTextColor(Color.GREEN);
         }
-        return v;
+    }
+
+    private void bindBackSide(@NonNull View itemView, @NonNull Ticker ticker,
+                              @Nullable Ticker oldTicker) {
+        TextView highBackView = (TextView) itemView.findViewById(R.id.tickerBackHighValue);
+        TextView lowBackView = (TextView) itemView.findViewById(R.id.tickerBackLowValue);
+        TextView buyBackView = (TextView) itemView.findViewById(R.id.tickerBackBuyValue);
+        TextView sellBackView = (TextView) itemView.findViewById(R.id.tickerBackSellValue);
+        TextView updatedBackView = (TextView) itemView.findViewById(R.id.tickerUpdated);
+        highBackView.setText(String.valueOf(ticker.getHigh()));
+        lowBackView.setText(String.valueOf(ticker.getLow()));
+        buyBackView.setText(String.valueOf(ticker.getBuy()));
+        sellBackView.setText(String.valueOf(ticker.getSell()));
+        Date updatedDate = new Date(ticker.getUpdated() * 1000);
+        updatedBackView.setText(dateFormat.format(updatedDate));
+        if (oldTicker != null) {
+            highBackView.setTextColor(ticker.getHigh() < oldTicker.getHigh() ?
+                    Color.RED : Color.GREEN);
+            lowBackView.setTextColor(ticker.getLow() < oldTicker.getLow() ?
+                    Color.RED : Color.GREEN);
+            buyBackView.setTextColor(ticker.getBuy() < oldTicker.getBuy() ?
+                    Color.RED : Color.GREEN);
+            sellBackView.setTextColor(ticker.getSell() < oldTicker.getSell() ?
+                    Color.RED : Color.GREEN);
+        } else {
+            highBackView.setTextColor(Color.GREEN);
+            lowBackView.setTextColor(Color.GREEN);
+            buyBackView.setTextColor(Color.GREEN);
+            sellBackView.setTextColor(Color.GREEN);
+        }
     }
 
     public void update() {
-        mData.clear();
-        mData.addAll(TickersStorage.loadLatestData().values());
+        tickers.clear();
+        tickers.addAll(TickersStorage.loadLatestData().values());
         notifyDataSetChanged();
     }
 

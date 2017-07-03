@@ -35,15 +35,15 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import com.QuarkLabs.BTCeClient.exchangeApi.App;
+
 import com.QuarkLabs.BTCeClient.fragments.ActiveOrdersFragment;
 import com.QuarkLabs.BTCeClient.fragments.ChartsFragment;
 import com.QuarkLabs.BTCeClient.fragments.HelpFragment;
@@ -54,14 +54,14 @@ import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 
+import java.util.concurrent.TimeUnit;
 
-public class MainActivity extends ActionBarActivity
+
+public class MainActivity extends AppCompatActivity
         implements ActivityCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
 
-    public static App app;
-    private static AlarmManager alarmManager;
-    private static boolean alarmSet;
-    private static PendingIntent pendingIntent;
+    private boolean isAlarmSet;
+
     private HomeFragment mHomeFragment = new HomeFragment();
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -149,7 +149,8 @@ public class MainActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        AppRater.app_launched(this);
+        AppRater.trackAppLaunch(this);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
             setSupportActionBar(toolbar);
@@ -160,8 +161,8 @@ public class MainActivity extends ActionBarActivity
                 = PreferenceManager.getDefaultSharedPreferences(this);
         sharedPreferences.registerOnSharedPreferenceChangeListener(this);
 
-        alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
-        if (alarmSet) {
+        isAlarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
+        if (isAlarmSet) {
             setRecurringAlarm(Integer.parseInt(
                     sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
         }
@@ -176,7 +177,6 @@ public class MainActivity extends ActionBarActivity
                 displayItem(position);
             }
         });
-        app = new App(this);
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (mDrawerLayout != null) {
             mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -217,7 +217,9 @@ public class MainActivity extends ActionBarActivity
         // true, then it has handled the app icon touch event
         if (mDrawerLayout != null) {
             return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
-        } else return super.onOptionsItemSelected(item);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     /**
@@ -226,17 +228,17 @@ public class MainActivity extends ActionBarActivity
      * @param msecs Checking period
      */
     public void setRecurringAlarm(long msecs) {
-        Intent downloader = new Intent(this, StartServiceReceiver.class)
-                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        pendingIntent = PendingIntent.getBroadcast(this, 0,
-                downloader, PendingIntent.FLAG_UPDATE_CURRENT);
-        alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        PendingIntent pendingIntent = pendingIntentForRecurringCheck();
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         alarmManager.cancel(pendingIntent);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
-                System.currentTimeMillis() + 5000,
-                msecs,
-                pendingIntent);
-        alarmSet = true;
+                System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5), msecs, pendingIntent);
+        isAlarmSet = true;
+    }
+
+    private PendingIntent pendingIntentForRecurringCheck() {
+        return PendingIntent.getBroadcast(this, 0,
+                new Intent(this, StartServiceReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
@@ -269,21 +271,18 @@ public class MainActivity extends ActionBarActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals(SettingsFragment.KEY_CHECK_ENABLED)) {
-            alarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, false);
-            if (alarmSet) {
+        if (SettingsFragment.KEY_CHECK_ENABLED.equals(key)) {
+            isAlarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, false);
+            if (isAlarmSet) {
                 setRecurringAlarm(Integer
-                        .parseInt(sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
+                        .parseInt(sharedPreferences
+                                .getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
             } else {
-                if (alarmManager != null) {
-                    alarmManager.cancel(pendingIntent);
-                }
+                AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                alarmManager.cancel(pendingIntentForRecurringCheck());
             }
-        } else if (key.equals(SettingsFragment.KEY_CHECK_PERIOD)) {
+        } else if (SettingsFragment.KEY_CHECK_PERIOD.equals(key)) {
             setRecurringAlarm(Integer.parseInt(sharedPreferences.getString(key, "60000")));
-        }
-        if (key.equals(SettingsFragment.KEY_API_KEY) || key.equals(SettingsFragment.KEY_API_SECRET)) {
-            app = new App(this);
         }
     }
 }

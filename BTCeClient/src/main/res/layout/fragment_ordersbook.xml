@@ -1,62 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              xmlns:tools="http://schemas.android.com/tools"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
 
     <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="match_parent" android:layout_weight="0.7"
-            android:baselineAligned="false">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="0.7"
+        android:baselineAligned="false"
+        android:orientation="horizontal">
+
         <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                tools:ignore="NestedWeights">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            tools:ignore="NestedWeights">
+
             <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Bids"
-                    android:id="@+id/textView2" android:textStyle="bold" android:gravity="center"
-                    android:textSize="16sp" android:textColor="#ff0099cc"/>
+                android:id="@+id/textView2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/Bids"
+                android:textColor="#ff0099cc"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <ListView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/bids" android:layout_marginTop="3dp"/>
+                android:id="@+id/bids"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="3dp" />
         </LinearLayout>
+
         <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:layout_weight="1"
-                tools:ignore="NestedWeights">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            tools:ignore="NestedWeights">
+
             <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/Asks"
-                    android:id="@+id/textView" android:textStyle="bold" android:gravity="center"
-                    android:textSize="16sp" android:textColor="#ffff4444"/>
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="@string/Asks"
+                android:textColor="#ffff4444"
+                android:textSize="16sp"
+                android:textStyle="bold" />
+
             <ListView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/asks"
-                    android:layout_marginTop="3dp"/>
+                android:id="@+id/asks"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="3dp" />
         </LinearLayout>
     </LinearLayout>
+
     <FrameLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent" android:id="@+id/OrdersBookChart" android:layout_weight="1"
-            android:layout_marginTop="5dp" android:paddingLeft="5dp" android:paddingRight="5dp"
-            android:paddingBottom="5dp">
+        android:id="@+id/OrdersBookChart"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="5dp"
+        android:layout_weight="1"
+        android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp">
+
         <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/WaitingForData"
-                android:id="@+id/textView3" android:layout_gravity="center" android:textStyle="bold"
-                android:textSize="16sp"/>
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/WaitingForData"
+            android:textSize="16sp"
+            android:textStyle="bold" />
     </FrameLayout>
 </LinearLayout>

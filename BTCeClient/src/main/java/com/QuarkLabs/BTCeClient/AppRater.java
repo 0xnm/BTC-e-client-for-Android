@@ -18,122 +18,123 @@
 
 package com.QuarkLabs.BTCeClient;
 
-import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.net.Uri;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
+
+import java.util.concurrent.TimeUnit;
 
 /*
 Code was taken and adapted from here:
  http://www.androidsnippets.com/prompt-engaged-users-to-rate-your-app-in-the-android-market-appirater
  */
 class AppRater {
-    private final static String APP_TITLE = "BTC-e client";
-    private final static String APP_PNAME = "com.QuarkLabs.BTCeClient";
     private final static int DAYS_UNTIL_PROMPT = 3;
-    private final static int LAUNCHES_UNTIL_PROMPT = 7;
+    private final static int LAUNCHES_UNTIL_PROMPT = 5;
 
-    private AppRater() {
+    private static final String APPRATER_LOG_FILENAME = "apprater";
+    private static final String DONT_SHOW_AGAIN_KEY = "dontshowagain";
+    private static final String LAUNCH_COUNT_KEY = "launch_count";
+    private static final String FIRST_LAUNCH_TIMESTAMP = "date_firstlaunch";
 
-    }
+    private AppRater() { }
 
-    public static void app_launched(Context mContext) {
-        SharedPreferences prefs = mContext.getSharedPreferences("apprater", Context.MODE_PRIVATE);
-        if (prefs.getBoolean("dontshowagain", false)) {
+    static void trackAppLaunch(Context context) {
+        SharedPreferences prefs = context.getSharedPreferences(APPRATER_LOG_FILENAME,
+                Context.MODE_PRIVATE);
+        if (prefs.getBoolean(DONT_SHOW_AGAIN_KEY, false)) {
             return;
         }
 
         SharedPreferences.Editor editor = prefs.edit();
 
         // Increment launch counter
-        long launch_count = prefs.getLong("launch_count", 0) + 1;
-        editor.putLong("launch_count", launch_count);
+        long launchCount = prefs.getLong(LAUNCH_COUNT_KEY, 0) + 1;
+        editor.putLong(LAUNCH_COUNT_KEY, launchCount);
 
         // Get date of first launch
-        Long date_firstLaunch = prefs.getLong("date_firstlaunch", 0);
-        if (date_firstLaunch == 0) {
-            date_firstLaunch = System.currentTimeMillis();
-            editor.putLong("date_firstlaunch", date_firstLaunch);
+        long firstLaunchTimestamp = prefs.getLong(FIRST_LAUNCH_TIMESTAMP, 0);
+        if (firstLaunchTimestamp == 0) {
+            firstLaunchTimestamp = System.currentTimeMillis();
+            editor.putLong(FIRST_LAUNCH_TIMESTAMP, firstLaunchTimestamp);
         }
 
         // Wait at least n days before opening
-        if (launch_count >= LAUNCHES_UNTIL_PROMPT) {
-            if (System.currentTimeMillis() >= date_firstLaunch +
-                    (DAYS_UNTIL_PROMPT * 24 * 60 * 60 * 1000)) {
-                showRateDialog(mContext, editor);
+        if (launchCount >= LAUNCHES_UNTIL_PROMPT) {
+            if (System.currentTimeMillis() >= firstLaunchTimestamp +
+                    TimeUnit.DAYS.toMillis(DAYS_UNTIL_PROMPT)) {
+                showRateDialog(context, editor);
             }
         }
 
-        editor.commit();
+        editor.apply();
     }
 
-    //Keeping this method public for testing
-    public static void showRateDialog(final Context context, final SharedPreferences.Editor editor) {
-        final Dialog dialog = new Dialog(context);
-        dialog.setTitle("Rate " + APP_TITLE);
+    private static void showRateDialog(@NonNull final Context context,
+                                       @NonNull final SharedPreferences.Editor editor) {
+        String appName = context.getString(context.getApplicationInfo().labelRes);
 
-        LinearLayout ll = new LinearLayout(context);
-        ll.setOrientation(LinearLayout.VERTICAL);
-
-        TextView tv = new TextView(context);
-        tv.setText("If you enjoy using " + APP_TITLE + ", please take a moment to rate it. Thanks for your support!");
-        tv.setPadding(10, 20, 10, 20);
-        ll.addView(tv);
-
-        Button b1 = new Button(context);
-        b1.setText("Rate " + APP_TITLE);
-        b1.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    context.startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("market://details?id=" + APP_PNAME)));
-                } catch (ActivityNotFoundException e) {
-                    context.startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("http://play.google.com/store/apps/details?id=" + APP_PNAME)));
-                }
-                if (editor != null) {
-                    editor.putBoolean("dontshowagain", true);
-                    editor.commit();
-                }
-                dialog.dismiss();
+        final AlertDialog dialog = new AlertDialog.Builder(context)
+                .setTitle(context.getString(R.string.apprate_title, appName))
+                .setMessage(context.getString(R.string.apprate_text, appName))
+                .setPositiveButton(R.string.apprate_rate_action,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                openPlayStorePage(context);
+                                dialog.dismiss();
+                            }
+                        })
+                .setNeutralButton(R.string.apprate_remind_later_button,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                editor.clear().commit();
+                                dialog.dismiss();
+                            }
+                        })
+                .setNegativeButton(R.string.apprate_dont_show_again_button,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                editor.putBoolean(DONT_SHOW_AGAIN_KEY, true);
+                                editor.commit();
+                                dialog.dismiss();
+                            }
+                        })
+                .create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface dif) {
+                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                        .setTextColor(ColorStateList.valueOf(Color.BLUE));
             }
         });
-        ll.addView(b1);
-
-        Button b2 = new Button(context);
-        b2.setText("Remind me later");
-        b2.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (editor != null) {
-                    editor.clear().commit();
-                }
-                dialog.dismiss();
-            }
-        });
-        ll.addView(b2);
-
-        Button b3 = new Button(context);
-        b3.setText("No, thanks");
-        b3.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (editor != null) {
-                    editor.putBoolean("dontshowagain", true);
-                    editor.commit();
-                }
-                dialog.dismiss();
-            }
-        });
-        ll.addView(b3);
-
-        dialog.setContentView(ll);
-
         dialog.show();
+    }
+
+    private static void openPlayStorePage(Context context) {
+        try {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID)));
+        } catch (ActivityNotFoundException e) {
+            context.startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id="
+                            + BuildConfig.APPLICATION_ID)));
+        }
+
+        SharedPreferences.Editor editor = context.getSharedPreferences(APPRATER_LOG_FILENAME,
+                Context.MODE_PRIVATE).edit();
+
+        editor.putBoolean(DONT_SHOW_AGAIN_KEY, true);
+        editor.commit();
     }
 
 }

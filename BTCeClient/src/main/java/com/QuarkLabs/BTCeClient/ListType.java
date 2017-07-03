@@ -19,7 +19,6 @@
 package com.QuarkLabs.BTCeClient;
 
 public enum ListType {
-    ActiveOrders,
     Transactions,
     Trades
 }

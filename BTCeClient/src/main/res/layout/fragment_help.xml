@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
-<ScrollView
-        xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/scrollView">
-
-    <LinearLayout android:layout_height="wrap_content"
-                  android:layout_width="match_parent"
-                  android:orientation="vertical">
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
 
         <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/PlaceholderText"
-                android:id="@+id/aboutText"
-                android:textSize="16sp"
-                />
+            android:id="@+id/aboutText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/PlaceholderText"
+            android:textSize="16sp" />
+
         <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/HelpRateAppButtonTitle"
-                android:id="@+id/rateAppButton" android:layout_marginTop="@dimen/default_element_spacing"
-                android:layout_gravity="center_horizontal"/>
+            android:id="@+id/rateAppButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/default_element_spacing"
+            android:text="@string/HelpRateAppButtonTitle" />
+
         <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/HelpSendFeedbackButtonTitle"
-                android:id="@+id/sendFeedbackButton" android:layout_marginTop="@dimen/default_element_spacing"
-                android:layout_gravity="center_horizontal"/>
+            android:id="@+id/sendFeedbackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="@dimen/default_element_spacing"
+            android:text="@string/HelpSendFeedbackButtonTitle" />
     </LinearLayout>
 </ScrollView>

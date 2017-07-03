@@ -130,7 +130,7 @@
     <string name="EnableRecurrentCheck">Enable periodic check</string>
     <string name="RecurrentPeriod">Period:</string>
     <string name="ChoosePeriod">Choose period</string>
-    <string name="GeneralErrorText">Something went wrong. Please try again later.</string>
+    <string name="general_error_text">Something went wrong. Please try again later.</string>
     <string name="WidgetConfigTitle">Please choose pair to watch</string>
     <string name="PlaceholderText">Placeholder text</string>
     <string name="PairTitleWidget">Pair</string>
@@ -175,4 +175,14 @@
     <string name="APIKeyDefaultText">please enter key</string>
     <string name="APISecretDefaultText">please enter secret</string>
     <string name="UseMirror">Use btc-e.nz</string>
+    <string name="apprate_title">Rate %s</string>
+    <string name="apprate_rate_action">Rate</string>
+    <string name="apprate_dont_show_again_button">No, thanks</string>
+    <string name="apprate_remind_later_button">Later</string>
+    <string name="apprate_text">If you enjoy using %s please take a moment to rate it. Thanks for your support!</string>
+    <string name="order_deleted_successfully">Order was deleted successfully</string>
+    <string name="order_delete_question">Are you sure you want to delete order with id=%d?</string>
+    <string name="no_items_text">No items</string>
+    <string name="no_charts_text">NO CHARTS</string>
+    <string name="no_connection_text">No connection</string>
 </resources>

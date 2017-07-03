@@ -30,13 +30,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+
+import com.QuarkLabs.BTCeClient.BuildConfig;
 import com.QuarkLabs.BTCeClient.R;
 
 public class HelpFragment extends Fragment implements View.OnClickListener {
 
     private static final String APP_EMAIL_ADDRESS = "quarkdev.solutions@gmail.com";
     private static final String APP_EMAIL_SUBJECT = "Feedback on BTC-e client for Android";
-    private final static String APP_PNAME = "com.QuarkLabs.BTCeClient";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,12 +47,12 @@ public class HelpFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        @SuppressWarnings("ConstantConditions") TextView aboutText = (TextView) getView().findViewById(R.id.aboutText);
+        TextView aboutText = (TextView) view.findViewById(R.id.aboutText);
         aboutText.setText(Html.fromHtml(getString(R.string.AboutText)));
         aboutText.setMovementMethod(LinkMovementMethod.getInstance());
 
-        Button sendFeedbackButton = (Button) getView().findViewById(R.id.sendFeedbackButton);
-        Button rateAppButton = (Button) getView().findViewById(R.id.rateAppButton);
+        Button sendFeedbackButton = (Button) view.findViewById(R.id.sendFeedbackButton);
+        Button rateAppButton = (Button) view.findViewById(R.id.rateAppButton);
         sendFeedbackButton.setOnClickListener(this);
         rateAppButton.setOnClickListener(this);
     }
@@ -62,11 +63,11 @@ public class HelpFragment extends Fragment implements View.OnClickListener {
             case R.id.rateAppButton:
                 try {
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            Uri.parse("market://details?id=" + APP_PNAME)));
+                            Uri.parse("market://details?id=" + BuildConfig.APPLICATION_ID)));
                 } catch (ActivityNotFoundException e) {
                     startActivity(new Intent(Intent.ACTION_VIEW,
                             Uri.parse("http://play.google.com/store/apps/details?id="
-                                    + APP_PNAME)));
+                                    + BuildConfig.APPLICATION_ID)));
                 }
                 break;
             case R.id.sendFeedbackButton:

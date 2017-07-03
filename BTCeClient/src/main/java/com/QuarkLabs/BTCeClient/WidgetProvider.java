@@ -23,6 +23,8 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.QuarkLabs.BTCeClient.tasks.UpdateWidgetsTask;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,17 +32,18 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Map<Integer, String> map = new HashMap<>();
+        Map<Integer, String> pairWidgets = new HashMap<>();
 
         for (int id : appWidgetIds) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences("widget" + id, Context.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = context.getSharedPreferences("widget" + id,
+                    Context.MODE_PRIVATE);
             String pair = sharedPreferences.getString("pair", "");
             if (pair.length() != 0) {
-                map.put(id, pair);
+                pairWidgets.put(id, pair);
             }
         }
 
-        UpdateWidgetsTask updateWidgetsTask = new UpdateWidgetsTask(context, map);
+        UpdateWidgetsTask updateWidgetsTask = new UpdateWidgetsTask(context, pairWidgets);
         updateWidgetsTask.execute();
     }
 }

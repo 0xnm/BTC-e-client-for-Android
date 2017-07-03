@@ -21,7 +21,6 @@ package com.QuarkLabs.BTCeClient.adapters;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,20 +33,21 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class CheckBoxListAdapter extends BaseAdapter {
-    private final String[] mItems;
-    private final Set<String> mSet;
-    private String mScope;
-    private Context mContext;
+
+    private final String[] items;
+    private final Set<String> values;
+    private String scope;
+    private Context context;
 
     public CheckBoxListAdapter(Context context, String[] items, SettingsScope settingsScope) {
-        mItems = items;
-        mContext = context;
+        this.items = items;
+        this.context = context;
         if (settingsScope == SettingsScope.CHARTS) {
-            mScope = "ChartsToDisplay";
-            mSet = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));
+            scope = "ChartsToDisplay";
+            values = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));
         } else if (settingsScope == SettingsScope.PAIRS) {
-            mScope = "PairsToDisplay";
-            mSet = new HashSet<>(PairUtils.getTickersToDisplayThatSupported(context));
+            scope = "PairsToDisplay";
+            values = new HashSet<>(PairUtils.getTickersToDisplayThatSupported(context));
         } else {
             throw new RuntimeException("Unsupported scope");
         }
@@ -55,12 +55,12 @@ public class CheckBoxListAdapter extends BaseAdapter {
 
     @Override
     public int getCount() {
-        return mItems.length;
+        return items.length;
     }
 
     @Override
     public Object getItem(int position) {
-        return mItems[position];
+        return items[position];
     }
 
     @Override
@@ -72,18 +72,17 @@ public class CheckBoxListAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder viewHolder;
         if (convertView == null) {
-            convertView = LayoutInflater.from(mContext).inflate(R.layout.checkbox, parent, false);
+            convertView = LayoutInflater.from(context).inflate(R.layout.checkbox, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.checkBox = (CheckBox) convertView;
-            viewHolder.checkBox.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     CheckBox checkBox = (CheckBox) v;
                     if (checkBox.isChecked()) {
-                        mSet.add(checkBox.getText().toString());
+                        values.add(checkBox.getText().toString());
                     } else {
-                        mSet.remove(checkBox.getText().toString());
+                        values.remove(checkBox.getText().toString());
                     }
                 }
             });
@@ -91,9 +90,10 @@ public class CheckBoxListAdapter extends BaseAdapter {
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
+
         CheckBox checkBox = viewHolder.checkBox;
         String text = (String) getItem(position);
-        if (mSet.contains(text)) {
+        if (values.contains(text)) {
             checkBox.setChecked(true);
         } else {
             checkBox.setChecked(false);
@@ -103,10 +103,10 @@ public class CheckBoxListAdapter extends BaseAdapter {
     }
 
     public void saveValuesToPreferences() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putStringSet(mScope, mSet);
-        editor.commit();
+        editor.putStringSet(scope, values);
+        editor.apply();
     }
 
     public enum SettingsScope {

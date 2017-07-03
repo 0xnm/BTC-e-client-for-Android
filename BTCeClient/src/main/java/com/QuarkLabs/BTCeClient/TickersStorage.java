@@ -20,7 +20,7 @@ package com.QuarkLabs.BTCeClient;
 
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.models.Ticker;
+import com.QuarkLabs.BTCeClient.api.Ticker;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -20,57 +20,35 @@ package com.QuarkLabs.BTCeClient.loaders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
+
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.QuarkLabs.BTCeClient.api.Api;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.Depth;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.Locale;
-
-public class OrderBookLoader extends AsyncTaskLoader<JSONObject> {
-    private final String mPair;
-    private JSONObject mData;
-
+public class OrderBookLoader extends AsyncTaskLoader<CallResult<Depth>> {
+    private final String pair;
+    private CallResult<Depth> orders;
+    private Api api;
 
     public OrderBookLoader(Context context, String pair) {
         super(context);
-        mPair = pair;
+        api = BtcEApplication.get(context).getApi();
+        this.pair = pair;
     }
 
     @Override
-    public JSONObject loadInBackground() {
-        String urlString = BtcEApplication.getHostUrl() + "/api/2/"
-                + mPair.toLowerCase(Locale.US).replace("/", "_") + "/depth";
-        String out = "";
-        try {
-            URL url = new URL(urlString);
-            URLConnection connection = url.openConnection();
-            InputStream stream = connection.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(stream));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                out += line;
-            }
-            mData = new JSONObject(out);
-            stream.close();
-            reader.close();
-        } catch (IOException | JSONException e) {
-            e.printStackTrace();
-        }
-        return mData;
+    public CallResult<Depth> loadInBackground() {
+        orders = api.depth(pair);
+        return orders;
     }
 
     @Override
     protected void onStartLoading() {
-        if (mData != null) {
-            deliverResult(mData);
+        if (orders != null) {
+            deliverResult(orders);
         }
-        if (takeContentChanged() || mData == null) {
+        if (takeContentChanged() || orders == null) {
             forceLoad();
         }
     }

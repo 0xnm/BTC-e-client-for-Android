@@ -46,7 +46,8 @@ public class FlippingView extends FrameLayout {
         super(context, attrs, defStyle);
     }
 
-    public void addAnimators(AnimatorSet leftOut, AnimatorSet leftIn, AnimatorSet rightOut, AnimatorSet rightIn) {
+    public void addAnimators(AnimatorSet leftOut, AnimatorSet leftIn, AnimatorSet rightOut,
+                             AnimatorSet rightIn) {
         mFlipLeftOut = leftOut.clone();
         mFlipLeftIn = leftIn.clone();
         mFlipRightOut = rightOut.clone();
@@ -102,13 +103,18 @@ public class FlippingView extends FrameLayout {
         mFrontCover = getChildAt(0);
         mBackCover = getChildAt(1);
         if (mFrontCover == null || mBackCover == null) {
-            throw new IllegalStateException("FlippingView should have 2 childs");
+            throw new IllegalStateException("FlippingView should have 2 child");
         }
         //keeping the height of back cover equal to front cover
         int frontCoverHeight = mFrontCover.getHeight();
-        mBackCover.setLayoutParams(new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                frontCoverHeight));
-        if (mFlipLeftIn == null || mFlipRightIn == null || mFlipLeftOut == null || mFlipRightOut == null) {
+        mBackCover.setLayoutParams(
+                new FrameLayout.LayoutParams(
+                        FrameLayout.LayoutParams.MATCH_PARENT,
+                        frontCoverHeight)
+        );
+
+        if (mFlipLeftIn == null || mFlipRightIn == null
+                || mFlipLeftOut == null || mFlipRightOut == null) {
             throw new IllegalStateException("Animators should be added at first");
         }
         mFlipRightIn.setTarget(mFrontCover);

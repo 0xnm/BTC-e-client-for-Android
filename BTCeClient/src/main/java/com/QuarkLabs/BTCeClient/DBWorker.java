@@ -24,8 +24,12 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+/**
+ * Helper on top of SQLite storage
+ */
 public class DBWorker extends SQLiteOpenHelper {
     private static final String DB_NAME = "data.sqlite";
+
     private static final int DATABASE_VERSION = 1;
     private static final String TICKER_DATA_TABLE_NAME = "ticker_data";
     private static final String TICKER_TABLE_CREATE = "CREATE TABLE " + TICKER_DATA_TABLE_NAME +
@@ -47,17 +51,24 @@ public class DBWorker extends SQLiteOpenHelper {
             + NOTIFIERS_TYPE_COLUMN + " INTEGER NOT NULL, "
             + NOTIFIERS_VALUE_COLUMN + " FLOAT NOT NULL)";
 
-    private static DBWorker sInstance;
+    private static volatile DBWorker sInstance;
 
     private DBWorker(Context context) {
         super(context, DB_NAME, null, DATABASE_VERSION);
     }
 
     public static DBWorker getInstance(Context context) {
-        if (sInstance == null) {
-            sInstance = new DBWorker(context.getApplicationContext());
+        DBWorker localInstance = sInstance;
+        if (localInstance == null) {
+            synchronized (DBWorker.class) {
+                localInstance = sInstance;
+                if (localInstance == null) {
+                    sInstance = new DBWorker(context.getApplicationContext());
+                    localInstance = sInstance;
+                }
+            }
         }
-        return sInstance;
+        return localInstance;
     }
 
     @Override
@@ -102,7 +113,6 @@ public class DBWorker extends SQLiteOpenHelper {
         String[] pairValue = {pair};
         return db.update(WIDGET_DATA_TABLE_NAME, contentValues, "pair == ?", pairValue);
     }
-
 
     public synchronized Cursor pullWidgetData(String[] columns) {
         SQLiteDatabase db = getWritableDatabase();
