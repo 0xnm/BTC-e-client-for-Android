@@ -1,5 +1,7 @@
 package com.QuarkLabs.BTCeClient.api;
 
+import android.content.Context;
+
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +19,7 @@ import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE_HISTORY;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRANSACTIONS_HISTORY;
 import static org.junit.Assert.*;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyMapOf;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
@@ -29,13 +32,16 @@ public class ApiTest {
     private GuestApi mockGuestApi;
     @Mock
     private AuthApi mockAuthApi;
+    @Mock
+    private Context mockContext;
 
     private Api testable;
 
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
-        testable = new Api("", "", mockGuestApi, mockAuthApi);
+        when(mockContext.getString(anyInt())).thenReturn("");
+        testable = new Api(mockContext, "", mockGuestApi, mockAuthApi);
     }
 
     @Test

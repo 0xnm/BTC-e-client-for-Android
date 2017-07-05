@@ -50,7 +50,7 @@ public class SettingsFragment extends PreferenceFragment
         Preference checkEnabled = findPreference(KEY_CHECK_ENABLED);
         if (checkEnabled.isEnabled()) {
             findPreference(KEY_CHECK_PERIOD).setSummary(
-                    mDefaultCheckPeriodSummaryText.replace("N/A",
+                    mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle),
                             findCheckPeriodText(PreferenceManager
                                     .getDefaultSharedPreferences(getActivity())))
             );
@@ -65,14 +65,14 @@ public class SettingsFragment extends PreferenceFragment
             Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
             if (checkEnabled) {
                 checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
-                        .replace("N/A", currentPeriodText));
+                        .replace(getString(R.string.NATitle), currentPeriodText));
             } else {
                 checkPeriod.setSummary(mDefaultCheckPeriodSummaryText);
             }
         } else if (KEY_CHECK_PERIOD.equals(key)) {
             Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
             checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
-                    .replace("N/A", currentPeriodText));
+                    .replace(getString(R.string.NATitle), currentPeriodText));
         }
     }
 

@@ -18,10 +18,13 @@
 
 package com.QuarkLabs.BTCeClient.api;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
+
+import com.QuarkLabs.BTCeClient.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,16 +46,18 @@ public class Api {
     private final String generalErrorText;
     @NonNull
     private final GuestApi guestApi;
+    @NonNull
+    private final Context appContext;
 
     private AuthApi authApi;
 
     private String hostUrl;
 
-    public Api(@NonNull String defaultError, @NonNull String hostUrl,
+    public Api(@NonNull Context appContext, @NonNull String hostUrl,
                @Nullable String apiKey, @Nullable String apiSecret) {
-        this(defaultError, hostUrl,
+        this(appContext, hostUrl,
                 new GuestApi(),
-                new AuthApi(System.currentTimeMillis() / 1000L,
+                new AuthApi(appContext, System.currentTimeMillis() / 1000L,
                         apiKey == null ? "" : apiKey,
                         apiSecret == null ? "" : apiSecret,
                         hostUrl)
@@ -60,16 +65,17 @@ public class Api {
     }
 
     @VisibleForTesting
-    Api(@NonNull String defaultError, @NonNull String hostUrl,
+    Api(@NonNull Context appContext, @NonNull String hostUrl,
         @NonNull GuestApi guestApi, @NonNull AuthApi authApi) {
-        this.generalErrorText = defaultError;
+        this.appContext = appContext;
+        this.generalErrorText = appContext.getString(R.string.general_error_text);
         this.hostUrl = hostUrl;
         this.guestApi = guestApi;
         this.authApi = authApi;
     }
 
     public void setCredentials(@NonNull String apiKey, @NonNull String apiSecret) {
-        authApi = new AuthApi(System.currentTimeMillis() / 1000L, apiKey,
+        authApi = new AuthApi(appContext, System.currentTimeMillis() / 1000L, apiKey,
                 apiSecret, hostUrl);
     }
 

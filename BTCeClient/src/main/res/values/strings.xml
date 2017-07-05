@@ -120,12 +120,8 @@
     Authors of this app are not affiliated with BTC-e exchange]]></string>
     <string name="StopLossDescription">You will be notified once the price get below the specified value</string>
     <string name="TakeProfitDescription">You will be notified once the price get above the specified value</string>
-    <string name="PanicBuyDescription">You will be notified once the last check price is more than previous check price
-        on the specified delta
-    </string>
-    <string name="PanicSellDescription">You will be notified once the last check price is less than previous check price
-        on the specified delta
-    </string>
+    <string name="PanicBuyDescription">You will be notified once the last check price is more than previous check price on the specified delta</string>
+    <string name="PanicSellDescription">You will be notified once the last check price is less than previous check price on the specified delta</string>
     <string name="TradeTitle">Trading</string>
     <string name="EnableRecurrentCheck">Enable periodic check</string>
     <string name="RecurrentPeriod">Period:</string>
@@ -172,8 +168,8 @@
     <string name="tickerDashboardBackSellTitle">Sell:</string>
     <string name="NoPairsToShow">NO PAIRS TO SHOW</string>
     <string name="CheckPeriodSummary">Current check period: N/A</string>
-    <string name="APIKeyDefaultText">please enter key</string>
-    <string name="APISecretDefaultText">please enter secret</string>
+    <string name="APIKeyDefaultText">enter key</string>
+    <string name="APISecretDefaultText">enter secret</string>
     <string name="UseMirror">Use btc-e.nz</string>
     <string name="apprate_title">Rate %s</string>
     <string name="apprate_rate_action">Rate</string>
@@ -185,4 +181,7 @@
     <string name="no_items_text">No items</string>
     <string name="no_charts_text">NO CHARTS</string>
     <string name="no_connection_text">No connection</string>
+    <string name="periodic_check_title">Periodic check</string>
+    <string name="check_period_option">Check period</string>
+    <string name="no_key_secret_error">No key/secret provided</string>
 </resources>
