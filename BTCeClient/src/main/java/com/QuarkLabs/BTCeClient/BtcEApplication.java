@@ -27,7 +27,7 @@ public class BtcEApplication extends Application implements
                 .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_KEY, ""));
         String apiSecret = securityManager
                 .decryptString(defaultPreferences.getString(SettingsFragment.KEY_API_SECRET, ""));
-        api = new Api(getString(R.string.general_error_text), getHostUrl(), apiKey, apiSecret);
+        api = new Api(this, getHostUrl(), apiKey, apiSecret);
     }
 
     private void refreshApiCredentials() {

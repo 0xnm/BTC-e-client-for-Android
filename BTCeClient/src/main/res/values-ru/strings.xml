@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">BTC-e client</string>
+    <string name="AccountInfo">Мои средства</string>
+    <string name="UpdateAccountInfo">Пожалуйста, нажмите \"ОБНОВИТЬ\"</string>
+    <string name="enableEMAIndicator">Показать EMA</string>
+    <string name="enableMACDIndicator">Показать MACD</string>
+    <string name="enableRSIIndicator">Показать RSI</string>
+    <string name="enableSMAIndicator">Показать SMA</string>
+    <string name="IndicatorsSectionTitle">Индикаторы</string>
+    <string name="SaveSettingsButton">СОХРАНИТЬ НАСТРОЙКИ</string>
+    <string name="SelectPairsPromptTitle">Пары для показа</string>
+    <string name="FundsInfoUpdatedtext">Информация об аккаунте успешно обновлена</string>
+    <string name="DialogSaveButton">СОХРАНИТЬ</string>
+    <string name="RefreshButton">ОБНОВИТЬ</string>
+    <string name="AddWatcherTitle">Добавить наблюдателя</string>
+    <string name="OoopsError">Упс</string>
+    <string-array name="Currencies">
+        <item>BTC</item>
+        <item>LTC</item>
+        <item>NMC</item>
+        <item>NVC</item>
+        <item>PPC</item>
+        <item>DSH</item>
+        <item>ETH</item>
+        <item>USD</item>
+        <item>GBP</item>
+        <item>CNH</item>
+        <item>EUR</item>
+        <item>RUR</item>
+    </string-array>
+    <string-array name="NavSections">
+        <item>Терминал</item>
+        <item>Список заявок</item>
+        <item>Мои заявки</item>
+        <item>Мои сделки</item>
+        <item>Мои транзакции</item>
+        <item>Графики</item>
+        <item>Настройки</item>
+        <item>Наблюдатели</item>
+        <item>Помощь</item>
+    </string-array>
+    <!--The sections below should be consistent-->
+    <string-array name="Periods">
+        <item>30 секунд</item>
+        <item>1 минута</item>
+        <item>2 минуты</item>
+        <item>3 минуты</item>
+        <item>5 минут</item>
+        <item>10 минут</item>
+        <item>15 минут</item>
+        <item>20 минут</item>
+        <item>30 минут</item>
+        <item>45 минут</item>
+        <item>1 час</item>
+    </string-array>
+    <string-array name="PeriodsInMsecs">
+        <item>30000</item>
+        <item>60000</item>
+        <item>120000</item>
+        <item>180000</item>
+        <item>300000</item>
+        <item>600000</item>
+        <item>900000</item>
+        <item>1200000</item>
+        <item>1800000</item>
+        <item>2700000</item>
+        <item>3600000</item>
+    </string-array>
+    <string name="period_default_value">60000</string>
+    <!--END of consistent sections-->
+    <string-array name="ExchangePairs">
+        <item>BTC/USD</item>
+        <item>BTC/RUR</item>
+        <item>BTC/EUR</item>
+        <item>LTC/BTC</item>
+        <item>LTC/USD</item>
+        <item>LTC/RUR</item>
+        <item>LTC/EUR</item>
+        <item>NMC/BTC</item>
+        <item>NMC/USD</item>
+        <item>NVC/BTC</item>
+        <item>NVC/USD</item>
+        <item>USD/RUR</item>
+        <item>EUR/USD</item>
+        <item>EUR/RUR</item>
+        <item>PPC/BTC</item>
+        <item>PPC/USD</item>
+        <item>DSH/BTC</item>
+        <item>DSH/USD</item>
+        <item>DSH/RUR</item>
+        <item>DSH/EUR</item>
+        <item>DSH/LTC</item>
+        <item>DSH/ETH</item>
+        <item>ETH/BTC</item>
+        <item>ETH/USD</item>
+        <item>ETH/EUR</item>
+        <item>ETH/LTC</item>
+        <item>ETH/RUR</item>
+    </string-array>
+
+    <string name="watcher_panic_sell">Паническая продажа</string>
+    <string name="watcher_panic_buy">Паническая покупка</string>
+    <string name="watcher_stop_loss">Ограничение убытка</string>
+    <string name="watcher_take_profit">Фиксация прибыли</string>
+
+    <string name="watcher_value_delta">Изменение (%)</string>
+    <string name="watcher_value_number">Значение</string>
+
+    <string name="watcher_alarm">%1$s для %2$s</string>
+    <string name="watcher_alarm_panic_sell_details">%1$s упало больше, чем на %2$s%%</string>
+    <string name="watcher_alarm_panic_buy_details">%1$s поднялось больше, чем на %2$s%%</string>
+    <string name="watcher_alarm_stop_loss_details">%1$s упало ниже %2$s %3$s</string>
+    <string name="watcher_alarm_take_profit_details">%1$s поднялось больше %2$s %3$s</string>
+
+    <string name="AboutText"><![CDATA[<b>Использованные библиотеки: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
+    <br /><br /><b>Наблюдатели: </b><br />Пожалуйста, примите во внимание, что чтобы наблюдатели работали, вы <b>должны</b> иметь соответствующую пару в терминале<br /><br />
+    <b>Полезные советы:</b><br /> Нажмите на любой паре в <b>Терминале</b> и поля раздела <b>Торговля</b> будут автоматически заполнены соответствующей парой и её значением
+    <br /><br /> Нажмите на любой валюте в разделе <b>Мои средства</b> и поле <b>Количество</b> секции <b>Торговля</b> будет автоматически заполнено<br /><br />
+    Авторы этого приложения не связаны с btc-e.com]]></string>
+    <string name="StopLossDescription">Вы будете оповещены при падении значения ниже указанного уровня</string>
+    <string name="TakeProfitDescription">Вы будете оповещены при превышении значения указанного уровня</string>
+    <string name="PanicBuyDescription">Вы будете оповещены при изменении значения на указанную величину в положительную сторону по отношению к прошлому значению</string>
+    <string name="PanicSellDescription">Вы будете оповещены при изменении значения на указанную величину в отрицательную сторону по отношению к прошлому значению</string>
+    <string name="TradeTitle">Торговля</string>
+    <string name="EnableRecurrentCheck">Включить периодическую проверку</string>
+    <string name="RecurrentPeriod">Период:</string>
+    <string name="ChoosePeriod">Выберите период</string>
+    <string name="general_error_text">Произошла ошибка. Пожалуйста, повторите попытку позже.</string>
+    <string name="WidgetConfigTitle">Выберите пару для наблюдения</string>
+    <string name="PlaceholderText">Placeholder text</string>
+    <string name="PairTitleWidget">Пара</string>
+    <string name="NATitle">Н/Д</string>
+    <string name="DateTitle">Дата</string>
+    <string name="KeyTitle">Ключ</string>
+    <string name="PairTitle">Пара:</string>
+    <string name="NoItems">НЕТ ЭЛЕМЕНТОВ</string>
+    <string name="NotifyMeOn">Оповещать меня о:</string>
+    <string name="ZeroFloatValue">0.0</string>
+    <string name="Bids">ПОКУПКА</string>
+    <string name="Asks">ПРОДАЖА</string>
+    <string name="SettingsSecretTitle">Секрет</string>
+    <string name="StartDateTitle">Начальная дата</string>
+    <string name="EndDateTitle">Конечная дата</string>
+    <string name="TimeStampTitle">Метка времени:</string>
+    <string name="OrderIDTitle">ID заявки:</string>
+    <string name="NotifiersPair">Пара</string>
+    <string name="TypeTitle">Тип:</string>
+    <string name="AmountTitle">Количество:</string>
+    <string name="WaitingForData">ОЖИДАНИЕ ДАННЫХ</string>
+    <string name="RateTitle">Ставка:</string>
+    <string name="ValueTitle">Величина:</string>
+    <string name="Price">Цена</string>
+    <string name="Currency">Валюта</string>
+    <string name="Amount">Количество</string>
+    <string name="UpdateButton">ОБНОВИТЬ</string>
+    <string name="BuyButton">КУПИТЬ</string>
+    <string name="SellButton">ПРОДАТЬ</string>
+    <string name="DescriptionTitle">Описание:</string>
+    <string name="RemoveOrder">Удалить заявку</string>
+    <string name="AddMenu">Добавить</string>
+    <string name="RefreshMenu">Обновить</string>
+    <string name="HelpRateAppButtonTitle">ОЦЕНИТЬ В PLAY STORE</string>
+    <string name="HelpSendFeedbackButtonTitle">ОТПРАВИТЬ ОТЗЫВ</string>
+    <string name="tickerDashboardBackHighTitle">Макс.:</string>
+    <string name="tickerDashboardBackLowTitle">Мин.:</string>
+    <string name="tickerDashboardBackBuyTitle">Покупка:</string>
+    <string name="tickerDashboardBackSellTitle">Продажа:</string>
+    <string name="NoPairsToShow">НЕТ ПАР ДЛЯ ПОКАЗА</string>
+    <string name="CheckPeriodSummary">Текущий период проверки: Н/Д</string>
+    <string name="APIKeyDefaultText">введите ключ</string>
+    <string name="APISecretDefaultText">введите секрет</string>
+    <string name="UseMirror">Использовать btc-e.nz</string>
+    <string name="apprate_title">Оценить %s</string>
+    <string name="apprate_rate_action">Оценить</string>
+    <string name="apprate_dont_show_again_button">Нет, спасибо</string>
+    <string name="apprate_remind_later_button">Позже</string>
+    <string name="apprate_text">Если вам нравится %s, пожалуйста, уделите минуту и оцените его. Спасибо за поддержку!</string>
+    <string name="order_deleted_successfully">Заявка успешно удалена</string>
+    <string name="order_delete_question">Вы уверены, что хотите удалить заявку id=%d?</string>
+    <string name="no_items_text">Нет элементов</string>
+    <string name="no_charts_text">НЕТ ГРАФИКОВ</string>
+    <string name="no_connection_text">Нет соединения</string>
+    <string name="periodic_check_title">Периодическая проверка</string>
+    <string name="check_period_option">Период проверки</string>
+    <string name="no_key_secret_error">Не предоставлен ключ API/секрет</string>
+</resources>
