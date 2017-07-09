@@ -189,7 +189,7 @@
     <string name="whats_new_old_charts">Following feedback on performance of TradingView charts, this version adds support for showing old charts from btc-e.com. You can switch between them in Settings. TradingView charts are more powerful, but slower, BTC-e charts has much less features, but faster.</string>
     <string name="use_btce_charts_description">Less features, but faster</string>
     <string name="order_successfully_added">Order was successfully added</string>
-    <string name="buy_confirmation">Buy &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b>?</string>
-    <string name="sell_confirmation">Sell &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b>?</string>
+    <string name="buy_confirmation">Buy &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? Total cost is: &lt;b>%6$s %7$s&lt;/b></string>
+    <string name="sell_confirmation">Sell &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? Total cost is: &lt;b>%6$s %7$s&lt;/b></string>
     <string name="missing_mandatory_fields_error">Missing mandatory fields</string>
 </resources>

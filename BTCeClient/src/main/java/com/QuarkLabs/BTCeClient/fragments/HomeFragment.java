@@ -227,9 +227,14 @@ public class HomeFragment extends Fragment implements
         } else {
             confirmationRes = R.string.sell_confirmation;
         }
+        String total = String.valueOf(Float.parseFloat(request.tradeAmount)
+                * Float.parseFloat(request.tradePrice));
         new AlertDialog.Builder(getActivity())
-                .setMessage(Html.fromHtml(getString(confirmationRes, request.tradeAmount,
-                        request.tradeCurrency, request.tradePrice, request.tradePriceCurrency)))
+                .setMessage(Html.fromHtml(getString(confirmationRes,
+                        request.tradeAmount, request.tradeCurrency,
+                        request.tradePrice, request.tradePriceCurrency,
+                        request.tradeCurrency,
+                        total, request.tradePriceCurrency)))
                 .setCancelable(false)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
@@ -485,8 +490,8 @@ public class HomeFragment extends Fragment implements
         final String tradePriceCurrency;
 
         TradeRequest(@NonNull String type,
-                            @NonNull String tradeAmount, @NonNull String tradeCurrency,
-                            @NonNull String tradePrice, @NonNull String tradePriceCurrency) {
+                     @NonNull String tradeAmount, @NonNull String tradeCurrency,
+                     @NonNull String tradePrice, @NonNull String tradePriceCurrency) {
             this.type = type;
             this.tradeAmount = tradeAmount;
             this.tradeCurrency = tradeCurrency;
