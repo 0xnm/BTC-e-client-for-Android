@@ -32,6 +32,7 @@ import android.widget.RemoteViews;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WidgetProvider;
 import com.QuarkLabs.BTCeClient.api.Api;
@@ -77,7 +78,7 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
             pairs.add(pairWidgets.get(x));
         }
 
-        CallResult<List<Ticker>> result = api.getPairInfo(new ArrayList<>(pairs));
+        CallResult<List<Ticker>> result = api.getPairInfo(new HashSet<>(pairs));
 
         if (!result.isSuccess()) {
             return Collections.emptyMap();
@@ -98,7 +99,7 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         Map<String, Status> statuses = new HashMap<>();
         for (Ticker ticker : result.getPayload()) {
             String pair = ticker.getPair();
-            String pairInDb = pair.replace("_", "/").toUpperCase(Locale.US);
+            String pairInDb = PairUtils.serverToLocal(pair);
             ContentValues cv = new ContentValues(4);
             double last = ticker.getLast();
             double sell = ticker.getSell();
@@ -123,9 +124,9 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
             statuses.put(pair, status);
 
             int changedCount = dbWorker.updateWidgetData(cv,
-                    pair.replace("_", "/").toUpperCase(Locale.US));
+                    PairUtils.serverToLocal(pair));
             if (changedCount == 0) {
-                cv.put("pair", pair.replace("_", "/").toUpperCase(Locale.US));
+                cv.put("pair", PairUtils.serverToLocal(pair));
                 dbWorker.insertToWidgetData(cv);
             }
         }
@@ -138,8 +139,7 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         for (int widgetId : pairWidgets.keySet()) {
             RemoteViews views = new RemoteViews(appContext.getPackageName(),
                     R.layout.appwidget_layout);
-            Status status = statuses.get(pairWidgets.get(widgetId)
-                    .replace("/", "_").toLowerCase(Locale.US));
+            Status status = statuses.get(PairUtils.localToServer(pairWidgets.get(widgetId)));
             if (status == null) {
                 continue;
             }

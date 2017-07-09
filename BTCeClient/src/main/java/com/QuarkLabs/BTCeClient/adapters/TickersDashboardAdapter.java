@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.api.Ticker;
@@ -18,6 +20,7 @@ import com.QuarkLabs.BTCeClient.views.FlippingView;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -117,7 +120,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         TextView buyView = (TextView) itemView.findViewById(R.id.tickerBuyValue);
         TextView sellView = (TextView) itemView.findViewById(R.id.tickerSellValue);
 
-        String pairValue = ticker.getPair().replace("_", "/").toUpperCase(Locale.US);
+        String pairValue = PairUtils.serverToLocal(ticker.getPair());
 
         pairFrontView.setText(pairValue);
         lastView.setText(String.valueOf(ticker.getLast()));
@@ -173,9 +176,9 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         }
     }
 
-    public void update() {
+    public void update(@NonNull Collection<Ticker> newTickers) {
         tickers.clear();
-        tickers.addAll(TickersStorage.loadLatestData().values());
+        tickers.addAll(newTickers);
         notifyDataSetChanged();
     }
 

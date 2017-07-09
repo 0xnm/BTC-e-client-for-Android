@@ -10,7 +10,7 @@ import com.QuarkLabs.BTCeClient.api.CancelOrderResponse;
 /**
  * AsyncTask class to cancel active order. Input: order IDs.
  */
-public class CancelActiveOrderTask extends AsyncTask<Integer, Void,
+public class CancelActiveOrderTask extends AsyncTask<Long, Void,
         CallResult<CancelOrderResponse>> {
 
     private final Api api;
@@ -23,8 +23,8 @@ public class CancelActiveOrderTask extends AsyncTask<Integer, Void,
     }
 
     @Override
-    protected CallResult<CancelOrderResponse> doInBackground(Integer... params) {
-        int orderId = params[0];
+    protected CallResult<CancelOrderResponse> doInBackground(Long... params) {
+        long orderId = params[0];
         return api.cancelOrder(orderId);
     }
 

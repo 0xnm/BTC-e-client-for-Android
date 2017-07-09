@@ -19,6 +19,15 @@ public class BtcEApplication extends Application implements
     public void onCreate() {
         super.onCreate();
         defaultPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        // in Russia btc-e.com is blocked, so need to use mirror
+        if ("RU".equalsIgnoreCase(getResources().getConfiguration().locale.getCountry())
+                && !defaultPreferences.contains(SettingsFragment.KEY_USE_MIRROR)) {
+            // commit instead of apply, because need to make sure changes are effective before
+            // continuing
+            defaultPreferences.edit()
+                    .putBoolean(SettingsFragment.KEY_USE_MIRROR, true).commit();
+        }
+
         defaultPreferences.registerOnSharedPreferenceChangeListener(this);
 
         SecurityManager securityManager = SecurityManager.getInstance(this);
@@ -58,7 +67,7 @@ public class BtcEApplication extends Application implements
         if (SettingsFragment.KEY_API_KEY.equals(key)
                 || SettingsFragment.KEY_API_SECRET.equals(key)) {
             refreshApiCredentials();
-        } else {
+        } else if (SettingsFragment.KEY_USE_MIRROR.equals(key)) {
             api.setHostUrl(getHostUrl());
         }
     }

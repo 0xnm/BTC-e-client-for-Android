@@ -46,14 +46,13 @@ import com.QuarkLabs.BTCeClient.api.Ticker;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class CheckTickersService extends IntentService {
-
-    private static final String LOCAL_PAIR_DELIMITER = "/";
-    private static final String SERVER_PAIR_DELIMITER = "_";
 
     public CheckTickersService() {
         super(CheckTickersService.class.getSimpleName());
@@ -67,7 +66,11 @@ public class CheckTickersService extends IntentService {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         Api api = BtcEApplication.get(this).getApi();
 
-        List<String> pairsToCheck = PairUtils.getTickersToDisplayThatSupported(this);
+        Set<String> pairsToCheck = new HashSet<>();
+        List<String> dashboardPairs = PairUtils.getTickersToDisplayThatSupported(this);
+        pairsToCheck.addAll(dashboardPairs);
+        pairsToCheck.addAll(watcherPairs());
+
         if (pairsToCheck.isEmpty()) {
             return;
         }
@@ -121,6 +124,21 @@ public class CheckTickersService extends IntentService {
                 .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_ACTION));
     }
 
+    private List<String> watcherPairs() {
+        Cursor watchersCursor = DBWorker.getInstance(this).getNotifiers();
+        List<String> watcherPairs = new ArrayList<>();
+        watchersCursor.moveToFirst();
+        while (!watchersCursor.isAfterLast()) {
+            String pair = watchersCursor.getString(
+                    watchersCursor.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN));
+            if (PairUtils.isSupportedPair(this, pair)) {
+                watcherPairs.add(pair);
+            }
+            watchersCursor.moveToNext();
+        }
+        return watcherPairs;
+    }
+
     /**
      * Processes new data, adds notifications if any
      *
@@ -145,8 +163,7 @@ public class CheckTickersService extends IntentService {
                 double newValue = ticker.getLast();
 
                 while (!notifiers.isAfterLast()) {
-                    String pairAsLocal = pair.replace(SERVER_PAIR_DELIMITER, LOCAL_PAIR_DELIMITER)
-                            .toUpperCase(Locale.US);
+                    String pairAsLocal = PairUtils.serverToLocal(pair);
 
                     boolean pairMatched = pairAsLocal
                             .equals(notifiers.getString(
