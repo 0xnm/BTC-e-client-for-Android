@@ -26,6 +26,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ContextThemeWrapper;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -81,7 +82,8 @@ public class OrdersBookFragment extends Fragment
                 .getThemedContext();
         mPairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
-        mPairsSpinner.setAdapter(new ArrayAdapter<>(themedContext,
+        mPairsSpinner.setAdapter(new ArrayAdapter<>(
+                new ContextThemeWrapper(themedContext, R.style.ThemeOverlay_AppCompat_Light),
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
 
