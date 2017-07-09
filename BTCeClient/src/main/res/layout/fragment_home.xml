@@ -47,22 +47,27 @@
             android:textSize="@dimen/title_font_size"
             android:textStyle="bold" />
 
-        <TableLayout
-            android:id="@+id/FundsContainer"
+        <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="5dp"
-            android:background="@drawable/bg_card"
-            android:gravity="center_horizontal"
-            android:stretchColumns="*">
+            android:layout_margin="4dp"
+            android:animateLayoutChanges="true">
 
-            <TextView
-                android:id="@+id/textView1"
-                android:layout_width="wrap_content"
+            <TableLayout
+                android:id="@+id/FundsContainer"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
-                android:text="@string/UpdateAccountInfo" />
-        </TableLayout>
+                android:gravity="center_horizontal"
+                android:stretchColumns="*">
+
+                <TextView
+                    android:id="@+id/textView1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/UpdateAccountInfo" />
+            </TableLayout>
+        </android.support.v7.widget.CardView>
 
         <Button
             android:id="@+id/UpdateAccountInfoButton"

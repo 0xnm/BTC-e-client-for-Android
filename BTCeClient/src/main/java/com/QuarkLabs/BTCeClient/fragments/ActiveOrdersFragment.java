@@ -117,7 +117,7 @@ public class ActiveOrdersFragment extends Fragment
     }
 
     @Override
-    public void onCancelOrderClicked(final int orderId) {
+    public void onCancelOrderClicked(final long orderId) {
         new AlertDialog.Builder(getActivity())
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override

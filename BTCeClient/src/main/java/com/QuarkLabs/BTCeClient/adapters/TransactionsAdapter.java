@@ -62,7 +62,7 @@ public class TransactionsAdapter extends BaseAdapter {
         descriptionView.setText(transaction.getDescription());
         calendar.setTimeInMillis(transaction.getTimestamp() * 1000L);
         timestampView.setText(dateTimeFormat.format(calendar.getTime()));
-        amountView.setText(transaction.getAmount() + transaction.getCurrency());
+        amountView.setText(transaction.getAmount() + " " + transaction.getCurrency());
         return view;
     }
 

@@ -70,7 +70,7 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final int orderId = (int) v.getTag();
+                final long orderId = (long) v.getTag();
                 if (onCancelOrderClickListener != null) {
                     onCancelOrderClickListener
                             .onCancelOrderClicked(orderId);
@@ -126,6 +126,6 @@ public class ActiveOrdersAdapter extends BaseAdapter {
     }
 
     public interface OnCancelOrderClickListener {
-        void onCancelOrderClicked(int orderId);
+        void onCancelOrderClicked(long orderId);
     }
 }
