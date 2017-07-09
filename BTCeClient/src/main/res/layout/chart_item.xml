@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <org.stockchart.StockChartView
+        android:id="@+id/stockChartView"
+        android:layout_width="fill_parent"
+        android:layout_height="250dp" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/enableEMAIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginTop="8dp"
+        android:text="@string/enableEMAIndicator" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/enableMACDIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center_vertical"
+        android:text="@string/enableMACDIndicator" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/enableRSIIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center_vertical"
+        android:text="@string/enableRSIIndicator" />
+
+    <android.support.v7.widget.SwitchCompat
+        android:id="@+id/enableSMAIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|center_vertical"
+        android:layout_marginBottom="8dp"
+        android:text="@string/enableSMAIndicator" />
+
+</LinearLayout>

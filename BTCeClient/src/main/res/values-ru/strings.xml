@@ -184,4 +184,8 @@
     <string name="periodic_check_title">Периодическая проверка</string>
     <string name="check_period_option">Период проверки</string>
     <string name="no_key_secret_error">Не предоставлен ключ API/секрет</string>
+    <string name="charts">Графики</string>
+    <string name="use_old_charts">Использовать старые графики BTC-e</string>
+    <string name="whats_new_old_charts">Учитывая отзывы о производительности графиков с TradingView, эта версия возвращает поддержку старых графиков с btc-e.com. Вы можете переключиться между ними в разделе Настройки. Графики TradingView имеют большое возможностей, но медленнее, графики BTC-e имеют меньше возможностей, но они быстрее.</string>
+    <string name="use_btce_charts_description">Меньше возможностей, но быстрее</string>
 </resources>

@@ -25,6 +25,7 @@ import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -32,10 +33,12 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -193,7 +196,29 @@ public class MainActivity extends AppCompatActivity
             displayItem(0);
         }
 
+        showWhatsNewOldCharts();
+
     }
+
+    private void showWhatsNewOldCharts() {
+        final String key = "whats_new_old_charts_shown";
+        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.contains(key)) {
+            new AlertDialog.Builder(this)
+                    .setMessage(R.string.whats_new_old_charts)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialog) {
+                            prefs.edit()
+                                    .putBoolean(key, true)
+                                    .apply();
+                        }
+                    })
+                    .show();
+        }
+    }
+
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

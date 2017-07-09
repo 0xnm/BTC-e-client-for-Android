@@ -184,4 +184,8 @@
     <string name="periodic_check_title">Periodic check</string>
     <string name="check_period_option">Check period</string>
     <string name="no_key_secret_error">No key/secret provided</string>
+    <string name="charts">Charts</string>
+    <string name="use_old_charts">Use BTC-e old charts</string>
+    <string name="whats_new_old_charts">Following feedback on performance of TradingView charts, this version adds support for showing old charts from btc-e.com. You can switch between them in Settings. TradingView charts are more powerful, but slower, BTC-e charts has much less features, but faster.</string>
+    <string name="use_btce_charts_description">Less features, but faster</string>
 </resources>
