@@ -67,7 +67,7 @@ public class BtcEApplication extends Application implements
         if (SettingsFragment.KEY_API_KEY.equals(key)
                 || SettingsFragment.KEY_API_SECRET.equals(key)) {
             refreshApiCredentials();
-        } else {
+        } else if (SettingsFragment.KEY_USE_MIRROR.equals(key)) {
             api.setHostUrl(getHostUrl());
         }
     }

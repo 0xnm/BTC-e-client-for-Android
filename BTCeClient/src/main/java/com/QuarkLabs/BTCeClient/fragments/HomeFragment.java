@@ -28,9 +28,13 @@ import android.content.IntentFilter;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.text.Html;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -78,11 +82,13 @@ import java.util.Map;
 public class HomeFragment extends Fragment implements
         TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
 
+    private static final String TRADE_REQUEST_KEY = "TRADE_REQUEST";
     private FixedGridView tickersContainer;
     private TickersDashboardAdapter tickersAdapter;
     private BroadcastReceiver statsReceiver;
     private ActivityCallbacks activityCallback;
     private MenuItem refreshItem;
+    private TradeRequest tradeRequest;
 
     @Override
     public void onAttach(Activity activity) {
@@ -119,19 +125,19 @@ public class HomeFragment extends Fragment implements
                 .getDimensionPixelSize(R.dimen.dashboard_item_size);
         tickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                if (tickersAdapter.getNumColumns() == 0) {
-                    final int numColumns =
-                            (int) Math.floor(tickersContainer.getWidth() /
-                                    (dashboardSpacing + dashboardItemSize));
-                    if (numColumns > 0) {
-                        tickersAdapter.setNumColumns(numColumns);
-                        tickersContainer.setNumColumns(numColumns);
+                    @Override
+                    public void onGlobalLayout() {
+                        if (tickersAdapter.getNumColumns() == 0) {
+                            final int numColumns =
+                                    (int) Math.floor(tickersContainer.getWidth() /
+                                            (dashboardSpacing + dashboardItemSize));
+                            if (numColumns > 0) {
+                                tickersAdapter.setNumColumns(numColumns);
+                                tickersContainer.setNumColumns(numColumns);
+                            }
+                        }
                     }
-                }
-            }
-        });
+                });
         tickersAdapter = new TickersDashboardAdapter(getActivity(), this);
         updateStorageWithTickers();
         tickersAdapter.update();
@@ -167,8 +173,29 @@ public class HomeFragment extends Fragment implements
         View.OnClickListener tradeListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                new RegisterTradeRequestTask()
-                        .execute((v.getId() == R.id.BuyButton) ? "buy" : "sell");
+                String tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
+                        .getText().toString();
+                String tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
+                        .getSelectedItem().toString();
+                String tradePrice = ((EditText) getView().findViewById(R.id.TradePrice))
+                        .getText().toString();
+                String tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
+                        .getSelectedItem().toString();
+
+                if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
+                        || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage(getString(R.string.missing_mandatory_fields_error))
+                            .setPositiveButton(android.R.string.ok, null)
+                            .show();
+                    return;
+                }
+
+                tradeRequest = new TradeRequest(
+                        (v.getId() == R.id.BuyButton) ? "buy" : "sell",
+                        tradeAmount, tradeCurrency,
+                        tradePrice, tradePriceCurrency);
+                showTradeRequestDialog(tradeRequest);
             }
         };
 
@@ -184,8 +211,41 @@ public class HomeFragment extends Fragment implements
             }
         });
 
+        if (savedInstanceState != null && savedInstanceState.containsKey(TRADE_REQUEST_KEY)) {
+            tradeRequest = savedInstanceState.getParcelable(TRADE_REQUEST_KEY);
+            showTradeRequestDialog(tradeRequest);
+        }
+
         //start service to get new data once Dashboard is opened
         getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+    }
+
+    private void showTradeRequestDialog(@NonNull TradeRequest request) {
+        @StringRes int confirmationRes;
+        if ("buy".equals(request.type)) {
+            confirmationRes = R.string.buy_confirmation;
+        } else {
+            confirmationRes = R.string.sell_confirmation;
+        }
+        new AlertDialog.Builder(getActivity())
+                .setMessage(Html.fromHtml(getString(confirmationRes, request.tradeAmount,
+                        request.tradeCurrency, request.tradePrice, request.tradePriceCurrency)))
+                .setCancelable(false)
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialog) {
+                        tradeRequest = null;
+                    }
+                })
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        new RegisterTradeRequestTask()
+                                .execute(tradeRequest);
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     /**
@@ -262,6 +322,14 @@ public class HomeFragment extends Fragment implements
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (tradeRequest != null) {
+            outState.putParcelable(TRADE_REQUEST_KEY, tradeRequest);
+        }
     }
 
     @Override
@@ -345,41 +413,24 @@ public class HomeFragment extends Fragment implements
     /**
      * AsyncTask to register trade request on the exchange
      */
-    private class RegisterTradeRequestTask extends AsyncTask<String, Void,
+    private class RegisterTradeRequestTask extends AsyncTask<TradeRequest, Void,
             CallResult<TradeResponse>> {
 
-        private volatile String tradeAmount;
-        private volatile String tradeCurrency;
-        private volatile String tradePrice;
-        private volatile String tradePriceCurrency;
-
         @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-            tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
-                    .getText().toString();
-            tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
-                    .getSelectedItem().toString();
-            tradePrice = ((EditText) getView().findViewById(R.id.TradePrice))
-                    .getText().toString();
-            tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
-                    .getSelectedItem().toString();
-        }
-
-        @Override
-        protected CallResult<TradeResponse> doInBackground(String... params) {
-            String tradeAction = params[0];
-            String pair = tradeCurrency.toLowerCase(Locale.US)
-                    + "_" + tradePriceCurrency.toLowerCase(Locale.US);
+        protected CallResult<TradeResponse> doInBackground(TradeRequest... params) {
+            TradeRequest tradeRequest = params[0];
+            String tradeAction = tradeRequest.type;
+            String pair = tradeRequest.tradeCurrency.toLowerCase(Locale.US)
+                    + "_" + tradeRequest.tradePriceCurrency.toLowerCase(Locale.US);
             return BtcEApplication.get(HomeFragment.this.getActivity()).getApi()
-                    .trade(pair, tradeAction, tradePrice, tradeAmount);
+                    .trade(pair, tradeAction, tradeRequest.tradePrice, tradeRequest.tradeAmount);
         }
 
         @Override
         protected void onPostExecute(@NonNull CallResult<TradeResponse> callResult) {
             String message;
             if (callResult.isSuccess()) {
-                message = "Order was successfully added";
+                message = getString(R.string.order_successfully_added);
                 if (isVisible()) {
                     refreshFundsView(callResult.getPayload().getFunds());
                 }
@@ -418,6 +469,63 @@ public class HomeFragment extends Fragment implements
             }
             activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
                     notificationText);
+        }
+    }
+
+    private static final class TradeRequest implements Parcelable {
+        @NonNull
+        final String type;
+        @NonNull
+        final String tradeAmount;
+        @NonNull
+        final String tradeCurrency;
+        @NonNull
+        final String tradePrice;
+        @NonNull
+        final String tradePriceCurrency;
+
+        TradeRequest(@NonNull String type,
+                            @NonNull String tradeAmount, @NonNull String tradeCurrency,
+                            @NonNull String tradePrice, @NonNull String tradePriceCurrency) {
+            this.type = type;
+            this.tradeAmount = tradeAmount;
+            this.tradeCurrency = tradeCurrency;
+            this.tradePrice = tradePrice;
+            this.tradePriceCurrency = tradePriceCurrency;
+        }
+
+        protected TradeRequest(Parcel in) {
+            type = in.readString();
+            tradeAmount = in.readString();
+            tradeCurrency = in.readString();
+            tradePrice = in.readString();
+            tradePriceCurrency = in.readString();
+        }
+
+        public static final Creator<TradeRequest> CREATOR = new Creator<TradeRequest>() {
+            @Override
+            public TradeRequest createFromParcel(Parcel in) {
+                return new TradeRequest(in);
+            }
+
+            @Override
+            public TradeRequest[] newArray(int size) {
+                return new TradeRequest[size];
+            }
+        };
+
+        @Override
+        public int describeContents() {
+            return 0;
+        }
+
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            dest.writeString(type);
+            dest.writeString(tradeAmount);
+            dest.writeString(tradeCurrency);
+            dest.writeString(tradePrice);
+            dest.writeString(tradePriceCurrency);
         }
     }
 }
