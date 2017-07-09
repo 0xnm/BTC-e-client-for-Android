@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 
 import org.json.JSONException;
@@ -35,6 +36,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class Api {
 
@@ -92,11 +94,11 @@ public class Api {
      */
     @WorkerThread
     @NonNull
-    public CallResult<List<Ticker>> getPairInfo(@NonNull List<String> pairs) {
+    public CallResult<List<Ticker>> getPairInfo(@NonNull Set<String> pairs) {
         try {
             String url = hostUrl + "/api/3/ticker/";
-            for (String x : pairs) {
-                url += x.replace("/", "_").toLowerCase(Locale.US) + "-";
+            for (String pair : pairs) {
+                url += PairUtils.localToServer(pair) + "-";
             }
             JSONObject response = guestApi.call(url.substring(0, url.length() - 1));
             CallResult<List<Ticker>> result = new CallResult<>();
@@ -131,7 +133,7 @@ public class Api {
     @WorkerThread
     public CallResult<Depth> depth(@NonNull String pair) {
         try {
-            pair = pair.toLowerCase(Locale.US).replace("/", "_");
+            pair = PairUtils.localToServer(pair);
             final String url = hostUrl + "/api/3/depth/" + pair;
             JSONObject response = guestApi.call(url);
             CallResult<Depth> result = new CallResult<>();

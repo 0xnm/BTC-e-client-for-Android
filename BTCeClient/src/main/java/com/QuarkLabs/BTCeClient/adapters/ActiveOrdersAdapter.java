@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.DateTimeUtils;
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.ActiveOrder;
 
@@ -80,7 +81,7 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         String pair = order.getPair();
         checkPairFormat(pair);
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
-        pairView.setText(pair.replace("_", "/").toUpperCase(Locale.US));
+        pairView.setText(PairUtils.serverToLocal(pair));
         typeView.setText(order.getType());
         amountView.setText(String.valueOf(order.getAmount())
                 + " " + pair.substring(0, 3).toUpperCase(Locale.US));

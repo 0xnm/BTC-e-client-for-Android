@@ -467,7 +467,7 @@ public class ChartsFragment extends Fragment {
                     getActivity().invalidateOptionsMenu();
                 }
                 for (String x : chartsNamesSorted) {
-                    String pair = x.replace("/", "_").toLowerCase(Locale.US);
+                    String pair = PairUtils.localToServer(x);
                     mChartsUpdater.queueChart(
                             (StockChartView) chartsMap.get(x).findViewById(R.id.stockChartView),
                             pair);
@@ -561,7 +561,7 @@ public class ChartsFragment extends Fragment {
             Area area = token.addArea();
             area.getLegend().getAppearance().getFont().setSize(16);
             String pair = requestMap.get(token);
-            area.setTitle(pair.replace("_", "/").toUpperCase(Locale.US));
+            area.setTitle(PairUtils.serverToLocal(pair));
 
             for (String x : data) {
                 String[] values = x.split(", ");

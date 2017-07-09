@@ -10,6 +10,7 @@ import org.mockito.MockitoAnnotations;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.ACTIVE_ORDERS;
@@ -55,7 +56,7 @@ public class ApiTest {
                         "\"buy\":26.768,\"sell\":26.65201,\"updated\":1496436981}}"));
 
         CallResult<List<Ticker>> callResult
-                = testable.getPairInfo(Arrays.asList("BTC/USD", "LTC/USD"));
+                = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/USD")));
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
 
@@ -70,7 +71,7 @@ public class ApiTest {
                 .thenReturn(new JSONObject("{\"success\":0, \"error\":\"Invalid pair name: ltc_us\"}"));
 
         CallResult<List<Ticker>> callResult
-                = testable.getPairInfo(Arrays.asList("BTC/USD", "LTC/US"));
+                = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/US")));
 
         assertFalse(callResult.isSuccess());
         assertNotNull(callResult.getError());

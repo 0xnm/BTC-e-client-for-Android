@@ -114,7 +114,7 @@
     <string name="watcher_alarm_take_profit_details">%1$s went above %2$s %3$s</string>
 
     <string name="AboutText"><![CDATA[<b>Used libraries: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
-    <br /><br /><b>Watchers: </b><br />Please note, that to make a watcher work you <b>should</b> have its pair added at the Dashboard<br /><br />
+    <br /><br />
     <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies
     <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br />
     Authors of this app are not affiliated with BTC-e exchange]]></string>

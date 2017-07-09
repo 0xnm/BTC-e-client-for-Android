@@ -41,7 +41,7 @@ public class TickersStorage {
      */
     @NonNull
     public static Map<String, Ticker> loadPreviousData() {
-        return mPreviousTickers;
+        return new HashMap<>(mPreviousTickers);
     }
 
     /**
@@ -51,7 +51,7 @@ public class TickersStorage {
      */
     @NonNull
     public static Map<String, Ticker> loadLatestData() {
-        return mLatestTickers;
+        return new HashMap<>(mLatestTickers);
     }
 
     public static void addNewTicker(Ticker ticker) {

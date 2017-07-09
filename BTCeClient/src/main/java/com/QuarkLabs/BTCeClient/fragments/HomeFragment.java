@@ -74,10 +74,12 @@ import com.QuarkLabs.BTCeClient.views.FixedGridView;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class HomeFragment extends Fragment implements
         TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
@@ -140,7 +142,7 @@ public class HomeFragment extends Fragment implements
                 });
         tickersAdapter = new TickersDashboardAdapter(getActivity(), this);
         updateStorageWithTickers();
-        tickersAdapter.update();
+        refreshDashboardAdapter();
         tickersContainer.setAdapter(tickersAdapter);
         TextView emptyView = (TextView) view.findViewById(R.id.emptyView);
         tickersContainer.setEmptyView(emptyView);
@@ -160,7 +162,7 @@ public class HomeFragment extends Fragment implements
                         refreshItem.collapseActionView();
                         refreshItem.setActionView(null);
                     }
-                    tickersAdapter.update();
+                    refreshDashboardAdapter();
                 }
             }
         };
@@ -267,7 +269,7 @@ public class HomeFragment extends Fragment implements
         //checking for added tickers
         for (String pair : pairs) {
             if (!TickersStorage.loadLatestData()
-                    .containsKey(pair.replace("/", "_").toLowerCase(Locale.US))) {
+                    .containsKey(PairUtils.localToServer(pair))) {
                 Ticker ticker = new Ticker(pair);
                 TickersStorage.addNewTicker(ticker);
             }
@@ -308,7 +310,7 @@ public class HomeFragment extends Fragment implements
                                     public void onClick(DialogInterface dialog, int which) {
                                         checkBoxListAdapter.saveValuesToPreferences();
                                         updateStorageWithTickers();
-                                        tickersAdapter.update();
+                                        refreshDashboardAdapter();
                                         getActivity().sendBroadcast(new Intent(getActivity(),
                                                 StartServiceReceiver.class));
                                     }
@@ -327,6 +329,19 @@ public class HomeFragment extends Fragment implements
                 break;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void refreshDashboardAdapter() {
+        Map<String, Ticker> latestTickers = TickersStorage.loadLatestData();
+        Set<String> dashboardPairs = new HashSet<>(
+                PairUtils.getTickersToDisplayThatSupported(getActivity()));
+        List<Ticker> dashboardTickers = new ArrayList<>();
+        for (String pair : latestTickers.keySet()) {
+            if (dashboardPairs.contains(PairUtils.serverToLocal(pair))) {
+                dashboardTickers.add(latestTickers.get(pair));
+            }
+        }
+        tickersAdapter.update(dashboardTickers);
     }
 
     @Override
