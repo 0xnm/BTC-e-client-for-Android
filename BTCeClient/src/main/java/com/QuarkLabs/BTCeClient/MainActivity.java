@@ -70,6 +70,8 @@ public class MainActivity extends AppCompatActivity
     private ListView mDrawerList;
     private ActionBarDrawerToggle mDrawerToggle;
     private String[] mDrawerListItems;
+    private boolean canCommitTransaction = true;
+    private Handler uiHandler = new Handler();
 
     /**
      * Displays selected fragment
@@ -77,6 +79,7 @@ public class MainActivity extends AppCompatActivity
      * @param position Position at the list (0-based)
      */
     private void displayItem(final int position) {
+        canCommitTransaction = true;
         Fragment fragment = null;
         final FragmentManager fragmentManager = getFragmentManager();
         switch (position) {
@@ -116,18 +119,19 @@ public class MainActivity extends AppCompatActivity
             //delay in msecs
             int delay = 250;
             //post delayed for smooth behaviour
-            new Handler().postDelayed(new Runnable() {
+            uiHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-
-                    FragmentTransaction transaction = fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
-                            .replace(R.id.content_frame, fr);
-                    if (position != 0) {
-                        transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
+                    if (canCommitTransaction) {
+                        FragmentTransaction transaction = fragmentManager.beginTransaction()
+                                .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
+                                .replace(R.id.content_frame, fr);
+                        if (position != 0) {
+                            transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
+                        }
+                        transaction.commit();
+                        setTitle(mDrawerListItems[position]);
                     }
-                    transaction.commit();
-                    setTitle(mDrawerListItems[position]);
                 }
             }, delay);
             mDrawerList.setItemChecked(position, true);
@@ -136,6 +140,12 @@ public class MainActivity extends AppCompatActivity
                 mDrawerLayout.closeDrawer(mDrawerList);
             }
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        canCommitTransaction = false;
+        super.onSaveInstanceState(outState);
     }
 
     @Override
@@ -195,9 +205,7 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             displayItem(0);
         }
-
         showWhatsNewOldCharts();
-
     }
 
     private void showWhatsNewOldCharts() {
