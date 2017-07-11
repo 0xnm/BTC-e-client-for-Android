@@ -300,6 +300,9 @@ public class OrdersBookFragment extends Fragment
     @Override
     public void onSaveInstanceState(Bundle outState) {
         //saving position of spinner
-        outState.putInt("position", mPairsSpinner.getSelectedItemPosition());
+        // don't know how, but NPE can happen
+        if (mPairsSpinner != null) {
+            outState.putInt("position", mPairsSpinner.getSelectedItemPosition());
+        }
     }
 }

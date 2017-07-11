@@ -461,8 +461,10 @@ public class HomeFragment extends Fragment implements
                             .show();
                 }
             }
-            activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
-                    message);
+            if (activityCallback != null) {
+                activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
+                        message);
+            }
         }
     }
 
@@ -487,8 +489,10 @@ public class HomeFragment extends Fragment implements
             } else {
                 notificationText = result.getError();
             }
-            activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
-                    notificationText);
+            if (activityCallback != null) {
+                activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
+                        notificationText);
+            }
         }
     }
 
