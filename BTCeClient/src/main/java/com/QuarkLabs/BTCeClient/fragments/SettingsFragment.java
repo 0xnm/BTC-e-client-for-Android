@@ -59,6 +59,20 @@ public class SettingsFragment extends PreferenceFragment
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        PreferenceManager.getDefaultSharedPreferences(
+                getActivity()).registerOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        PreferenceManager.getDefaultSharedPreferences(
+                getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String currentPeriodText = findCheckPeriodText(sharedPreferences);
         if (KEY_CHECK_ENABLED.equals(key)) {

@@ -60,18 +60,22 @@ import java.util.List;
 public class OrdersBookFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<CallResult<Depth>> {
     private static final int LOADER_ID = 1;
+
+    private static final String POSITION_KEY = "position";
+
     private ListView mAsksList;
     private ListView mBidsList;
     private FrameLayout mChartArea;
 
     private OrdersBookAdapter mAsksAdapter;
     private OrdersBookAdapter mBidsAdapter;
-    private Spinner mPairsSpinner;
+    private Spinner pairsSpinner;
 
     private ProgressBar mLoadingViewAsks;
     private ProgressBar mLoadingViewBids;
 
-    private boolean mFragmentOpenedFirstTime = true;
+    private boolean isFragmentOpenedFirstTime = true;
+    private int spinnerPosition = -1;
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -80,26 +84,30 @@ public class OrdersBookFragment extends Fragment
 
         Context themedContext = hostActivity.getSupportActionBar()
                 .getThemedContext();
-        mPairsSpinner = (Spinner) LayoutInflater.from(themedContext)
+        pairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
-        mPairsSpinner.setAdapter(new ArrayAdapter<>(
+        pairsSpinner.setAdapter(new ArrayAdapter<>(
                 new ContextThemeWrapper(themedContext, R.style.ThemeOverlay_AppCompat_Light),
                 android.R.layout.simple_list_item_1,
                 getResources().getStringArray(R.array.ExchangePairs)));
 
         //restoring spinner position
-        if (savedInstanceState != null) {
-            mPairsSpinner.setSelection(savedInstanceState.getInt("position"));
+        if (spinnerPosition != -1) {
+            pairsSpinner.setSelection(spinnerPosition);
+        } else if (savedInstanceState != null) {
+            spinnerPosition = savedInstanceState.getInt(POSITION_KEY);
+            pairsSpinner.setSelection(spinnerPosition);
         }
-        mPairsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+        pairsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selected = parent.getSelectedItem().toString();
                 Bundle bundle = new Bundle();
                 bundle.putString("pair", selected);
-                if (mFragmentOpenedFirstTime) {
+                if (isFragmentOpenedFirstTime) {
                     getLoaderManager().initLoader(LOADER_ID, bundle, OrdersBookFragment.this);
-                    mFragmentOpenedFirstTime = false;
+                    isFragmentOpenedFirstTime = false;
                 } else {
                     getLoaderManager().restartLoader(LOADER_ID, bundle, OrdersBookFragment.this);
                 }
@@ -115,7 +123,7 @@ public class OrdersBookFragment extends Fragment
         mBidsAdapter = new OrdersBookAdapter();
 
         hostActivity.getSupportActionBar()
-                .setCustomView(mPairsSpinner, new ActionBar.LayoutParams(Gravity.END));
+                .setCustomView(pairsSpinner, new ActionBar.LayoutParams(Gravity.END));
         hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(true);
     }
 
@@ -224,7 +232,7 @@ public class OrdersBookFragment extends Fragment
 
             //customizing fonts for chart
             chartView.getAreas().get(0).setTitle("Market Depth for "
-                    + mPairsSpinner.getSelectedItem().toString()
+                    + pairsSpinner.getSelectedItem().toString()
                     + " (Price vs. Volume)");
             chartView.getAreas().get(0).getPlot()
                     .getAppearance()
@@ -280,6 +288,7 @@ public class OrdersBookFragment extends Fragment
     public void onDestroyView() {
         AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
         hostActivity.getSupportActionBar().setDisplayShowCustomEnabled(false);
+        spinnerPosition = pairsSpinner.getSelectedItemPosition();
         super.onDestroyView();
     }
 
@@ -288,7 +297,7 @@ public class OrdersBookFragment extends Fragment
         switch (item.getItemId()) {
             case R.id.action_refresh:
                 Bundle bundle = new Bundle();
-                bundle.putString("pair", mPairsSpinner.getSelectedItem().toString());
+                bundle.putString("pair", pairsSpinner.getSelectedItem().toString());
                 getLoaderManager().restartLoader(LOADER_ID, bundle, this);
                 break;
             default:
@@ -299,7 +308,11 @@ public class OrdersBookFragment extends Fragment
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
         //saving position of spinner
-        outState.putInt("position", mPairsSpinner.getSelectedItemPosition());
+        // don't know how, but NPE can happen
+        if (pairsSpinner != null) {
+            outState.putInt(POSITION_KEY, pairsSpinner.getSelectedItemPosition());
+        }
     }
 }

@@ -34,7 +34,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -46,6 +48,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -91,6 +94,15 @@ public class HomeFragment extends Fragment implements
     private ActivityCallbacks activityCallback;
     private MenuItem refreshItem;
     private TradeRequest tradeRequest;
+
+    private TextView operationCostView;
+    private EditText tradeAmountView;
+    private Spinner tradeCurrencyView;
+    private EditText tradePriceView;
+    private Spinner tradePriceCurrencyView;
+
+    private final TextWatcher tradeAmountWatcher = new TradeConditionWatcher();
+    private final TextWatcher tradePriceWatcher = new TradeConditionWatcher();
 
     @Override
     public void onAttach(Activity activity) {
@@ -171,18 +183,20 @@ public class HomeFragment extends Fragment implements
                 .registerReceiver(statsReceiver,
                         new IntentFilter(ConstantHolder.UPDATE_TICKERS_ACTION));
 
+        tradeAmountView = (EditText) view.findViewById(R.id.TradeAmount);
+        tradeCurrencyView = (Spinner) view.findViewById(R.id.TradeCurrency);
+        tradePriceView = (EditText) view.findViewById(R.id.TradePrice);
+        tradePriceCurrencyView = (Spinner) view.findViewById(R.id.TradePriceCurrency);
+        operationCostView = (TextView) view.findViewById(R.id.operation_cost);
+
         //Trade listener, once "Buy" or "Sell" clicked, send the order to server
         View.OnClickListener tradeListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String tradeAmount = ((EditText) getView().findViewById(R.id.TradeAmount))
-                        .getText().toString();
-                String tradeCurrency = ((Spinner) getView().findViewById(R.id.TradeCurrency))
-                        .getSelectedItem().toString();
-                String tradePrice = ((EditText) getView().findViewById(R.id.TradePrice))
-                        .getText().toString();
-                String tradePriceCurrency = ((Spinner) getView().findViewById(R.id.TradePriceCurrency))
-                        .getSelectedItem().toString();
+                String tradeAmount = tradeAmountView.getText().toString();
+                String tradeCurrency = tradeCurrencyView.getSelectedItem().toString();
+                String tradePrice = tradePriceView.getText().toString();
+                String tradePriceCurrency = tradePriceCurrencyView.getSelectedItem().toString();
 
                 if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
                         || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
@@ -215,11 +229,58 @@ public class HomeFragment extends Fragment implements
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TRADE_REQUEST_KEY)) {
             tradeRequest = savedInstanceState.getParcelable(TRADE_REQUEST_KEY);
+            //noinspection ConstantConditions
             showTradeRequestDialog(tradeRequest);
         }
 
         //start service to get new data once Dashboard is opened
         getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        tradeAmountView.addTextChangedListener(tradeAmountWatcher);
+        tradePriceView.addTextChangedListener(tradePriceWatcher);
+        tradePriceCurrencyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                refreshOperationCostView();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+    }
+
+    private void refreshOperationCostView() {
+        String tradeAmount = tradeAmountView.getText().toString();
+        String tradePrice = tradePriceView.getText().toString();
+        if (!tradeAmount.isEmpty()
+                && !tradePrice.isEmpty()) {
+            operationCostView.setText(
+                    Html.fromHtml(
+                            getString(
+                                    R.string.trade_operation_cost,
+                                    String.valueOf(Float.parseFloat(tradeAmount)
+                                            * Float.parseFloat(tradePrice)),
+                                    tradePriceCurrencyView.getSelectedItem()
+                            )
+                    )
+            );
+        } else {
+            operationCostView.setText("");
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        tradeAmountView.removeTextChangedListener(tradeAmountWatcher);
+        tradePriceView.removeTextChangedListener(tradePriceWatcher);
+        tradePriceCurrencyView.setOnItemSelectedListener(null);
     }
 
     private void showTradeRequestDialog(@NonNull TradeRequest request) {
@@ -229,14 +290,16 @@ public class HomeFragment extends Fragment implements
         } else {
             confirmationRes = R.string.sell_confirmation;
         }
-        String total = String.valueOf(Float.parseFloat(request.tradeAmount)
-                * Float.parseFloat(request.tradePrice));
+        float total = Float.parseFloat(request.tradeAmount)
+                * Float.parseFloat(request.tradePrice);
+        float fee = 0.002f * total;
         new AlertDialog.Builder(getActivity())
                 .setMessage(Html.fromHtml(getString(confirmationRes,
                         request.tradeAmount, request.tradeCurrency,
                         request.tradePrice, request.tradePriceCurrency,
                         request.tradeCurrency,
-                        total, request.tradePriceCurrency)))
+                        String.valueOf(total), String.valueOf(total - fee), String.valueOf(fee),
+                        request.tradePriceCurrency)))
                 .setCancelable(false)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
@@ -461,8 +524,10 @@ public class HomeFragment extends Fragment implements
                             .show();
                 }
             }
-            activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
-                    message);
+            if (activityCallback != null) {
+                activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
+                        message);
+            }
         }
     }
 
@@ -479,16 +544,37 @@ public class HomeFragment extends Fragment implements
         @Override
         protected void onPostExecute(CallResult<AccountInfo> result) {
             String notificationText;
+            if (!isVisible()) {
+                return;
+            }
             if (result.isSuccess()) {
                 notificationText = getString(R.string.FundsInfoUpdatedtext);
-                if (isVisible()) {
-                    refreshFundsView(result.getPayload().getFunds());
-                }
+                refreshFundsView(result.getPayload().getFunds());
             } else {
                 notificationText = result.getError();
             }
-            activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
-                    notificationText);
+            if (activityCallback != null) {
+                activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
+                        notificationText);
+            }
+        }
+    }
+
+    private final class TradeConditionWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            refreshOperationCostView();
         }
     }
 

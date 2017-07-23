@@ -136,6 +136,7 @@ public class CheckTickersService extends IntentService {
             }
             watchersCursor.moveToNext();
         }
+        watchersCursor.close();
         return watcherPairs;
     }
 

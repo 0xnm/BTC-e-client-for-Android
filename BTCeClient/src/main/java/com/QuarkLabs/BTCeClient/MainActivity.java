@@ -33,6 +33,7 @@ import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
@@ -43,6 +44,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -65,27 +67,38 @@ public class MainActivity extends AppCompatActivity
 
     private boolean isAlarmSet;
 
-    private HomeFragment mHomeFragment = new HomeFragment();
-    private DrawerLayout mDrawerLayout;
-    private ListView mDrawerList;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private String[] mDrawerListItems;
+    @NonNull
+    private HomeFragment homeFragment = new HomeFragment();
+    @Nullable
+    private OrdersBookFragment ordersBookFragment;
+
+    private DrawerLayout drawerLayout;
+    private ListView drawerList;
+    private ActionBarDrawerToggle drawerToggle;
+    private String[] drawerListItems;
+    private Handler uiHandler = new Handler();
+
+    @Nullable
+    private Runnable displayTask;
 
     /**
      * Displays selected fragment
      *
      * @param position Position at the list (0-based)
      */
-    private void displayItem(final int position) {
+    private void displayItem(final int position, boolean fromDrawer) {
         Fragment fragment = null;
         final FragmentManager fragmentManager = getFragmentManager();
         switch (position) {
             case 0:
-                fragment = mHomeFragment;
+                fragment = homeFragment;
                 fragmentManager.popBackStack(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
                 break;
             case 1:
-                fragment = new OrdersBookFragment();
+                if (ordersBookFragment == null) {
+                    ordersBookFragment = new OrdersBookFragment();
+                }
+                fragment = ordersBookFragment;
                 break;
             case 2:
                 fragment = new ActiveOrdersFragment();
@@ -113,13 +126,9 @@ public class MainActivity extends AppCompatActivity
         }
         final Fragment fr = fragment;
         if (fr != null) {
-            //delay in msecs
-            int delay = 250;
-            //post delayed for smooth behaviour
-            new Handler().postDelayed(new Runnable() {
+            displayTask = new Runnable() {
                 @Override
                 public void run() {
-
                     FragmentTransaction transaction = fragmentManager.beginTransaction()
                             .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
                             .replace(R.id.content_frame, fr);
@@ -127,13 +136,21 @@ public class MainActivity extends AppCompatActivity
                         transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
                     }
                     transaction.commit();
-                    setTitle(mDrawerListItems[position]);
+                    setTitle(drawerListItems[position]);
+                    drawerList.setItemChecked(position, true);
+                    drawerList.setSelection(position);
                 }
-            }, delay);
-            mDrawerList.setItemChecked(position, true);
-            mDrawerList.setSelection(position);
-            if (mDrawerLayout != null && mDrawerLayout.isDrawerOpen(mDrawerList)) {
-                mDrawerLayout.closeDrawer(mDrawerList);
+            };
+            if (fromDrawer) {
+                //delay in msecs
+                int delay = 250;
+                //post delayed for smooth behaviour
+                uiHandler.postDelayed(displayTask, delay);
+            } else {
+                displayTask.run();
+            }
+            if (drawerLayout != null && drawerLayout.isDrawerOpen(drawerList)) {
+                drawerLayout.closeDrawer(drawerList);
             }
         }
     }
@@ -141,7 +158,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        displayItem(0);
+        displayItem(0, false);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        uiHandler.removeCallbacks(displayTask);
     }
 
     /**
@@ -158,7 +181,6 @@ public class MainActivity extends AppCompatActivity
         if (toolbar != null) {
             setSupportActionBar(toolbar);
         }
-        getSupportActionBar().setElevation(20);
 
         final SharedPreferences sharedPreferences
                 = PreferenceManager.getDefaultSharedPreferences(this);
@@ -170,34 +192,32 @@ public class MainActivity extends AppCompatActivity
                     sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
         }
 
-        mDrawerListItems = getResources().getStringArray(R.array.NavSections);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, mDrawerListItems));
-        mDrawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        drawerListItems = getResources().getStringArray(R.array.NavSections);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, drawerListItems));
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                displayItem(position);
+                displayItem(position, true);
             }
         });
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (mDrawerLayout != null) {
-            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-            mDrawerToggle = new ActionBarDrawerToggle(this,
-                    mDrawerLayout,
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawerLayout != null) {
+            drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            drawerToggle = new ActionBarDrawerToggle(this,
+                    drawerLayout,
                     R.string.app_name,
                     R.string.app_name);
-            mDrawerLayout.setDrawerListener(mDrawerToggle);
+            drawerLayout.setDrawerListener(drawerToggle);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
         if (savedInstanceState == null) {
-            displayItem(0);
+            displayItem(0, false);
         }
-
         showWhatsNewOldCharts();
-
     }
 
     private void showWhatsNewOldCharts() {
@@ -223,16 +243,16 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        if (mDrawerLayout != null) {
-            mDrawerToggle.syncState();
+        if (drawerLayout != null) {
+            drawerToggle.syncState();
         }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (mDrawerLayout != null) {
-            mDrawerToggle.onConfigurationChanged(newConfig);
+        if (drawerLayout != null) {
+            drawerToggle.onConfigurationChanged(newConfig);
         }
     }
 
@@ -240,8 +260,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
-        if (mDrawerLayout != null) {
-            return mDrawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
+        if (drawerLayout != null) {
+            return drawerToggle.onOptionsItemSelected(item) || super.onOptionsItemSelected(item);
         }
 
         return super.onOptionsItemSelected(item);
@@ -275,9 +295,9 @@ public class MainActivity extends AppCompatActivity
             String stackName = fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName();
             switchToPosition = Integer.parseInt(stackName);
         }
-        mDrawerList.setItemChecked(switchToPosition, true);
-        mDrawerList.setSelection(switchToPosition);
-        setTitle(mDrawerListItems[switchToPosition]);
+        drawerList.setItemChecked(switchToPosition, true);
+        drawerList.setSelection(switchToPosition);
+        setTitle(drawerListItems[switchToPosition]);
     }
 
     @Override
