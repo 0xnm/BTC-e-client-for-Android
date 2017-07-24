@@ -157,7 +157,7 @@ class AuthApi {
         parameters.put("nonce", "" + ++nonce);
         String postData = "";
         for (Iterator<Map.Entry<String, String>> it = parameters.entrySet().iterator();
-             it.hasNext(); ) {
+             it.hasNext();) {
             Map.Entry<String, String> ent = it.next();
             if (postData.length() > 0) {
                 postData += "&";
@@ -169,7 +169,7 @@ class AuthApi {
         try {
             secretKeySpec = new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA512");
         } catch (UnsupportedEncodingException uee) {
-            System.err.println("Unsupported encoding exception: " + uee.toString());
+            Log.e(TAG, "Unsupported encoding exception", uee);
             return null;
         }
 
@@ -177,14 +177,14 @@ class AuthApi {
         try {
             mac = Mac.getInstance("HmacSHA512");
         } catch (NoSuchAlgorithmException nsae) {
-            System.err.println("No such algorithm exception: " + nsae.toString());
+            Log.e(TAG, "No such algorithm exception", nsae);
             return null;
         }
 
         try {
             mac.init(secretKeySpec);
         } catch (InvalidKeyException ike) {
-            System.err.println("Invalid key exception: " + ike.toString());
+            Log.e(TAG, "Invalid key exception", ike);
             return null;
         }
 

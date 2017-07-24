@@ -24,7 +24,7 @@ public class TransactionsAdapter extends BaseAdapter {
 
     private List<Transaction> transactions = Collections.emptyList();
 
-    private DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
+    private final DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
 
     public TransactionsAdapter() {
         dateTimeFormat.setTimeZone(TimeZone.getDefault());

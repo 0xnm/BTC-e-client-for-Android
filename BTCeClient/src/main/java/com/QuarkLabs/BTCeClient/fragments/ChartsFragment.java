@@ -69,6 +69,7 @@ import org.stockchart.series.StockSeries;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -666,23 +667,24 @@ public class ChartsFragment extends Fragment {
         String[] getChartData(String pair) {
 
             StringBuilder out = new StringBuilder();
+            BufferedReader rd = null;
             try {
                 URL url = new URL(BtcEApplication.get(getActivity()).getHostUrl()
                         + "/exchange/" + pair);
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
+                InputStream inputStream;
                 try {
                     connection.addRequestProperty("Cookie", "old_charts=1");
                     if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
                         showError();
                         return null;
                     }
-                    BufferedReader rd = new BufferedReader(
+                    rd = new BufferedReader(
                             new InputStreamReader(connection.getInputStream()));
                     String line;
                     while ((line = rd.readLine()) != null) {
                         out.append(line);
                     }
-                    rd.close();
                     Pattern pattern = Pattern.compile("arrayToDataTable\\(\\[\\[(.+?)\\]\\], true");
                     Matcher matcher = pattern.matcher(out.toString());
                     if (matcher.find()) {
@@ -694,6 +696,9 @@ public class ChartsFragment extends Fragment {
                 } finally {
                     if (connection != null) {
                         connection.disconnect();
+                    }
+                    if (rd != null) {
+                        rd.close();
                     }
                 }
             } catch (IOException e) {

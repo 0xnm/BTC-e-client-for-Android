@@ -25,9 +25,12 @@ import com.QuarkLabs.BTCeClient.api.Ticker;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TickersStorage {
+public final class TickersStorage {
     private static Map<String, Ticker> mLatestTickers = new HashMap<>();
     private static Map<String, Ticker> mPreviousTickers = new HashMap<>();
+
+    private TickersStorage() {
+    }
 
     public static void saveData(Map<String, Ticker> newData) {
         mPreviousTickers = new HashMap<>(mLatestTickers);

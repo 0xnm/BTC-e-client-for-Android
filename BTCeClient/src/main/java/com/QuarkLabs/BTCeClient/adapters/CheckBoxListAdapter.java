@@ -29,6 +29,7 @@ import android.widget.CheckBox;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,10 +38,10 @@ public class CheckBoxListAdapter extends BaseAdapter {
     private final String[] items;
     private final Set<String> values;
     private String scope;
-    private Context context;
+    private final Context context;
 
     public CheckBoxListAdapter(Context context, String[] items, SettingsScope settingsScope) {
-        this.items = items;
+        this.items = Arrays.copyOf(items, items.length);
         this.context = context;
         if (settingsScope == SettingsScope.CHARTS) {
             scope = "ChartsToDisplay";

@@ -41,7 +41,6 @@ import com.QuarkLabs.BTCeClient.api.Ticker;
 
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
@@ -54,9 +53,9 @@ import java.util.Set;
 public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         Map<String, UpdateWidgetsTask.Status>> {
     private final Context appContext;
-    private Api api;
-    private DBWorker dbWorker;
-    private Map<Integer, String> pairWidgets;
+    private final Api api;
+    private final DBWorker dbWorker;
+    private final Map<Integer, String> pairWidgets;
 
     /**
      * Creates new instance
@@ -146,7 +145,7 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
             double price = status.ticker.getLast();
             String priceString;
             if (price > 1) {
-                priceString = (new DecimalFormat("#.##")).format(price);
+                priceString = new DecimalFormat("#.##").format(price);
             } else {
                 priceString = String.valueOf(price);
             }

@@ -45,27 +45,27 @@ import java.util.Locale;
 public class TickersDashboardAdapter extends BaseAdapter implements View.OnClickListener,
         View.OnLongClickListener {
 
-    private final AnimatorSet mLeftOut;
-    private final AnimatorSet mLeftIn;
-    private final AnimatorSet mRightOut;
-    private final AnimatorSet mRightIn;
+    private final AnimatorSet leftOutAnimation;
+    private final AnimatorSet leftInAnimation;
+    private final AnimatorSet rightOutAnimation;
+    private final AnimatorSet rightInAnimation;
     private List<Ticker> tickers = new ArrayList<>();
 
     private TickersDashboardAdapterCallbackInterface mCallback;
     private int mNumColumns = 0;
-    private DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
+    private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());
 
     public TickersDashboardAdapter(@NonNull Context context,
                                    TickersDashboardAdapterCallbackInterface callback) {
         mCallback = callback;
-        mLeftOut = (AnimatorSet) AnimatorInflater.loadAnimator(
+        leftOutAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_left_out);
-        mLeftIn = (AnimatorSet) AnimatorInflater.loadAnimator(
+        leftInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_left_in);
-        mRightOut = (AnimatorSet) AnimatorInflater.loadAnimator(
+        rightOutAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_right_out);
-        mRightIn = (AnimatorSet) AnimatorInflater.loadAnimator(
+        rightInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_right_in);
     }
 
@@ -99,7 +99,8 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
             LayoutInflater inflater = LayoutInflater.from(parent.getContext());
             view = (FlippingView) inflater.inflate(R.layout.fragment_home_tickers_dashboard_item,
                     parent, false);
-            view.addAnimators(mLeftOut, mLeftIn, mRightOut, mRightIn);
+            view.addAnimators(leftOutAnimation, leftInAnimation,
+                    rightOutAnimation, rightInAnimation);
             view.setOnLongClickListener(this);
         } else {
             view = (FlippingView) convertView;

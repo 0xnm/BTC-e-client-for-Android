@@ -48,7 +48,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -159,53 +158,59 @@ public class CheckTickersService extends IntentService {
             notifiers.moveToFirst();
             String pair = ticker.getPair();
 
-            if (oldData.containsKey(pair)) {
-                double oldValue = oldData.get(pair).getLast();
-                double newValue = ticker.getLast();
+            if (!oldData.containsKey(pair)) {
+                continue;
+            }
 
-                while (!notifiers.isAfterLast()) {
-                    String pairAsLocal = PairUtils.serverToLocal(pair);
+            double oldValue = oldData.get(pair).getLast();
+            double newValue = ticker.getLast();
 
-                    boolean pairMatched = pairAsLocal
-                            .equals(notifiers.getString(
-                                    notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
-                    if (pairMatched) {
-                        float percent;
-                        @Watcher int watcherType = notifiers.getInt(
-                                notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
-                        switch (watcherType) {
-                            case Watcher.PANIC_BUY:
-                                percent = watcherValue(notifiers) / 100;
-                                if (newValue > ((1 + percent) * oldValue)) {
-                                    messages.add(createPanicBuyMessage(pairAsLocal, percent));
-                                }
-                                break;
-                            case Watcher.PANIC_SELL:
-                                percent = watcherValue(notifiers) / 100;
-                                if (newValue < ((1 - percent) * oldValue)) {
-                                    messages.add(createPanicSellMessage(pairAsLocal, percent));
-                                }
-                                break;
-                            case Watcher.STOP_LOSS:
-                                if (newValue < watcherValue(notifiers)) {
-                                    messages.add(createStopLossMessage(pairAsLocal,
-                                            watcherValue(notifiers)));
-                                }
-                                break;
-                            case Watcher.TAKE_PROFIT:
-                                if (newValue > watcherValue(notifiers)) {
-                                    messages.add(createTakeProfitMessage(pairAsLocal,
-                                            watcherValue(notifiers)));
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    notifiers.moveToNext();
+            while (!notifiers.isAfterLast()) {
+                String pairAsLocal = PairUtils.serverToLocal(pair);
+
+                boolean pairMatched = pairAsLocal
+                        .equals(notifiers.getString(
+                                notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
+                if (!pairMatched) {
+                    continue;
                 }
+
+                float percent;
+                @Watcher int watcherType = notifiers.getInt(
+                        notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
+                switch (watcherType) {
+                    case Watcher.PANIC_BUY:
+                        percent = watcherValue(notifiers) / 100;
+                        if (newValue > ((1 + percent) * oldValue)) {
+                            messages.add(createPanicBuyMessage(pairAsLocal, percent));
+                        }
+                        break;
+                    case Watcher.PANIC_SELL:
+                        percent = watcherValue(notifiers) / 100;
+                        if (newValue < ((1 - percent) * oldValue)) {
+                            messages.add(createPanicSellMessage(pairAsLocal, percent));
+                        }
+                        break;
+                    case Watcher.STOP_LOSS:
+                        if (newValue < watcherValue(notifiers)) {
+                            messages.add(createStopLossMessage(pairAsLocal,
+                                    watcherValue(notifiers)));
+                        }
+                        break;
+                    case Watcher.TAKE_PROFIT:
+                        if (newValue > watcherValue(notifiers)) {
+                            messages.add(createTakeProfitMessage(pairAsLocal,
+                                    watcherValue(notifiers)));
+                        }
+                        break;
+                    default:
+                        break;
+                }
+
+                notifiers.moveToNext();
             }
         }
+
         notifiers.close();
         return messages;
     }

@@ -25,7 +25,8 @@ public class BtcEApplication extends Application implements
             // commit instead of apply, because need to make sure changes are effective before
             // continuing
             defaultPreferences.edit()
-                    .putBoolean(SettingsFragment.KEY_USE_MIRROR, true).commit();
+                    .putBoolean(SettingsFragment.KEY_USE_MIRROR, true)
+                    .apply();
         }
 
         defaultPreferences.registerOnSharedPreferenceChangeListener(this);

@@ -26,7 +26,6 @@
         android:layout_marginTop="4dp"
         android:layout_weight="1"
         android:gravity="center"
-        android:singleLine="false"
         android:text="@string/NATitle"
         android:textColor="#00ff00" />
 

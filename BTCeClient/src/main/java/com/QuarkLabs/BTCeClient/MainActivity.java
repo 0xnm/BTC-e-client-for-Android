@@ -44,7 +44,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -68,7 +67,7 @@ public class MainActivity extends AppCompatActivity
     private boolean isAlarmSet;
 
     @NonNull
-    private HomeFragment homeFragment = new HomeFragment();
+    private final HomeFragment homeFragment = new HomeFragment();
     @Nullable
     private OrdersBookFragment ordersBookFragment;
 
@@ -76,7 +75,7 @@ public class MainActivity extends AppCompatActivity
     private ListView drawerList;
     private ActionBarDrawerToggle drawerToggle;
     private String[] drawerListItems;
-    private Handler uiHandler = new Handler();
+    private final Handler uiHandler = new Handler();
 
     @Nullable
     private Runnable displayTask;

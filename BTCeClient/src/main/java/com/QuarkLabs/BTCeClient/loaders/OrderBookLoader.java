@@ -29,7 +29,7 @@ import com.QuarkLabs.BTCeClient.api.Depth;
 public class OrderBookLoader extends AsyncTaskLoader<CallResult<Depth>> {
     private final String pair;
     private CallResult<Depth> orders;
-    private Api api;
+    private final Api api;
 
     public OrderBookLoader(Context context, String pair) {
         super(context);
