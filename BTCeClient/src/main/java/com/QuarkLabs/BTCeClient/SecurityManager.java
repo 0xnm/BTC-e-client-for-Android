@@ -18,7 +18,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-public class SecurityManager {
+final class SecurityManager {
 
     private static final String TAG = SecurityManager.class.getSimpleName();
 
@@ -45,7 +45,7 @@ public class SecurityManager {
         return sInstance;
     }
 
-    public String encryptString(String stringToEncrypt) {
+    String encryptString(String stringToEncrypt) {
         String output = stringToEncrypt;
         try {
             byte[] clearText = stringToEncrypt.getBytes("UTF8");
@@ -59,13 +59,13 @@ public class SecurityManager {
         return output;
     }
 
-    public String decryptString(String stringToDecrypt) {
+    String decryptString(String stringToDecrypt) {
         String output = stringToDecrypt;
         try {
-            byte[] encrypedPwdBytes = Base64.decode(stringToDecrypt, Base64.DEFAULT);
-            Cipher cipher = Cipher.getInstance("DES");// cipher is not thread safe
+            byte[] encryptedPwdBytes = Base64.decode(stringToDecrypt, Base64.DEFAULT);
+            Cipher cipher = Cipher.getInstance("DES"); // cipher is not thread safe
             cipher.init(Cipher.DECRYPT_MODE, mKey);
-            output = new String(cipher.doFinal(encrypedPwdBytes), "UTF8");
+            output = new String(cipher.doFinal(encryptedPwdBytes), "UTF8");
         } catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException
                 | UnsupportedEncodingException | IllegalBlockSizeException
                 | BadPaddingException e) {

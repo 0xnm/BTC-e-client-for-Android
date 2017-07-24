@@ -35,7 +35,7 @@ import java.util.concurrent.TimeUnit;
 Code was taken and adapted from here:
  http://www.androidsnippets.com/prompt-engaged-users-to-rate-your-app-in-the-android-market-appirater
  */
-class AppRater {
+final class AppRater {
     private final static int DAYS_UNTIL_PROMPT = 3;
     private final static int LAUNCHES_UNTIL_PROMPT = 5;
 
@@ -130,11 +130,11 @@ class AppRater {
                             + BuildConfig.APPLICATION_ID)));
         }
 
-        SharedPreferences.Editor editor = context.getSharedPreferences(APPRATER_LOG_FILENAME,
-                Context.MODE_PRIVATE).edit();
-
-        editor.putBoolean(DONT_SHOW_AGAIN_KEY, true);
-        editor.commit();
+        context.getSharedPreferences(APPRATER_LOG_FILENAME,
+                Context.MODE_PRIVATE)
+                .edit()
+                .putBoolean(DONT_SHOW_AGAIN_KEY, true)
+                .apply();
     }
 
 }

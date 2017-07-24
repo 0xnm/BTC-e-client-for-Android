@@ -24,7 +24,7 @@ public class TradesAdapter extends BaseAdapter {
 
     private List<TradeHistoryEntry> trades;
 
-    private DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
+    private final DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
 
     public TradesAdapter() {
         dateTimeFormat.setTimeZone(TimeZone.getDefault());

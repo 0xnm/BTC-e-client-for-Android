@@ -64,9 +64,9 @@ public class WidgetConfigure extends ListActivity {
 
                 SharedPreferences sharedPreferences = getSharedPreferences("widget" + mAppWidgetId,
                         Context.MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putString("pair", mAdapter.getItem(position));
-                editor.commit();
+                sharedPreferences.edit()
+                        .putString("pair", mAdapter.getItem(position))
+                        .apply();
                 Map<Integer, String> map = new HashMap<>();
                 map.put(mAppWidgetId, mAdapter.getItem(position));
 

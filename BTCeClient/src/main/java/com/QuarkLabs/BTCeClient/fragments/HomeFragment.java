@@ -110,8 +110,8 @@ public class HomeFragment extends Fragment implements
         try {
             activityCallback = (ActivityCallbacks) activity;
         } catch (ClassCastException e) {
-            throw new ClassCastException(activity.toString() + " must implement "
-                    + ActivityCallbacks.class.getSimpleName());
+            throw new RuntimeException(activity.toString() + " must implement "
+                    + ActivityCallbacks.class.getSimpleName(), e);
         }
     }
 
@@ -250,7 +250,7 @@ public class HomeFragment extends Fragment implements
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                // not interested
             }
         });
     }
@@ -338,9 +338,8 @@ public class HomeFragment extends Fragment implements
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = TickersStorage
-                .loadLatestData().keySet().<String>iterator();
-             iterator.hasNext(); ) {
+        for (Iterator<String> iterator = TickersStorage.loadLatestData().keySet().<String>iterator();
+             iterator.hasNext();) {
             String key = iterator.next();
             if (!pairs.contains(key)) {
                 iterator.remove();
@@ -564,12 +563,12 @@ public class HomeFragment extends Fragment implements
 
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
+            // not interested
         }
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-
+            // not interested
         }
 
         @Override

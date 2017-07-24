@@ -27,7 +27,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 /**
  * Helper on top of SQLite storage
  */
-public class DBWorker extends SQLiteOpenHelper {
+public final class DBWorker extends SQLiteOpenHelper {
     private static final String DB_NAME = "data.sqlite";
 
     private static final int DATABASE_VERSION = 1;
@@ -80,7 +80,7 @@ public class DBWorker extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        // not interested
     }
 
     public Cursor getNotifiers() {
@@ -88,34 +88,44 @@ public class DBWorker extends SQLiteOpenHelper {
         return db.rawQuery("SELECT * FROM " + NOTIFIERS_DATA_TABLE_NAME, null);
     }
 
-    public synchronized void addNewNotifier(int type, String pair, float value) {
-        SQLiteDatabase db = getWritableDatabase();
-        ContentValues contentValues = new ContentValues(3);
-        contentValues.put("Value", value);
-        contentValues.put("Pair", pair);
-        contentValues.put("Type", type);
-        db.insert("Notifiers", null, contentValues);
+    public void addNewNotifier(int type, String pair, float value) {
+        synchronized (this) {
+            SQLiteDatabase db = getWritableDatabase();
+            ContentValues contentValues = new ContentValues(3);
+            contentValues.put("Value", value);
+            contentValues.put("Pair", pair);
+            contentValues.put("Type", type);
+            db.insert("Notifiers", null, contentValues);
+        }
     }
 
-    public synchronized void removeNotifier(int _id) {
-        SQLiteDatabase db = getWritableDatabase();
-        db.delete("Notifiers", "_id=" + _id, null);
+    public void removeNotifier(int id) {
+        synchronized (this) {
+            SQLiteDatabase db = getWritableDatabase();
+            db.delete("Notifiers", "_id=" + id, null);
+        }
     }
 
 
-    public synchronized long insertToWidgetData(ContentValues contentValues) {
-        SQLiteDatabase db = getWritableDatabase();
-        return db.insert(WIDGET_DATA_TABLE_NAME, null, contentValues);
+    public long insertToWidgetData(ContentValues contentValues) {
+        synchronized (this) {
+            SQLiteDatabase db = getWritableDatabase();
+            return db.insert(WIDGET_DATA_TABLE_NAME, null, contentValues);
+        }
     }
 
-    public synchronized int updateWidgetData(ContentValues contentValues, String pair) {
-        SQLiteDatabase db = getWritableDatabase();
-        String[] pairValue = {pair};
-        return db.update(WIDGET_DATA_TABLE_NAME, contentValues, "pair == ?", pairValue);
+    public int updateWidgetData(ContentValues contentValues, String pair) {
+        synchronized (this) {
+            SQLiteDatabase db = getWritableDatabase();
+            String[] pairValue = {pair};
+            return db.update(WIDGET_DATA_TABLE_NAME, contentValues, "pair == ?", pairValue);
+        }
     }
 
-    public synchronized Cursor pullWidgetData(String[] columns) {
-        SQLiteDatabase db = getWritableDatabase();
-        return db.query(WIDGET_DATA_TABLE_NAME, columns, null, null, null, null, null);
+    public Cursor pullWidgetData(String[] columns) {
+        synchronized (this) {
+            SQLiteDatabase db = getWritableDatabase();
+            return db.query(WIDGET_DATA_TABLE_NAME, columns, null, null, null, null, null);
+        }
     }
 }

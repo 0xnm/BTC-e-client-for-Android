@@ -66,12 +66,12 @@ public class FlippingView extends FrameLayout {
 
             @Override
             public void onAnimationCancel(Animator animation) {
-
+                // not interested
             }
 
             @Override
             public void onAnimationRepeat(Animator animation) {
-
+                // not interested
             }
         });
 
@@ -89,12 +89,12 @@ public class FlippingView extends FrameLayout {
 
             @Override
             public void onAnimationCancel(Animator animation) {
-
+                // not interested
             }
 
             @Override
             public void onAnimationRepeat(Animator animation) {
-
+                // not interested
             }
         });
     }

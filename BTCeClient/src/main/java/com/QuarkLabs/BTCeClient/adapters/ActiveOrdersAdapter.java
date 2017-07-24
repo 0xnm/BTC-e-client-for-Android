@@ -27,7 +27,7 @@ public class ActiveOrdersAdapter extends BaseAdapter {
 
     private List<ActiveOrder> activeOrders = Collections.emptyList();
 
-    private DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
+    private final DateFormat dateTimeFormat = DateTimeUtils.createLongDateTimeFormat();
 
     @Nullable
     private OnCancelOrderClickListener onCancelOrderClickListener;
@@ -83,9 +83,9 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
         pairView.setText(PairUtils.serverToLocal(pair));
         typeView.setText(order.getType());
-        amountView.setText(String.valueOf(order.getAmount())
+        amountView.setText(order.getAmount()
                 + " " + pair.substring(0, 3).toUpperCase(Locale.US));
-        rateView.setText(String.valueOf(order.getRate())
+        rateView.setText(order.getRate()
                 + " " + pair.substring(4).toUpperCase(Locale.US));
         calendar.setTimeInMillis(order.getCreatedAt() * 1000L);
         timestampView.setText(dateTimeFormat.format(calendar.getTime()));

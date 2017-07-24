@@ -193,7 +193,7 @@ public class NotifiersFragment extends Fragment {
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                // not interested
             }
         });
 
@@ -232,6 +232,7 @@ public class NotifiersFragment extends Fragment {
         float value = Float.parseFloat(((EditText) watcherDialog.findViewById(R.id.NotifValue))
                 .getText().toString());
 
+        //noinspection WrongConstant
         saveWatcher(type, pair, value);
     }
 
