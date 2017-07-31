@@ -537,13 +537,17 @@ public class HomeFragment extends Fragment implements
 
         @Override
         protected CallResult<AccountInfo> doInBackground(Void... params) {
-            return BtcEApplication.get(getActivity()).getApi().getAccountInfo();
+            Context context = getActivity();
+            if (context == null) {
+                return null;
+            }
+            return BtcEApplication.get(context).getApi().getAccountInfo();
         }
 
         @Override
         protected void onPostExecute(CallResult<AccountInfo> result) {
             String notificationText;
-            if (!isVisible()) {
+            if (result == null || !isVisible()) {
                 return;
             }
             if (result.isSuccess()) {

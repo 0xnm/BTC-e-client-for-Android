@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
@@ -42,6 +43,8 @@ public class Api {
     private static final String SUCCESS_KEY = "success";
     private static final String ERROR_KEY = "error";
     private static final String RETURN_KEY = "return";
+
+    private static final String TAG = Api.class.getSimpleName();
 
     @NonNull
     private final String generalErrorText;
@@ -85,6 +88,13 @@ public class Api {
         authApi.setHostUrl(hostUrl);
     }
 
+    private <T> CallResult<T> generateFailureResult() {
+        CallResult<T> result = new CallResult<>();
+        result.isSuccess = false;
+        result.error = generalErrorText;
+        return result;
+    }
+
     /**
      * Gets info for provided pairs
      *
@@ -118,7 +128,8 @@ public class Api {
             result.payload = tickers;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getPairInfo call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -147,7 +158,8 @@ public class Api {
             result.payload = Depth.create(pair, response.getJSONObject(pair));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "depth call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -173,9 +185,9 @@ public class Api {
             result.isSuccess = true;
             result.payload = AccountInfo.create(response.getJSONObject(RETURN_KEY));
             return result;
-
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getAccountInfo call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -212,7 +224,8 @@ public class Api {
             result.payload = transactions;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getTransactionsHistory call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -249,7 +262,8 @@ public class Api {
             result.payload = trades;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getTradeHistory call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -283,7 +297,8 @@ public class Api {
             result.payload = activeOrders;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getActiveOrders call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -322,7 +337,8 @@ public class Api {
             result.payload = TradeResponse.create(response.getJSONObject(RETURN_KEY));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "trade call failed", e);
+            return generateFailureResult();
         }
 
     }
@@ -354,7 +370,8 @@ public class Api {
             result.payload = CancelOrderResponse.create(response.getJSONObject(RETURN_KEY));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "cancelOrder call failed", e);
+            return generateFailureResult();
         }
     }
 
