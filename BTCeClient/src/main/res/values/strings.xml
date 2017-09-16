@@ -28,6 +28,7 @@
         <item>CNH</item>
         <item>EUR</item>
         <item>RUR</item>
+        <item>BCH</item>
     </string-array>
     <string-array name="NavSections">
         <item>Dashboard</item>
@@ -97,6 +98,8 @@
         <item>ETH/EUR</item>
         <item>ETH/LTC</item>
         <item>ETH/RUR</item>
+        <item>BCH/USD</item>
+        <item>BCH/BTC</item>
     </string-array>
 
     <string name="watcher_panic_sell">Panic Sell</string>
