@@ -3,7 +3,7 @@ package com.QuarkLabs.BTCeClient.tasks;
 import android.support.annotation.NonNull;
 
 /**
- * Listener for any call to BTC-e API
+ * Listener for any call to WEX API
  *
  * @param <T> Result type
  */

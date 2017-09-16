@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -81,6 +81,7 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -106,7 +107,7 @@ public class ChartsFragment extends Fragment {
         setHasOptionsMenu(true);
         boolean useOldCharts = PreferenceManager.getDefaultSharedPreferences(getActivity())
                 .getBoolean(SettingsFragment.KEY_USE_OLD_CHARTS, false);
-        chartsDelegate = useOldCharts ? new BtceChartsDelegate() : new TradingViewChartsDelegate();
+        chartsDelegate = new BtceChartsDelegate();
         chartsDelegate.onViewCreated();
         chartsDelegate.createChartViews();
         chartsDelegate.updateChartData();
@@ -672,7 +673,8 @@ public class ChartsFragment extends Fragment {
                 URL url = new URL(BtcEApplication.get(getActivity()).getHostUrl()
                         + "/exchange/" + pair);
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-                InputStream inputStream;
+                connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+                connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
                 try {
                     connection.addRequestProperty("Cookie", "old_charts=1");
                     if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {

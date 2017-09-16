@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -23,6 +23,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
+import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
@@ -42,6 +43,8 @@ public class Api {
     private static final String SUCCESS_KEY = "success";
     private static final String ERROR_KEY = "error";
     private static final String RETURN_KEY = "return";
+
+    private static final String TAG = Api.class.getSimpleName();
 
     @NonNull
     private final String generalErrorText;
@@ -85,11 +88,18 @@ public class Api {
         authApi.setHostUrl(hostUrl);
     }
 
+    private <T> CallResult<T> generateFailureResult() {
+        CallResult<T> result = new CallResult<>();
+        result.isSuccess = false;
+        result.error = generalErrorText;
+        return result;
+    }
+
     /**
      * Gets info for provided pairs
      *
      * @param pairs Array of pairs to get info for
-     * @return List of tickers, sample https://btc-e.com/api/3/ticker/btc_usd-btc_rur
+     * @return List of tickers, sample https://wex.nz/api/3/ticker/btc_usd-btc_rur
      */
     @WorkerThread
     @NonNull
@@ -118,7 +128,8 @@ public class Api {
             result.payload = tickers;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getPairInfo call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -147,14 +158,15 @@ public class Api {
             result.payload = Depth.create(pair, response.getJSONObject(pair));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "depth call failed", e);
+            return generateFailureResult();
         }
     }
 
     /**
      * Gets account info
      *
-     * @return Account info, https://btc-e.com/api/documentation
+     * @return Account info, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -173,17 +185,17 @@ public class Api {
             result.isSuccess = true;
             result.payload = AccountInfo.create(response.getJSONObject(RETURN_KEY));
             return result;
-
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getAccountInfo call failed", e);
+            return generateFailureResult();
         }
     }
 
     /**
      * Gets history of transactions.
      *
-     * @param parameters Possible parameters and their values, https://btc-e.com/api/documentation
-     * @return Result with transactions, https://btc-e.com/api/documentation
+     * @param parameters Possible parameters and their values, https://wex.nz/api/documentation
+     * @return Result with transactions, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -212,15 +224,16 @@ public class Api {
             result.payload = transactions;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getTransactionsHistory call failed", e);
+            return generateFailureResult();
         }
     }
 
     /**
      * Gets history of trades.
      *
-     * @param parameters Possible parameters and their values, https://btc-e.com/api/documentation
-     * @return Result with trades, https://btc-e.com/api/documentation
+     * @param parameters Possible parameters and their values, https://wex.nz/api/documentation
+     * @return Result with trades, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -249,14 +262,15 @@ public class Api {
             result.payload = trades;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getTradeHistory call failed", e);
+            return generateFailureResult();
         }
     }
 
     /**
      * Gets active orders
      *
-     * @return Result with active orders, https://btc-e.com/api/documentation
+     * @return Result with active orders, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -283,7 +297,8 @@ public class Api {
             result.payload = activeOrders;
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "getActiveOrders call failed", e);
+            return generateFailureResult();
         }
     }
 
@@ -294,7 +309,7 @@ public class Api {
      * @param type   Sell of Buy ("sell" or "buy")
      * @param rate   Trade price
      * @param amount Trade volume
-     * @return Trade response, https://btc-e.com/api/documentation
+     * @return Trade response, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -322,7 +337,8 @@ public class Api {
             result.payload = TradeResponse.create(response.getJSONObject(RETURN_KEY));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "trade call failed", e);
+            return generateFailureResult();
         }
 
     }
@@ -331,7 +347,7 @@ public class Api {
      * Cancels order
      *
      * @param orderId Id of the order to cancel
-     * @return Cancellation response, https://btc-e.com/api/documentation
+     * @return Cancellation response, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -354,7 +370,8 @@ public class Api {
             result.payload = CancelOrderResponse.create(response.getJSONObject(RETURN_KEY));
             return result;
         } catch (JSONException e) {
-            throw new JsonParseException(e);
+            Log.e(TAG, "cancelOrder call failed", e);
+            return generateFailureResult();
         }
     }
 

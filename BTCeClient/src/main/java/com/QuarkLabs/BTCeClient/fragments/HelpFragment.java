@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ import com.QuarkLabs.BTCeClient.R;
 public class HelpFragment extends Fragment implements View.OnClickListener {
 
     private static final String APP_EMAIL_ADDRESS = "quarkdev.solutions@gmail.com";
-    private static final String APP_EMAIL_SUBJECT = "Feedback on BTC-e client for Android";
+    private static final String APP_EMAIL_SUBJECT = "Feedback on WEX client for Android";
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,

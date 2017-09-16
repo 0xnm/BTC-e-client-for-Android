@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -71,16 +71,19 @@ public class CheckTickersService extends IntentService {
         pairsToCheck.addAll(watcherPairs());
 
         if (pairsToCheck.isEmpty()) {
+            sendUpdateFailedBroadcast();
             return;
         }
 
         if (networkInfo == null || !networkInfo.isConnected()) {
+            sendUpdateFailedBroadcast();
             return;
         }
 
         CallResult<List<Ticker>> result = api.getPairInfo(pairsToCheck);
 
         if (!result.isSuccess()) {
+            sendUpdateFailedBroadcast();
             return;
         }
 
@@ -121,6 +124,11 @@ public class CheckTickersService extends IntentService {
         TickersStorage.saveData(newData);
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_ACTION));
+    }
+
+    private void sendUpdateFailedBroadcast() {
+        LocalBroadcastManager.getInstance(this)
+                .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_FAILED_ACTION));
     }
 
     private List<String> watcherPairs() {
@@ -171,40 +179,39 @@ public class CheckTickersService extends IntentService {
                 boolean pairMatched = pairAsLocal
                         .equals(notifiers.getString(
                                 notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
-                if (!pairMatched) {
-                    continue;
-                }
+                if (pairMatched) {
 
-                float percent;
-                @Watcher int watcherType = notifiers.getInt(
-                        notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
-                switch (watcherType) {
-                    case Watcher.PANIC_BUY:
-                        percent = watcherValue(notifiers) / 100;
-                        if (newValue > ((1 + percent) * oldValue)) {
-                            messages.add(createPanicBuyMessage(pairAsLocal, percent));
-                        }
-                        break;
-                    case Watcher.PANIC_SELL:
-                        percent = watcherValue(notifiers) / 100;
-                        if (newValue < ((1 - percent) * oldValue)) {
-                            messages.add(createPanicSellMessage(pairAsLocal, percent));
-                        }
-                        break;
-                    case Watcher.STOP_LOSS:
-                        if (newValue < watcherValue(notifiers)) {
-                            messages.add(createStopLossMessage(pairAsLocal,
-                                    watcherValue(notifiers)));
-                        }
-                        break;
-                    case Watcher.TAKE_PROFIT:
-                        if (newValue > watcherValue(notifiers)) {
-                            messages.add(createTakeProfitMessage(pairAsLocal,
-                                    watcherValue(notifiers)));
-                        }
-                        break;
-                    default:
-                        break;
+                    float percent;
+                    @Watcher int watcherType = notifiers.getInt(
+                            notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
+                    switch (watcherType) {
+                        case Watcher.PANIC_BUY:
+                            percent = watcherValue(notifiers) / 100;
+                            if (newValue > ((1 + percent) * oldValue)) {
+                                messages.add(createPanicBuyMessage(pairAsLocal, percent));
+                            }
+                            break;
+                        case Watcher.PANIC_SELL:
+                            percent = watcherValue(notifiers) / 100;
+                            if (newValue < ((1 - percent) * oldValue)) {
+                                messages.add(createPanicSellMessage(pairAsLocal, percent));
+                            }
+                            break;
+                        case Watcher.STOP_LOSS:
+                            if (newValue < watcherValue(notifiers)) {
+                                messages.add(createStopLossMessage(pairAsLocal,
+                                        watcherValue(notifiers)));
+                            }
+                            break;
+                        case Watcher.TAKE_PROFIT:
+                            if (newValue > watcherValue(notifiers)) {
+                                messages.add(createTakeProfitMessage(pairAsLocal,
+                                        watcherValue(notifiers)));
+                            }
+                            break;
+                        default:
+                            break;
+                    }
                 }
 
                 notifiers.moveToNext();

@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -179,9 +179,11 @@ public class HomeFragment extends Fragment implements
             }
         };
 
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(ConstantHolder.UPDATE_TICKERS_ACTION);
+        intentFilter.addAction(ConstantHolder.UPDATE_TICKERS_FAILED_ACTION);
         LocalBroadcastManager.getInstance(getActivity().getApplicationContext())
-                .registerReceiver(statsReceiver,
-                        new IntentFilter(ConstantHolder.UPDATE_TICKERS_ACTION));
+                .registerReceiver(statsReceiver, intentFilter);
 
         tradeAmountView = (EditText) view.findViewById(R.id.TradeAmount);
         tradeCurrencyView = (Spinner) view.findViewById(R.id.TradeCurrency);
@@ -258,6 +260,12 @@ public class HomeFragment extends Fragment implements
     private void refreshOperationCostView() {
         String tradeAmount = tradeAmountView.getText().toString();
         String tradePrice = tradePriceView.getText().toString();
+        try {
+            Float.parseFloat(tradeAmount);
+            Float.parseFloat(tradePrice);
+        } catch (NumberFormatException nfe) {
+            return;
+        }
         if (!tradeAmount.isEmpty()
                 && !tradePrice.isEmpty()) {
             operationCostView.setText(
@@ -537,13 +545,17 @@ public class HomeFragment extends Fragment implements
 
         @Override
         protected CallResult<AccountInfo> doInBackground(Void... params) {
-            return BtcEApplication.get(getActivity()).getApi().getAccountInfo();
+            Context context = getActivity();
+            if (context == null) {
+                return null;
+            }
+            return BtcEApplication.get(context).getApi().getAccountInfo();
         }
 
         @Override
         protected void onPostExecute(CallResult<AccountInfo> result) {
             String notificationText;
-            if (!isVisible()) {
+            if (result == null || !isVisible()) {
                 return;
             }
             if (result.isSuccess()) {
