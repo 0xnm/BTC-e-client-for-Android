@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -30,6 +30,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.TimeUnit;
 
 class GuestApi {
 
@@ -50,6 +51,8 @@ class GuestApi {
         try {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
+            connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+            connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
             InputStream response = connection.getInputStream();
             StringBuilder sb = new StringBuilder();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {

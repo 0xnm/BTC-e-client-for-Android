@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,7 @@ public final class ConstantHolder {
     public static final int TRADE_REGISTERED_NOTIF_ID = 3000;
 
     public static final String UPDATE_TICKERS_ACTION = "UpdateTickers";
+    public static final String UPDATE_TICKERS_FAILED_ACTION = "UpdateTickersFailed";
 
     private ConstantHolder() { }
 }

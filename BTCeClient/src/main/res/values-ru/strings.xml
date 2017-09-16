@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BTC-e client</string>
+    <string name="app_name">WEX client</string>
     <string name="AccountInfo">Мои средства</string>
     <string name="UpdateAccountInfo">Пожалуйста, нажмите \"ОБНОВИТЬ\"</string>
     <string name="enableEMAIndicator">Показать EMA</string>
@@ -117,7 +117,7 @@
     <br /><br />
     <b>Полезные советы:</b><br /> Нажмите на любой паре в <b>Терминале</b> и поля раздела <b>Торговля</b> будут автоматически заполнены соответствующей парой и её значением
     <br /><br /> Нажмите на любой валюте в разделе <b>Мои средства</b> и поле <b>Количество</b> секции <b>Торговля</b> будет автоматически заполнено<br /><br />
-    Авторы этого приложения не связаны с btc-e.com]]></string>
+    Авторы этого приложения не связаны с wex.nz]]></string>
     <string name="StopLossDescription">Вы будете оповещены при падении значения ниже указанного уровня</string>
     <string name="TakeProfitDescription">Вы будете оповещены при превышении значения указанного уровня</string>
     <string name="PanicBuyDescription">Вы будете оповещены при изменении значения на указанную величину в положительную сторону по отношению к прошлому значению</string>
@@ -186,7 +186,6 @@
     <string name="no_key_secret_error">Не предоставлен ключ API/секрет</string>
     <string name="charts">Графики</string>
     <string name="use_old_charts">Использовать старые графики BTC-e</string>
-    <string name="whats_new_old_charts">Учитывая отзывы о производительности графиков с TradingView, эта версия возвращает поддержку старых графиков с btc-e.com. Вы можете переключиться между ними в разделе Настройки. Графики TradingView имеют большое возможностей, но медленнее, графики BTC-e имеют меньше возможностей, но они быстрее.</string>
     <string name="use_btce_charts_description">Меньше возможностей, но быстрее</string>
     <string name="order_successfully_added">Заявка успешно добавлена</string>
     <string name="buy_confirmation">Купить &lt;b>%1$s %2$s&lt;/b> по &lt;b>%3$s %4$s&lt;/b> за 1 &lt;b>%5$s&lt;/b>? Итого: &lt;b>%6$s (Реально: %7$s, Комиссия: %8$s) %9$s&lt;/b></string>

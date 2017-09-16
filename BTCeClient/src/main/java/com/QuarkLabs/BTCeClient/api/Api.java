@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -99,7 +99,7 @@ public class Api {
      * Gets info for provided pairs
      *
      * @param pairs Array of pairs to get info for
-     * @return List of tickers, sample https://btc-e.com/api/3/ticker/btc_usd-btc_rur
+     * @return List of tickers, sample https://wex.nz/api/3/ticker/btc_usd-btc_rur
      */
     @WorkerThread
     @NonNull
@@ -166,7 +166,7 @@ public class Api {
     /**
      * Gets account info
      *
-     * @return Account info, https://btc-e.com/api/documentation
+     * @return Account info, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -194,8 +194,8 @@ public class Api {
     /**
      * Gets history of transactions.
      *
-     * @param parameters Possible parameters and their values, https://btc-e.com/api/documentation
-     * @return Result with transactions, https://btc-e.com/api/documentation
+     * @param parameters Possible parameters and their values, https://wex.nz/api/documentation
+     * @return Result with transactions, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -232,8 +232,8 @@ public class Api {
     /**
      * Gets history of trades.
      *
-     * @param parameters Possible parameters and their values, https://btc-e.com/api/documentation
-     * @return Result with trades, https://btc-e.com/api/documentation
+     * @param parameters Possible parameters and their values, https://wex.nz/api/documentation
+     * @return Result with trades, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -270,7 +270,7 @@ public class Api {
     /**
      * Gets active orders
      *
-     * @return Result with active orders, https://btc-e.com/api/documentation
+     * @return Result with active orders, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -309,7 +309,7 @@ public class Api {
      * @param type   Sell of Buy ("sell" or "buy")
      * @param rate   Trade price
      * @param amount Trade volume
-     * @return Trade response, https://btc-e.com/api/documentation
+     * @return Trade response, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread
@@ -347,7 +347,7 @@ public class Api {
      * Cancels order
      *
      * @param orderId Id of the order to cancel
-     * @return Cancellation response, https://btc-e.com/api/documentation
+     * @return Cancellation response, https://wex.nz/api/documentation
      */
     @NonNull
     @WorkerThread

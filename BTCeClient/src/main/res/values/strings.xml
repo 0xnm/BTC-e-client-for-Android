@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">BTC-e client</string>
+    <string name="app_name">WEX client</string>
     <string name="AccountInfo">My Funds</string>
     <string name="UpdateAccountInfo">Please press \"UPDATE\"</string>
     <string name="enableEMAIndicator">Show EMA</string>
@@ -117,7 +117,7 @@
     <br /><br />
     <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies
     <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br />
-    Authors of this app are not affiliated with BTC-e exchange]]></string>
+    Authors of this app are not affiliated with WEX exchange]]></string>
     <string name="StopLossDescription">You will be notified once the price get below the specified value</string>
     <string name="TakeProfitDescription">You will be notified once the price get above the specified value</string>
     <string name="PanicBuyDescription">You will be notified once the last check price is more than previous check price on the specified delta</string>
@@ -186,7 +186,6 @@
     <string name="no_key_secret_error">No key/secret provided</string>
     <string name="charts">Charts</string>
     <string name="use_old_charts">Use BTC-e old charts</string>
-    <string name="whats_new_old_charts">Following feedback on performance of TradingView charts, this version adds support for showing old charts from btc-e.com. You can switch between them in Settings. TradingView charts are more powerful, but slower, BTC-e charts has much less features, but faster.</string>
     <string name="use_btce_charts_description">Less features, but faster</string>
     <string name="order_successfully_added">Order was successfully added</string>
     <string name="buy_confirmation">Buy &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? Total cost is: &lt;b>%6$s (Effective: %7$s, Fee: %8$s)  %9$s&lt;/b></string>

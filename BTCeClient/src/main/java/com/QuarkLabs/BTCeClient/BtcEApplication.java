@@ -19,7 +19,7 @@ public class BtcEApplication extends Application implements
     public void onCreate() {
         super.onCreate();
         defaultPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        // in Russia btc-e.com is blocked, so need to use mirror
+        /* // in Russia btc-e.com is blocked, so need to use mirror
         if ("RU".equalsIgnoreCase(getResources().getConfiguration().locale.getCountry())
                 && !defaultPreferences.contains(SettingsFragment.KEY_USE_MIRROR)) {
             // commit instead of apply, because need to make sure changes are effective before
@@ -27,7 +27,7 @@ public class BtcEApplication extends Application implements
             defaultPreferences.edit()
                     .putBoolean(SettingsFragment.KEY_USE_MIRROR, true)
                     .apply();
-        }
+        }*/
 
         defaultPreferences.registerOnSharedPreferenceChangeListener(this);
 
@@ -51,8 +51,7 @@ public class BtcEApplication extends Application implements
     }
 
     public String getHostUrl() {
-        return defaultPreferences.getBoolean(SettingsFragment.KEY_USE_MIRROR, false)
-                ? "https://btc-e.nz" : "https://btc-e.com";
+        return "https://wex.nz";
     }
 
     public Api getApi() {

@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.ACTIVE_ORDERS;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.CANCEL_ORDER;
@@ -198,6 +199,8 @@ class AuthApi {
             connection.setRequestMethod("POST");
             connection.setRequestProperty("Content-type", "application/x-www-form-urlencoded");
             connection.setRequestProperty("Key", key);
+            connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
+            connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
             byte[] array = mac.doFinal(postData.getBytes("UTF-8"));
             connection.setRequestProperty("Sign", byteArrayToHexString(array));
             wr = new DataOutputStream(connection.getOutputStream());

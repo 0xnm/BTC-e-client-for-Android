@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify

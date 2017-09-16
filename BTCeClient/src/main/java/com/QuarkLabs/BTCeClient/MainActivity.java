@@ -1,5 +1,5 @@
 /*
- * BTC-e client
+ * WEX client
  *     Copyright (C) 2014  QuarkDev Solutions <quarkdev.solutions@gmail.com>
  *
  *     This program is free software: you can redistribute it and/or modify
@@ -216,28 +216,7 @@ public class MainActivity extends AppCompatActivity
         if (savedInstanceState == null) {
             displayItem(0, false);
         }
-        showWhatsNewOldCharts();
     }
-
-    private void showWhatsNewOldCharts() {
-        final String key = "whats_new_old_charts_shown";
-        final SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        if (!prefs.contains(key)) {
-            new AlertDialog.Builder(this)
-                    .setMessage(R.string.whats_new_old_charts)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                        @Override
-                        public void onDismiss(DialogInterface dialog) {
-                            prefs.edit()
-                                    .putBoolean(key, true)
-                                    .apply();
-                        }
-                    })
-                    .show();
-        }
-    }
-
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {

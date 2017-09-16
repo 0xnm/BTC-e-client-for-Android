@@ -32,12 +32,12 @@
             android:key="check_period"
             android:summary="@string/CheckPeriodSummary"
             android:title="@string/check_period_option" />
-        <CheckBoxPreference
+        <!--<CheckBoxPreference
             android:defaultValue="false"
             android:key="use_mirror"
-            android:title="@string/UseMirror" />
+            android:title="@string/UseMirror" />-->
     </PreferenceCategory>
-    <PreferenceCategory
+    <!--<PreferenceCategory
         android:key="charts"
         android:title="@string/charts">
         <CheckBoxPreference
@@ -45,6 +45,6 @@
             android:key="use_btce_charts"
             android:hint="@string/use_btce_charts_description"
             android:title="@string/use_old_charts"/>
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
 </PreferenceScreen>
