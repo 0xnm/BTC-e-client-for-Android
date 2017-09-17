@@ -66,7 +66,7 @@ import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.StartServiceReceiver;
 import com.QuarkLabs.BTCeClient.TickersStorage;
-import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.api.AccountInfo;
 import com.QuarkLabs.BTCeClient.api.CallResult;
@@ -365,12 +365,12 @@ public class HomeFragment extends Fragment implements
         switch (item.getItemId()) {
             //add pair to dashboard action
             case R.id.action_add:
-                final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(
+                final PairsCheckboxAdapter pairsCheckboxAdapter = new PairsCheckboxAdapter(
                         getActivity(),
                         getResources().getStringArray(R.array.ExchangePairs),
-                        CheckBoxListAdapter.SettingsScope.PAIRS);
+                        PairsCheckboxAdapter.SettingsScope.PAIRS);
                 ListView listView = new ListView(getActivity());
-                listView.setAdapter(checkBoxListAdapter);
+                listView.setAdapter(pairsCheckboxAdapter);
                 new AlertDialog.Builder(getActivity())
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
@@ -378,7 +378,7 @@ public class HomeFragment extends Fragment implements
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        checkBoxListAdapter.saveValuesToPreferences();
+                                        pairsCheckboxAdapter.saveValuesToPreferences();
                                         updateStorageWithTickers();
                                         refreshDashboardAdapter();
                                         getActivity().sendBroadcast(new Intent(getActivity(),

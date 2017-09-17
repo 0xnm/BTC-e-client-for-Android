@@ -51,7 +51,7 @@ import android.widget.Toast;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 
 import org.stockchart.StockChartView;
 import org.stockchart.core.Appearance;
@@ -69,7 +69,6 @@ import org.stockchart.series.StockSeries;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
@@ -120,19 +119,19 @@ public class ChartsFragment extends Fragment {
                 chartsDelegate.updateChartData();
                 break;
             case R.id.action_add:
-                final CheckBoxListAdapter checkBoxListAdapter =
-                        new CheckBoxListAdapter(getActivity(),
+                final PairsCheckboxAdapter pairsCheckboxAdapter =
+                        new PairsCheckboxAdapter(getActivity(),
                                 getResources().getStringArray(R.array.ExchangePairs),
-                                CheckBoxListAdapter.SettingsScope.CHARTS);
+                                PairsCheckboxAdapter.SettingsScope.CHARTS);
                 ListView v = new ListView(getActivity());
-                v.setAdapter(checkBoxListAdapter);
+                v.setAdapter(pairsCheckboxAdapter);
                 new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.SelectPairsPromptTitle)
                         .setView(v)
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                checkBoxListAdapter.saveValuesToPreferences();
+                                pairsCheckboxAdapter.saveValuesToPreferences();
                                 chartsDelegate.createChartViews();
                                 chartsDelegate.updateChartData();
                             }
@@ -671,7 +670,7 @@ public class ChartsFragment extends Fragment {
             BufferedReader rd = null;
             try {
                 URL url = new URL(BtcEApplication.get(getActivity()).getHostUrl()
-                        + "/exchange/" + pair);
+                        + (isToken(pair) ? "/tokens/" : "/exchange/") + pair);
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
                 connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
@@ -707,6 +706,10 @@ public class ChartsFragment extends Fragment {
                 Log.e(ChartDataDownloader.class.getSimpleName(), "Failed to get chart data", e);
             }
             return null;
+        }
+
+        private boolean isToken(String pair) {
+            return pair.split("_")[0].length() == 5;
         }
     }
 

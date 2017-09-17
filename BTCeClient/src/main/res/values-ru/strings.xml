@@ -29,6 +29,17 @@
         <item>EUR</item>
         <item>RUR</item>
         <item>BCH</item>
+        <item>USDET</item>
+        <item>RURET</item>
+        <item>EURET</item>
+        <item>BTCET</item>
+        <item>LTCET</item>
+        <item>ETHET</item>
+        <item>NMCET</item>
+        <item>NVCET</item>
+        <item>PPCET</item>
+        <item>DSHET</item>
+        <item>BCHET</item>
     </string-array>
     <string-array name="NavSections">
         <item>Терминал</item>
@@ -100,6 +111,17 @@
         <item>ETH/RUR</item>
         <item>BCH/USD</item>
         <item>BCH/BTC</item>
+        <item>USDET/USD</item>
+        <item>RURET/RUR</item>
+        <item>EURET/EUR</item>
+        <item>BTCET/BTC</item>
+        <item>LTCET/LTC</item>
+        <item>ETHET/ETH</item>
+        <item>NMCET/NMC</item>
+        <item>NVCET/NVC</item>
+        <item>PPCET/PPC</item>
+        <item>DSHET/DSH</item>
+        <item>BCHET/BCH</item>
     </string-array>
 
     <string name="watcher_panic_sell">Паническая продажа</string>
@@ -195,4 +217,5 @@
     <string name="sell_confirmation">Продать &lt;b>%1$s %2$s&lt;/b> по &lt;b>%3$s %4$s&lt;/b> за 1 &lt;b>%5$s&lt;/b>? Итого: &lt;b>%6$s (Реально: %7$s, Комиссия: %8$s) %9$s&lt;/b></string>
     <string name="missing_mandatory_fields_error">Не заполнены необходимые поля</string>
     <string name="trade_operation_cost">Стоимость операции: &lt;b>%1$s %2$s&lt;/b></string>
+    <string name="tokens">Токены</string>
 </resources>
