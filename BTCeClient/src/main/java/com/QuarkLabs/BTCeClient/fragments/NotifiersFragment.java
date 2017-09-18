@@ -50,6 +50,7 @@ public class NotifiersFragment extends Fragment {
     private Cursor mCursor;
     private CursorAdapter mCursorAdapter;
     private DBWorker mDbWorker;
+    private AlertDialog watcherDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -197,7 +198,7 @@ public class NotifiersFragment extends Fragment {
             }
         });
 
-        new AlertDialog.Builder(getActivity())
+        watcherDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.AddWatcherTitle)
                 .setView(dialogContentView)
                 .setNeutralButton(android.R.string.cancel, null)
@@ -245,6 +246,10 @@ public class NotifiersFragment extends Fragment {
     @Override
     public void onDestroyView() {
         mCursor.close();
+        if (watcherDialog != null) {
+            watcherDialog.dismiss();
+            watcherDialog = null;
+        }
         super.onDestroyView();
     }
 }

@@ -103,6 +103,7 @@ public class HomeFragment extends Fragment implements
 
     private final TextWatcher tradeAmountWatcher = new TradeConditionWatcher();
     private final TextWatcher tradePriceWatcher = new TradeConditionWatcher();
+    private AlertDialog pairsDialog;
 
     @Override
     public void onAttach(Activity activity) {
@@ -371,7 +372,7 @@ public class HomeFragment extends Fragment implements
                         PairsCheckboxAdapter.SettingsScope.PAIRS);
                 ListView listView = new ListView(getActivity());
                 listView.setAdapter(pairsCheckboxAdapter);
-                new AlertDialog.Builder(getActivity())
+                pairsDialog = new AlertDialog.Builder(getActivity())
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
                         .setNeutralButton(R.string.DialogSaveButton,
@@ -425,6 +426,10 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(statsReceiver);
+        if (pairsDialog != null) {
+            pairsDialog.dismiss();
+            pairsDialog = null;
+        }
         super.onDestroyView();
     }
 
