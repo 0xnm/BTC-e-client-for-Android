@@ -91,6 +91,7 @@ public class ChartsFragment extends Fragment {
     private ChartsDelegate chartsDelegate;
     private boolean isUpdating;
     private View rootView;
+    private AlertDialog chartsDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -125,7 +126,7 @@ public class ChartsFragment extends Fragment {
                                 PairsCheckboxAdapter.SettingsScope.CHARTS);
                 ListView v = new ListView(getActivity());
                 v.setAdapter(pairsCheckboxAdapter);
-                new AlertDialog.Builder(getActivity())
+                chartsDialog = new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.SelectPairsPromptTitle)
                         .setView(v)
                         .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -153,6 +154,10 @@ public class ChartsFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        if (chartsDialog != null) {
+            chartsDialog.dismiss();
+            chartsDialog = null;
+        }
         chartsDelegate.onDestroyView();
         chartsDelegate = null;
     }
