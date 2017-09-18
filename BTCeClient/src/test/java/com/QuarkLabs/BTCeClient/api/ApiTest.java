@@ -50,6 +50,51 @@ public class ApiTest {
     }
 
     @Test
+    public void info_success() throws Exception {
+        when(mockGuestApi.call(anyString()))
+                .thenReturn(new JSONObject("{\"server_time\":1505766539," +
+                        "\"pairs\":{\"btc_usd\":{\"decimal_places\":3,\"min_price\":0.1," +
+                        "\"max_price\":10000,\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}," +
+                        "\"btc_rur\":{\"decimal_places\":5,\"min_price\":1,\"max_price\":1000000," +
+                        "\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}}}"));
+
+        CallResult<ExchangeInfo> callResult = testable.getExchangeInfo();
+        assertTrue(callResult.isSuccess());
+        assertNull(callResult.getError());
+
+        ExchangeInfo exchangeInfo = callResult.getPayload();
+
+        assertNotNull(exchangeInfo);
+        assertEquals(1505766539L, exchangeInfo.getServerTime());
+        assertNotNull(exchangeInfo.getPairs());
+        assertEquals(2, exchangeInfo.getPairs().size());
+
+        ExchangePairInfo pairInfo = exchangeInfo.getPairs().get("btc_usd");
+        assertNotNull(pairInfo);
+        assertEquals(3, pairInfo.getDecimalPlaces());
+        assertEquals(0.1, pairInfo.getMinPrice(), 0.01);
+        assertEquals(10000, pairInfo.getMaxPrice(), 0.01);
+        assertEquals(0.001, pairInfo.getMinAmount(), 0.0001);
+        assertFalse(pairInfo.isHidden());
+        assertEquals(0.2, pairInfo.getFee(), 0.01);
+        assertEquals(0.1, pairInfo.getMinPrice(), 0.01);
+    }
+
+    @Test
+    public void info_error() throws Exception {
+        when(mockGuestApi.call(anyString()))
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"API is disabled\"}"));
+
+        CallResult<ExchangeInfo> callResult
+                = testable.getExchangeInfo();
+
+        assertFalse(callResult.isSuccess());
+        assertNotNull(callResult.getError());
+        assertNull(callResult.getPayload());
+    }
+
+    @Test
     public void getPairInfo_success() throws Exception {
         when(mockGuestApi.call(anyString()))
                 .thenReturn(new JSONObject("{\"btc_usd\":{\"high\":2381.507,\"low\":2300," +
@@ -72,7 +117,8 @@ public class ApiTest {
     @Test
     public void getPairInfo_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0, \"error\":\"Invalid pair name: ltc_us\"}"));
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: ltc_us\"}"));
 
         CallResult<List<Ticker>> callResult
                 = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/US")));
@@ -102,7 +148,8 @@ public class ApiTest {
     @Test
     public void depth_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0, \"error\":\"Invalid pair name: btc_us\"}"));
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: btc_us\"}"));
 
         CallResult<Depth> depthCallResult = testable.depth("BTC/US");
         assertFalse(depthCallResult.isSuccess());

@@ -19,8 +19,6 @@
 package com.QuarkLabs.BTCeClient.adapters;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
@@ -29,6 +27,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 
@@ -38,6 +38,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import static com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter.SettingsScope.*;
+
 public class PairsCheckboxAdapter extends BaseAdapter {
 
     private static final int TYPE_ITEM = 0;
@@ -46,20 +48,21 @@ public class PairsCheckboxAdapter extends BaseAdapter {
     private final List<ViewModel> items = new ArrayList<>();
     private final Set<String> selectedPairs;
     private boolean hasSeparator;
-    private String scope;
+    private AppPreferences appPreferences;
+    private SettingsScope scope;
     private final Context context;
 
     public PairsCheckboxAdapter(Context context, String[] allPairs, SettingsScope settingsScope) {
         this.context = context;
-        if (settingsScope == SettingsScope.CHARTS) {
-            scope = "ChartsToDisplay";
+        if (settingsScope == CHARTS) {
             selectedPairs = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));
-        } else if (settingsScope == SettingsScope.PAIRS) {
-            scope = "PairsToDisplay";
+        } else if (settingsScope == PAIRS) {
             selectedPairs = new HashSet<>(PairUtils.getTickersToDisplayThatSupported(context));
         } else {
             throw new RuntimeException("Unsupported scope");
         }
+        scope = settingsScope;
+        appPreferences = BtcEApplication.get(context).getAppPreferences();
 
         List<String> tickers = new ArrayList<>();
         List<String> tokens = new ArrayList<>();
@@ -181,10 +184,16 @@ public class PairsCheckboxAdapter extends BaseAdapter {
     }
 
     public void saveValuesToPreferences() {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putStringSet(scope, selectedPairs);
-        editor.apply();
+        switch (scope) {
+            case CHARTS:
+                appPreferences.setChartsToDisplay(selectedPairs);
+                break;
+            case PAIRS:
+                appPreferences.setPairsToDisplay(selectedPairs);
+                break;
+            default:
+                break;
+        }
     }
 
     public enum SettingsScope {

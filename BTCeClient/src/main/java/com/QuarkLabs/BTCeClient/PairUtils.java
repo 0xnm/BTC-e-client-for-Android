@@ -1,8 +1,6 @@
 package com.QuarkLabs.BTCeClient;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
@@ -23,8 +21,8 @@ public final class PairUtils {
     public static List<String> getTickersToDisplayThatSupported(@NonNull Context context) {
         Set<String> supportedPairs = supportedPairs(context);
 
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> pairsToDisplay = sh.getStringSet("PairsToDisplay", new HashSet<String>());
+        Set<String> pairsToDisplay = BtcEApplication.get(context)
+                .getAppPreferences().getPairsToDisplay();
 
         List<String> supportedPairsToDisplay = new ArrayList<>();
 
@@ -41,8 +39,8 @@ public final class PairUtils {
     public static List<String> getChartsToDisplayThatSupported(@NonNull Context context) {
         Set<String> supportedPairs = supportedPairs(context);
 
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> pairsToDisplay = sh.getStringSet("ChartsToDisplay", new HashSet<String>());
+        Set<String> pairsToDisplay = BtcEApplication.get(context)
+                .getAppPreferences().getChartsToDisplay();
 
         List<String> supportedChartsToDisplay = new ArrayList<>();
 

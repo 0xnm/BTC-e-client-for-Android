@@ -98,6 +98,33 @@ public class Api {
     /**
      * Gets info for provided pairs
      *
+     * @return Exchange information, sample https://wex.nz/api/3/info
+     */
+    @WorkerThread
+    @NonNull
+    public CallResult<ExchangeInfo> getExchangeInfo() {
+        try {
+            JSONObject response = guestApi.call(hostUrl + "/info");
+            CallResult<ExchangeInfo> result = new CallResult<>();
+            if (response == null || response.optInt(SUCCESS_KEY, 1) == 0) {
+                result.isSuccess = false;
+                result.error = response == null ?
+                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
+                return result;
+            }
+
+            result.isSuccess = true;
+            result.payload = ExchangeInfo.create(response);
+            return result;
+        } catch (JSONException e) {
+            Log.e(TAG, "info call failed", e);
+            return generateFailureResult();
+        }
+    }
+
+    /**
+     * Gets info for provided pairs
+     *
      * @param pairs Array of pairs to get info for
      * @return List of tickers, sample https://wex.nz/api/3/ticker/btc_usd-btc_rur
      */

@@ -28,7 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
@@ -105,8 +104,8 @@ public class ChartsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
-        boolean useOldCharts = PreferenceManager.getDefaultSharedPreferences(getActivity())
-                .getBoolean(SettingsFragment.KEY_USE_OLD_CHARTS, false);
+        boolean useOldCharts = BtcEApplication.get(getActivity())
+                .getAppPreferences().isShowOldCharts();
         chartsDelegate = new BtceChartsDelegate();
         chartsDelegate.onViewCreated();
         chartsDelegate.createChartViews();
