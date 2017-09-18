@@ -64,7 +64,6 @@ import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.StartServiceReceiver;
 import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
@@ -73,6 +72,7 @@ import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.TradeResponse;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.api.Ticker;
+import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
 
 import java.util.ArrayList;
@@ -236,7 +236,7 @@ public class HomeFragment extends Fragment implements
         }
 
         //start service to get new data once Dashboard is opened
-        getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+        getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
     }
 
     @Override
@@ -381,8 +381,8 @@ public class HomeFragment extends Fragment implements
                                         pairsCheckboxAdapter.saveValuesToPreferences();
                                         updateStorageWithTickers();
                                         refreshDashboardAdapter();
-                                        getActivity().sendBroadcast(new Intent(getActivity(),
-                                                StartServiceReceiver.class));
+                                        getActivity().startService(new Intent(getActivity(),
+                                                CheckTickersService.class));
                                     }
                                 }
                         )
@@ -393,7 +393,7 @@ public class HomeFragment extends Fragment implements
                 refreshItem = item;
                 refreshItem.setActionView(R.layout.progress_bar_action_view);
                 refreshItem.expandActionView();
-                getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+                getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
                 break;
             default:
                 break;

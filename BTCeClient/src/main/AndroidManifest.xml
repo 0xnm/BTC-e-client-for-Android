@@ -30,9 +30,6 @@
         <service
             android:name=".services.CheckTickersService"
             android:exported="false" />
-        <receiver
-            android:name=".StartServiceReceiver"
-            android:enabled="true" />
         <receiver android:name=".WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />

@@ -57,6 +57,7 @@ import com.QuarkLabs.BTCeClient.fragments.NotifiersFragment;
 import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
+import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -260,8 +261,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private PendingIntent pendingIntentForRecurringCheck() {
-        return PendingIntent.getBroadcast(this, 0,
-                new Intent(this, StartServiceReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(this, 0,
+                new Intent(this, CheckTickersService.class), PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
