@@ -5,13 +5,13 @@ import android.support.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 public class ExchangeInfo {
     private long serverTime;
-    private Map<String, ExchangePairInfo> pairs = new HashMap<>();
+    private List<ExchangePairInfo> pairs = new ArrayList<>();
 
     private ExchangeInfo() { }
 
@@ -19,7 +19,7 @@ public class ExchangeInfo {
         return serverTime;
     }
 
-    public Map<String, ExchangePairInfo> getPairs() {
+    public List<ExchangePairInfo> getPairs() {
         return pairs;
     }
 
@@ -30,7 +30,8 @@ public class ExchangeInfo {
         Iterator<String> pairKeysIterator = pairsJson.keys();
         while (pairKeysIterator.hasNext()) {
             String pair = pairKeysIterator.next();
-            exchangeInfo.pairs.put(pair, ExchangePairInfo.create(pairsJson.getJSONObject(pair)));
+            exchangeInfo.pairs.add(ExchangePairInfo.create(pair,
+                    pairsJson.getJSONObject(pair)));
         }
         return exchangeInfo;
     }
