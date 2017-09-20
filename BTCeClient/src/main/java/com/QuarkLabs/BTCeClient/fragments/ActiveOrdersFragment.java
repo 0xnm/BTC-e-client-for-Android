@@ -123,6 +123,7 @@ public class ActiveOrdersFragment extends Fragment
                 .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        //TODO handle cancellation
                         new CancelActiveOrderTask(
                                 BtcEApplication.get(getActivity()).getApi(),
                                 ActiveOrdersFragment.this).execute(orderId);
@@ -135,13 +136,17 @@ public class ActiveOrdersFragment extends Fragment
 
     @Override
     public void onSuccess(@NonNull CancelOrderResponse result) {
-        ordersAdapter.removeOrder(result.getOrderId());
-        notifyAboutOrderDeletionResult(getString(R.string.order_deleted_successfully));
+       if (isVisible()) {
+           ordersAdapter.removeOrder(result.getOrderId());
+           notifyAboutOrderDeletionResult(getString(R.string.order_deleted_successfully));
+       }
     }
 
     @Override
     public void onError(@NonNull String error) {
-        notifyAboutOrderDeletionResult(error);
+        if (isVisible()) {
+            notifyAboutOrderDeletionResult(error);
+        }
     }
 
     private void notifyAboutOrderDeletionResult(@NonNull String text) {

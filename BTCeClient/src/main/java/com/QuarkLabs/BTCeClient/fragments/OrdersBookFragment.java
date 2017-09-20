@@ -44,6 +44,8 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersBookAdapter;
 import com.QuarkLabs.BTCeClient.api.CallResult;
@@ -55,6 +57,8 @@ import org.stockchart.StockChartView;
 import org.stockchart.core.Axis;
 import org.stockchart.series.LinearSeries;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class OrdersBookFragment extends Fragment
@@ -77,19 +81,23 @@ public class OrdersBookFragment extends Fragment
     private boolean isFragmentOpenedFirstTime = true;
     private int spinnerPosition = -1;
 
+    private AppPreferences appPreferences;
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
 
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         Context themedContext = hostActivity.getSupportActionBar()
                 .getThemedContext();
         pairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
+        List<String> pairs = new ArrayList<>(appPreferences.getExchangePairs());
+        Collections.sort(pairs);
         pairsSpinner.setAdapter(new ArrayAdapter<>(
                 new ContextThemeWrapper(themedContext, R.style.ThemeOverlay_AppCompat_Light),
-                android.R.layout.simple_list_item_1,
-                getResources().getStringArray(R.array.ExchangePairs)));
+                android.R.layout.simple_list_item_1, pairs));
 
         //restoring spinner position
         if (spinnerPosition != -1) {

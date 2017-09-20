@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
-    android:configure="com.QuarkLabs.BTCeClient.WidgetConfigure"
+    android:configure="com.QuarkLabs.BTCeClient.WidgetConfigActivity"
     android:initialLayout="@layout/appwidget_layout"
     android:minHeight="40dp"
     android:minWidth="40dp"

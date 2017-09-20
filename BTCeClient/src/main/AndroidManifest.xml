@@ -43,7 +43,7 @@
                 android:resource="@xml/appwidget_info" />
         </receiver>
 
-        <activity android:name=".WidgetConfigure">
+        <activity android:name=".WidgetConfigActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

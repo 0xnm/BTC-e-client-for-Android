@@ -60,6 +60,7 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.PairUtils;
@@ -105,6 +106,8 @@ public class HomeFragment extends Fragment implements
     private final TextWatcher tradePriceWatcher = new TradeConditionWatcher();
     private AlertDialog pairsDialog;
 
+    private AppPreferences appPreferences;
+
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
@@ -132,6 +135,7 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
         final int dashboardSpacing = getResources()
@@ -187,9 +191,20 @@ public class HomeFragment extends Fragment implements
                 .registerReceiver(statsReceiver, intentFilter);
 
         tradeAmountView = (EditText) view.findViewById(R.id.TradeAmount);
+
+        List<String> currencies = new ArrayList<>(appPreferences.getExchangeCurrencies());
+        Collections.sort(currencies);
+        ArrayAdapter<String> currenciesAdapter = new ArrayAdapter<>(
+                getActivity(), android.R.layout.simple_spinner_item, currencies);
+        currenciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tradeCurrencyView = (Spinner) view.findViewById(R.id.TradeCurrency);
+        tradeCurrencyView.setAdapter(currenciesAdapter);
+
         tradePriceView = (EditText) view.findViewById(R.id.TradePrice);
+
         tradePriceCurrencyView = (Spinner) view.findViewById(R.id.TradePriceCurrency);
+        tradePriceCurrencyView.setAdapter(currenciesAdapter);
+
         operationCostView = (TextView) view.findViewById(R.id.operation_cost);
 
         //Trade listener, once "Buy" or "Sell" clicked, send the order to server
@@ -368,7 +383,7 @@ public class HomeFragment extends Fragment implements
             case R.id.action_add:
                 final PairsCheckboxAdapter pairsCheckboxAdapter = new PairsCheckboxAdapter(
                         getActivity(),
-                        getResources().getStringArray(R.array.ExchangePairs),
+                        appPreferences.getExchangePairs(),
                         PairsCheckboxAdapter.SettingsScope.PAIRS);
                 ListView listView = new ListView(getActivity());
                 listView.setAdapter(pairsCheckboxAdapter);

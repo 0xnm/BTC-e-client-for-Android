@@ -15,32 +15,6 @@
     <string name="RefreshButton">REFRESH</string>
     <string name="AddWatcherTitle">Add watcher</string>
     <string name="OoopsError">Ooops</string>
-    <string-array name="Currencies">
-        <item>BTC</item>
-        <item>LTC</item>
-        <item>NMC</item>
-        <item>NVC</item>
-        <item>PPC</item>
-        <item>DSH</item>
-        <item>ETH</item>
-        <item>USD</item>
-        <item>GBP</item>
-        <item>CNH</item>
-        <item>EUR</item>
-        <item>RUR</item>
-        <item>BCH</item>
-        <item>USDET</item>
-        <item>RURET</item>
-        <item>EURET</item>
-        <item>BTCET</item>
-        <item>LTCET</item>
-        <item>ETHET</item>
-        <item>NMCET</item>
-        <item>NVCET</item>
-        <item>PPCET</item>
-        <item>DSHET</item>
-        <item>BCHET</item>
-    </string-array>
     <string-array name="NavSections">
         <item>Dashboard</item>
         <item>Orders Book</item>
@@ -81,7 +55,7 @@
     </string-array>
     <string name="period_default_value">60000</string>
     <!--END of consistent sections-->
-    <string-array name="ExchangePairs">
+    <string-array name="ExchangePairs" translatable="false">
         <item>BTC/USD</item>
         <item>BTC/RUR</item>
         <item>BTC/EUR</item>
@@ -218,4 +192,15 @@
     <string name="missing_mandatory_fields_error">Missing mandatory fields</string>
     <string name="trade_operation_cost">Total to spend: &lt;b>%1$s %2$s&lt;/b></string>
     <string name="tokens">Tokens</string>
+    <string name="exchange_sync_failed">Failed to sync with exchange</string>
+    <string name="msg_syncing_with_exchange">Syncing with exchange</string>
+    <string name="settings_sync_exchange_summary">Synchronize pairs available in the app with current state of exchange</string>
+    <string name="settings_sync_exchange_title">Sync exchange pairs</string>
+
+    <!-- Settings keys -->
+    <string name="settings_key_api_key" translatable="false">API_Key</string>
+    <string name="settings_key_api_secret" translatable="false">API_Secret</string>
+    <string name="settings_key_check_enabled" translatable="false">check_enabled</string>
+    <string name="settings_key_check_period" translatable="false">check_period</string>
+    <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
 </resources>

@@ -16,7 +16,6 @@ import java.util.Map;
 public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transaction>>> {
 
     private CallResult<List<Transaction>> callResult;
-    private final Context appContext;
     @NonNull
     private final String fromDate;
     @NonNull
@@ -25,7 +24,6 @@ public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transact
     public TransactionsLoader(@NonNull Context context, @NonNull String fromDate,
                               @NonNull String toDate) {
         super(context);
-        appContext = context.getApplicationContext();
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -35,7 +33,7 @@ public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transact
         Map<String, String> parameters = new HashMap<>();
         parameters.put("since", fromDate);
         parameters.put("end", toDate);
-        callResult = BtcEApplication.get(appContext).getApi().getTransactionsHistory(parameters);
+        callResult = BtcEApplication.get(getContext()).getApi().getTransactionsHistory(parameters);
         return callResult;
     }
 

@@ -38,7 +38,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter.SettingsScope.*;
+import static com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter.SettingsScope.CHARTS;
+import static com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter.SettingsScope.PAIRS;
 
 public class PairsCheckboxAdapter extends BaseAdapter {
 
@@ -48,11 +49,12 @@ public class PairsCheckboxAdapter extends BaseAdapter {
     private final List<ViewModel> items = new ArrayList<>();
     private final Set<String> selectedPairs;
     private boolean hasSeparator;
-    private AppPreferences appPreferences;
-    private SettingsScope scope;
+    private final AppPreferences appPreferences;
+    private final SettingsScope scope;
     private final Context context;
 
-    public PairsCheckboxAdapter(Context context, String[] allPairs, SettingsScope settingsScope) {
+    public PairsCheckboxAdapter(@NonNull Context context, @NonNull Set<String> allPairs,
+                                @NonNull SettingsScope settingsScope) {
         this.context = context;
         if (settingsScope == CHARTS) {
             selectedPairs = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));

@@ -104,7 +104,7 @@ public class Api {
     @NonNull
     public CallResult<ExchangeInfo> getExchangeInfo() {
         try {
-            JSONObject response = guestApi.call(hostUrl + "/info");
+            JSONObject response = guestApi.call(hostUrl + "/api/3/info");
             CallResult<ExchangeInfo> result = new CallResult<>();
             if (response == null || response.optInt(SUCCESS_KEY, 1) == 0) {
                 result.isSuccess = false;

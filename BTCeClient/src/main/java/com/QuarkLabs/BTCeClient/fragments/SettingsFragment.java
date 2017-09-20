@@ -18,26 +18,40 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.app.LoaderManager;
+import android.app.ProgressDialog;
+import android.content.Loader;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.annotation.Nullable;
+import android.view.View;
+import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-
-import static com.QuarkLabs.BTCeClient.AppPreferences.KEY_CHECK_ENABLED;
-import static com.QuarkLabs.BTCeClient.AppPreferences.KEY_CHECK_PERIOD;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
+import com.QuarkLabs.BTCeClient.loaders.ExchangeInfoLoader;
 
 public class SettingsFragment extends PreferenceFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        implements SharedPreferences.OnSharedPreferenceChangeListener,
+        LoaderManager.LoaderCallbacks<CallResult<ExchangeInfo>> {
+
+    private static final int EXCHANGE_INFO_LOADER_ID = 0;
+    private static final String IS_EXCHANGE_SYNC_ONGOING_KEY = "IS_EXCHANGE_SYNC_ONGOING";
 
     private String mDefaultCheckPeriodSummaryText;
     private String[] mCheckPeriodEntries;
     private String[] mCheckPeriodValues;
 
     private AppPreferences appPreferences;
+    private boolean isExchangeSyncOngoing;
+    @Nullable
+    private ProgressDialog exchangeSyncProgressDialog;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,10 +62,30 @@ public class SettingsFragment extends PreferenceFragment
         mDefaultCheckPeriodSummaryText = getString(R.string.CheckPeriodSummary);
         mCheckPeriodEntries = getResources().getStringArray(R.array.Periods);
         mCheckPeriodValues = getResources().getStringArray(R.array.PeriodsInMsecs);
-        Preference checkEnabled = findPreference(KEY_CHECK_ENABLED);
+        Preference checkEnabled = findPreference(getString(R.string.settings_key_check_enabled));
         if (checkEnabled.isEnabled()) {
-            findPreference(KEY_CHECK_PERIOD).setSummary(
+            findPreference(getString(R.string.settings_key_check_period)).setSummary(
                     mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle), findCheckPeriodText()));
+        }
+        findPreference(getString(R.string.settings_key_sync_exchange_pairs))
+                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        isExchangeSyncOngoing = true;
+                        showExchangeOngoingProgressDialog();
+                        getLoaderManager().restartLoader(
+                                EXCHANGE_INFO_LOADER_ID, null, SettingsFragment.this);
+                        return true;
+                    }
+                });
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (savedInstanceState != null
+                && savedInstanceState.getBoolean(IS_EXCHANGE_SYNC_ONGOING_KEY, false)) {
+            showExchangeOngoingProgressDialog();
         }
     }
 
@@ -59,6 +93,14 @@ public class SettingsFragment extends PreferenceFragment
     public void onResume() {
         super.onResume();
         appPreferences.registerOnSharedPreferenceChangeListener(this);
+    }
+
+    private void showExchangeOngoingProgressDialog() {
+        exchangeSyncProgressDialog = new ProgressDialog(getActivity());
+        exchangeSyncProgressDialog.setCancelable(false);
+        exchangeSyncProgressDialog.setCanceledOnTouchOutside(false);
+        exchangeSyncProgressDialog.setMessage(getString(R.string.msg_syncing_with_exchange));
+        exchangeSyncProgressDialog.show();
     }
 
     @Override
@@ -70,17 +112,19 @@ public class SettingsFragment extends PreferenceFragment
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         String currentPeriodText = findCheckPeriodText();
-        if (KEY_CHECK_ENABLED.equals(key)) {
+        final String keyCheckEnabled = getString(R.string.settings_key_check_enabled);
+        final String keyCheckPeriod = getString(R.string.settings_key_check_period);
+        if (keyCheckEnabled.equals(key)) {
             boolean checkEnabled = sharedPreferences.getBoolean(key, false);
-            Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
+            Preference checkPeriod = findPreference(keyCheckPeriod);
             if (checkEnabled) {
                 checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
                         .replace(getString(R.string.NATitle), currentPeriodText));
             } else {
                 checkPeriod.setSummary(mDefaultCheckPeriodSummaryText);
             }
-        } else if (KEY_CHECK_PERIOD.equals(key)) {
-            Preference checkPeriod = findPreference(KEY_CHECK_PERIOD);
+        } else if (keyCheckPeriod.equals(key)) {
+            Preference checkPeriod = findPreference(keyCheckPeriod);
             checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
                     .replace(getString(R.string.NATitle), currentPeriodText));
         }
@@ -96,5 +140,38 @@ public class SettingsFragment extends PreferenceFragment
             }
         }
         return mCheckPeriodEntries[index];
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(IS_EXCHANGE_SYNC_ONGOING_KEY, isExchangeSyncOngoing);
+    }
+
+    @Override
+    public Loader<CallResult<ExchangeInfo>> onCreateLoader(int id, Bundle args) {
+        return new ExchangeInfoLoader(getActivity());
+    }
+
+    @Override
+    public void onLoadFinished(Loader<CallResult<ExchangeInfo>> loader,
+                               CallResult<ExchangeInfo> result) {
+        isExchangeSyncOngoing = false;
+        if (exchangeSyncProgressDialog != null) {
+            exchangeSyncProgressDialog.dismiss();
+            exchangeSyncProgressDialog = null;
+        }
+        if (result.isSuccess()) {
+            //noinspection ConstantConditions
+            appPreferences.setExchangePairs(PairUtils.exchangePairs(result.getPayload()));
+        } else {
+            Toast.makeText(getActivity(), R.string.exchange_sync_failed,
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onLoaderReset(Loader<CallResult<ExchangeInfo>> loader) {
+        // do nothing
     }
 }

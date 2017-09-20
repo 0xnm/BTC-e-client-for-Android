@@ -18,9 +18,11 @@
 
 package com.QuarkLabs.BTCeClient.fragments;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -47,6 +49,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
@@ -91,6 +94,7 @@ public class ChartsFragment extends Fragment {
     private boolean isUpdating;
     private View rootView;
     private AlertDialog chartsDialog;
+    private AppPreferences appPreferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -104,6 +108,7 @@ public class ChartsFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         setHasOptionsMenu(true);
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         boolean useOldCharts = BtcEApplication.get(getActivity())
                 .getAppPreferences().isShowOldCharts();
         chartsDelegate = new BtceChartsDelegate();
@@ -121,7 +126,7 @@ public class ChartsFragment extends Fragment {
             case R.id.action_add:
                 final PairsCheckboxAdapter pairsCheckboxAdapter =
                         new PairsCheckboxAdapter(getActivity(),
-                                getResources().getStringArray(R.array.ExchangePairs),
+                                appPreferences.getExchangePairs(),
                                 PairsCheckboxAdapter.SettingsScope.CHARTS);
                 ListView v = new ListView(getActivity());
                 v.setAdapter(pairsCheckboxAdapter);
@@ -297,28 +302,141 @@ public class ChartsFragment extends Fragment {
     private class BtceChartsDelegate implements ChartsDelegate {
 
         private Map<String, View> chartsMap;
-        private ChartsUpdater mChartsUpdater;
+        private ChartsUpdater chartsUpdater;
+        private Handler responseHandler;
 
         @Override
         public void onViewCreated() {
-            mChartsUpdater = new ChartsUpdater(new Handler());
-            mChartsUpdater.setListener(new Listener<StockChartView>() {
+            responseHandler = new Handler();
+            chartsUpdater = new ChartsUpdater(responseHandler);
+            chartsUpdater.setListener(new Listener<StockChartView>() {
                 @Override
-                public void onChartDownloaded(StockChartView stockChartView) {
-                    if (isVisible()) {
-                        stockChartView.invalidate();
+                public void onChartDownloaded(@NonNull StockChartView view,
+                                              @NonNull String pair, @NonNull final String[] data) {
+
+                    final StockSeries fPriceSeries = new StockSeries();
+                    fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
+                    fPriceSeries.setName("price");
+                    view.reset();
+                    view.getCrosshair().setAuto(true);
+                    Area area = view.addArea();
+                    area.getLegend().getAppearance().getFont().setSize(16);
+                    area.setTitle(PairUtils.serverToLocal(pair));
+
+                    for (String x : data) {
+                        String[] values = x.split(", ");
+                        fPriceSeries.addPoint(Double.parseDouble(values[2]),
+                                Double.parseDouble(values[4]),
+                                Double.parseDouble(values[1]),
+                                Double.parseDouble(values[3]));
                     }
+                    area.getSeries().add(fPriceSeries);
+                    //provider for bottom axis (time)
+                    Axis.ILabelFormatProvider bottomLfp = new Axis.ILabelFormatProvider() {
+                        @Override
+                        public String getAxisLabel(Axis axis, double v) {
+                            int index = fPriceSeries.convertToArrayIndex(v);
+                            if (index < 0)
+                                index = 0;
+                            if (index >= 0) {
+                                if (index >= fPriceSeries.getPointCount())
+                                    index = fPriceSeries.getPointCount() - 1;
+
+                                return data[index].split(", ")[0].replace("\"", "");
+                            }
+                            return null;
+                        }
+                    };
+                    //provider for crosshair
+                    Crosshair.ILabelFormatProvider dp = new Crosshair.ILabelFormatProvider() {
+                        @Override
+                        public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
+                            int index = fPriceSeries.convertToArrayIndex(v);
+                            if (index < 0)
+                                index = 0;
+                            if (index >= 0) {
+                                if (index >= fPriceSeries.getPointCount())
+                                    index = fPriceSeries.getPointCount() - 1;
+
+                                return data[index].split(", ")[0].replace("\"", "")
+                                        + " - "
+                                        + (new DecimalFormat("#.#####")
+                                        .format(v2));
+                            }
+                            return null;
+                        }
+                    };
+
+                    view.getCrosshair().setLabelFormatProvider(dp);
+                    //provider for right axis (value)
+                    Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
+                        @Override
+                        public String getAxisLabel(Axis axis, double v) {
+                            DecimalFormat decimalFormat = new DecimalFormat("#.#######");
+                            return decimalFormat.format(v);
+                        }
+                    };
+                    area.getRightAxis().setLabelFormatProvider(rightLfp);
+                    area.getBottomAxis().setLabelFormatProvider(bottomLfp);
+
+                    //by some reason rise and fall appearance should be switched
+                    Appearance riseAppearance = fPriceSeries.getRiseAppearance();
+                    Appearance riseAppearance1 = new Appearance();
+                    riseAppearance1.fill(riseAppearance);
+                    Appearance fallAppearance = fPriceSeries.getFallAppearance();
+                    riseAppearance.fill(fallAppearance);
+                    fallAppearance.fill(riseAppearance1);
+
+                    Activity activity = getActivity();
+                    if (activity == null) {
+                        return;
+                    }
+
+                    final Resources resources = activity.getResources();
+
+                    //styling: setting fonts
+                    area.getPlot()
+                            .getAppearance()
+                            .getFont()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16,
+                                    resources.getDisplayMetrics()));
+                    area.getLeftAxis()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
+                                    resources.getDisplayMetrics()));
+                    area.getTopAxis()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
+                                    resources.getDisplayMetrics()));
+                    area.getBottomAxis()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
+                                    resources.getDisplayMetrics()));
+                    area.getRightAxis()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
+                                    resources.getDisplayMetrics()));
+                    area.getBottomAxis()
+                            .getAppearance()
+                            .getFont()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
+                                    resources.getDisplayMetrics()));
+                    area.getRightAxis()
+                            .getAppearance()
+                            .getFont()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
+                                    resources.getDisplayMetrics()));
+                    view.getCrosshair().getAppearance().getFont()
+                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
+                                    resources.getDisplayMetrics()));
+                    view.invalidate();
                 }
             });
 
-            mChartsUpdater.start();
-            mChartsUpdater.createHandler();
+            chartsUpdater.start();
+            chartsUpdater.createHandler();
         }
 
         @Override
         public void onDestroyView() {
-            mChartsUpdater.clearQueue();
-            mChartsUpdater.quit();
+            chartsUpdater.clearQueue();
+            chartsUpdater.quit();
         }
 
         @Override
@@ -473,7 +591,7 @@ public class ChartsFragment extends Fragment {
                 }
                 for (String x : chartsNamesSorted) {
                     String pair = PairUtils.localToServer(x);
-                    mChartsUpdater.queueChart(
+                    chartsUpdater.queueChart(
                             (StockChartView) chartsMap.get(x).findViewById(R.id.stockChartView),
                             pair);
                 }
@@ -482,15 +600,16 @@ public class ChartsFragment extends Fragment {
     }
 
     private interface Listener<T> {
-        void onChartDownloaded(T token);
+        void onChartDownloaded(@NonNull T token, @NonNull String pair,
+                               @NonNull final String[] data);
     }
 
     private class ChartsUpdater extends HandlerThread {
 
         private static final int MESSAGE_DOWNLOAD = 0;
         private static final String TAG = "ChartsUpdaterThread";
-        private Handler mHandler;
-        private Handler mResponseHandler;
+        private Handler workerHandler;
+        private Handler responseHandler;
         private Map<StockChartView, String> requestMap
                 = Collections.synchronizedMap(new HashMap<StockChartView, String>());
         private Listener<StockChartView> mListener;
@@ -498,11 +617,11 @@ public class ChartsFragment extends Fragment {
 
         ChartsUpdater(Handler responseHandler) {
             super(TAG);
-            mResponseHandler = responseHandler;
+            this.responseHandler = responseHandler;
         }
 
         void createHandler() {
-            mHandler = new Handler(getLooper(), new Handler.Callback() {
+            workerHandler = new Handler(getLooper(), new Handler.Callback() {
                 @Override
                 public boolean handleMessage(Message msg) {
                     if (msg.what == MESSAGE_DOWNLOAD) {
@@ -521,19 +640,17 @@ public class ChartsFragment extends Fragment {
                 return;
             }
             ChartDataDownloader chartDataDownloader = new ChartDataDownloader();
-            String[] data = chartDataDownloader.getChartData(pair);
-            if (data != null && requestMap.get(token) != null) {
-                updateChart(token, data);
-            }
-            mResponseHandler.post(new Runnable() {
+            final String[] data = chartDataDownloader.getChartData(pair);
+            requestMap.remove(token);
+            responseHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    requestMap.remove(token);
-                    if (requestMap.size() == 0 && getActivity() != null) {
+                    Activity activity = getActivity();
+                    if (requestMap.isEmpty() && activity != null) {
                         isUpdating = false;
-                        getActivity().invalidateOptionsMenu();
+                        activity.invalidateOptionsMenu();
                     }
-                    mListener.onChartDownloaded(token);
+                    mListener.onChartDownloaded(token, pair, data);
                 }
             });
         }
@@ -543,126 +660,17 @@ public class ChartsFragment extends Fragment {
         }
 
         void queueChart(StockChartView token, String pair) {
-            if (mHandler == null) {
+            if (workerHandler == null) {
                 throw new NullPointerException("Handler was not created. You can" +
                         " do it by calling createHandler()");
             }
             requestMap.put(token, pair);
-            mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
+            workerHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
         }
 
         void clearQueue() {
-            mHandler.removeMessages(MESSAGE_DOWNLOAD);
+            workerHandler.removeMessages(MESSAGE_DOWNLOAD);
             requestMap.clear();
-        }
-
-        private void updateChart(StockChartView token, final String[] data) {
-
-            final StockSeries fPriceSeries = new StockSeries();
-            fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
-            fPriceSeries.setName("price");
-            token.reset();
-            token.getCrosshair().setAuto(true);
-            Area area = token.addArea();
-            area.getLegend().getAppearance().getFont().setSize(16);
-            String pair = requestMap.get(token);
-            area.setTitle(PairUtils.serverToLocal(pair));
-
-            for (String x : data) {
-                String[] values = x.split(", ");
-                fPriceSeries.addPoint(Double.parseDouble(values[2]),
-                        Double.parseDouble(values[4]),
-                        Double.parseDouble(values[1]),
-                        Double.parseDouble(values[3]));
-            }
-            area.getSeries().add(fPriceSeries);
-            //provider for bottom axis (time)
-            Axis.ILabelFormatProvider bottomLfp = new Axis.ILabelFormatProvider() {
-                @Override
-                public String getAxisLabel(Axis axis, double v) {
-                    int index = fPriceSeries.convertToArrayIndex(v);
-                    if (index < 0)
-                        index = 0;
-                    if (index >= 0) {
-                        if (index >= fPriceSeries.getPointCount())
-                            index = fPriceSeries.getPointCount() - 1;
-
-                        return data[index].split(", ")[0].replace("\"", "");
-                    }
-                    return null;
-                }
-            };
-            //provider for crosshair
-            Crosshair.ILabelFormatProvider dp = new Crosshair.ILabelFormatProvider() {
-                @Override
-                public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
-                    int index = fPriceSeries.convertToArrayIndex(v);
-                    if (index < 0)
-                        index = 0;
-                    if (index >= 0) {
-                        if (index >= fPriceSeries.getPointCount())
-                            index = fPriceSeries.getPointCount() - 1;
-
-                        return data[index].split(", ")[0].replace("\"", "")
-                                + " - "
-                                + (new DecimalFormat("#.#####")
-                                .format(v2));
-                    }
-                    return null;
-                }
-            };
-
-            token.getCrosshair().setLabelFormatProvider(dp);
-            //provider for right axis (value)
-            Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
-                @Override
-                public String getAxisLabel(Axis axis, double v) {
-                    DecimalFormat decimalFormat = new DecimalFormat("#.#######");
-                    return decimalFormat.format(v);
-                }
-            };
-            area.getRightAxis().setLabelFormatProvider(rightLfp);
-            area.getBottomAxis().setLabelFormatProvider(bottomLfp);
-
-            //by some reason rise and fall appearance should be switched
-            Appearance riseAppearance = fPriceSeries.getRiseAppearance();
-            Appearance riseAppearance1 = new Appearance();
-            riseAppearance1.fill(riseAppearance);
-            Appearance fallAppearance = fPriceSeries.getFallAppearance();
-            riseAppearance.fill(fallAppearance);
-            fallAppearance.fill(riseAppearance1);
-
-            //styling: setting fonts
-            area.getPlot()
-                    .getAppearance()
-                    .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16,
-                            getResources().getDisplayMetrics()));
-            area.getLeftAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                            getResources().getDisplayMetrics()));
-            area.getTopAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                            getResources().getDisplayMetrics()));
-            area.getBottomAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
-                            getResources().getDisplayMetrics()));
-            area.getRightAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
-                            getResources().getDisplayMetrics()));
-            area.getBottomAxis()
-                    .getAppearance()
-                    .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
-                            getResources().getDisplayMetrics()));
-            area.getRightAxis()
-                    .getAppearance()
-                    .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
-                            getResources().getDisplayMetrics()));
-            token.getCrosshair().getAppearance().getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
-                            getResources().getDisplayMetrics()));
         }
     }
 

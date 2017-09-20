@@ -3,8 +3,10 @@ package com.QuarkLabs.BTCeClient;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
+import com.QuarkLabs.BTCeClient.api.ExchangePairInfo;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -15,7 +17,8 @@ public final class PairUtils {
     private static final String LOCAL_PAIR_DELIMITER = "/";
     private static final String SERVER_PAIR_DELIMITER = "_";
 
-    private PairUtils() { }
+    private PairUtils() {
+    }
 
     @NonNull
     public static List<String> getTickersToDisplayThatSupported(@NonNull Context context) {
@@ -68,11 +71,15 @@ public final class PairUtils {
     }
 
     private static Set<String> supportedPairs(@NonNull Context context) {
-        Set<String> supportedPairs = new HashSet<>();
-        Collections.addAll(supportedPairs,
-                context.getResources().getStringArray(R.array.ExchangePairs));
-        return supportedPairs;
+        return BtcEApplication.get(context).getAppPreferences().getExchangePairs();
     }
 
-
+    @NonNull
+    public static Set<String> exchangePairs(@NonNull ExchangeInfo exchangeInfo) {
+        Set<String> pairs = new HashSet<>();
+        for (ExchangePairInfo pairInfo : exchangeInfo.getPairs()) {
+            pairs.add(PairUtils.serverToLocal(pairInfo.getPair()));
+        }
+        return pairs;
+    }
 }

@@ -5,29 +5,34 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
-
 import java.util.HashSet;
 import java.util.Set;
 
 public class AppPreferences {
 
     // should be strictly aligned with key in preferences.xml
-    public static final String KEY_API_KEY = "API_Key";
-    public static final String KEY_API_SECRET = "API_Secret";
-    public static final String KEY_CHECK_ENABLED = "check_enabled";
-    public static final String KEY_CHECK_PERIOD = "check_period";
-    public static final String KEY_USE_MIRROR = "use_mirror";
-    public static final String KEY_USE_OLD_CHARTS = "use_btce_charts";
+    public final String keyApiKey;
+    public final String keyApiSecret;
+    public final String keyCheckEnabled;
+    public final String keyCheckPeriod;
 
-    public static final String KEY_CHARTS_TO_DISPLAY = "ChartsToDisplay";
-    public static final String KEY_PAIRS_TO_DISPLAY = "PairsToDisplay";
+    private static final String KEY_USE_MIRROR = "use_mirror";
+    private static final String KEY_USE_OLD_CHARTS = "use_btce_charts";
+
+    private static final String KEY_CHARTS_TO_DISPLAY = "ChartsToDisplay";
+    private static final String KEY_PAIRS_TO_DISPLAY = "PairsToDisplay";
+
+    private static final String KEY_EXCHANGE_PAIRS = "EXCHANGE_PAIRS";
 
     @NonNull
     private final SharedPreferences preferences;
 
-    public AppPreferences(@NonNull Context context) {
+    AppPreferences(@NonNull Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        keyApiKey = context.getString(R.string.settings_key_api_key);
+        keyApiSecret = context.getString(R.string.settings_key_api_secret);
+        keyCheckEnabled = context.getString(R.string.settings_key_check_enabled);
+        keyCheckPeriod = context.getString(R.string.settings_key_check_period);
     }
 
     public void registerOnSharedPreferenceChangeListener(
@@ -42,17 +47,17 @@ public class AppPreferences {
 
     @NonNull
     public String getApiKey() {
-        return preferences.getString(KEY_API_KEY, "");
+        return preferences.getString(keyApiKey, "");
     }
 
     @NonNull
     public String getApiSecret() {
-        return preferences.getString(KEY_API_SECRET, "");
+        return preferences.getString(keyApiSecret, "");
     }
 
     @NonNull
     public String getCheckPeriodMillis() {
-        return preferences.getString(KEY_CHECK_PERIOD, "60000");
+        return preferences.getString(keyCheckPeriod, "60000");
     }
 
     public boolean isShowOldCharts() {
@@ -82,6 +87,41 @@ public class AppPreferences {
     }
 
     public boolean isPeriodicCheckEnabled() {
-        return preferences.getBoolean(KEY_CHECK_ENABLED, false);
+        return preferences.getBoolean(keyCheckEnabled, false);
+    }
+
+    /**
+     * Sets pairs supported by exchange
+     *
+     * @param pairs Pair supported by exchange
+     */
+    public void setExchangePairs(@NonNull Set<String> pairs) {
+        preferences.edit()
+                .putStringSet(KEY_EXCHANGE_PAIRS, pairs)
+                .apply();
+    }
+
+    /**
+     * Gets pairs supported by exchange
+     *
+     * @return Pairs supported by exchange
+     */
+    @NonNull
+    public Set<String> getExchangePairs() {
+        return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<String>());
+    }
+
+    @NonNull
+    public Set<String> getExchangeCurrencies() {
+        Set<String> pairs = getExchangePairs();
+        Set<String> currencies = new HashSet<>();
+
+        for (String pair : pairs) {
+            String[] pairCurrencies = pair.split("/");
+            currencies.add(pairCurrencies[0]);
+            currencies.add(pairCurrencies[1]);
+        }
+
+        return currencies;
     }
 }

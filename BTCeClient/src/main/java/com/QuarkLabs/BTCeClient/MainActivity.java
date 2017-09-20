@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (AppPreferences.KEY_CHECK_ENABLED.equals(key)) {
+        if (appPreferences.keyCheckEnabled.equals(key)) {
             isAlarmSet = appPreferences.isPeriodicCheckEnabled();
             if (isAlarmSet) {
                 setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 alarmManager.cancel(pendingIntentForRecurringCheck());
             }
-        } else if (AppPreferences.KEY_CHECK_PERIOD.equals(key)) {
+        } else if (appPreferences.keyCheckPeriod.equals(key)) {
             setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
         }
     }
