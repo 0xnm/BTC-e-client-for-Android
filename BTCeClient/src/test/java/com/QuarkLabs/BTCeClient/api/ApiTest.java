@@ -74,11 +74,11 @@ public class ApiTest {
                 new Predicate<ExchangePairInfo>() {
                     @Override
                     public boolean check(ExchangePairInfo element) {
-                        return "btc_rur".equals(element.getPair());
+                        return "BTC/RUR".equals(element.getPair());
                     }
                 });
         assertNotNull(pairInfo);
-        assertEquals("btc_rur", pairInfo.getPair());
+        assertEquals("BTC/RUR", pairInfo.getPair());
         assertEquals(5, pairInfo.getDecimalPlaces());
         assertEquals(1, pairInfo.getMinPrice(), 0.01);
         assertEquals(1000000, pairInfo.getMaxPrice(), 0.01);
@@ -124,7 +124,7 @@ public class ApiTest {
         Ticker ticker = findByKey(tickers, new Predicate<Ticker>() {
             @Override
             public boolean check(Ticker element) {
-                return "ltc_usd".equals(element.getPair());
+                return "LTC/USD".equals(element.getPair());
             }
         });
 
@@ -167,7 +167,7 @@ public class ApiTest {
         Depth depth = depthCallResult.getPayload();
 
         assertNotNull(depth);
-        assertEquals("btc_usd", depth.getPair());
+        assertEquals("BTC/USD", depth.getPair());
         assertEquals(3, depth.getAsks().size());
         assertEquals(2, depth.getBids().size());
     }
@@ -220,7 +220,7 @@ public class ApiTest {
         assertEquals(1, accountInfo.getOpenOrdersCount());
         assertEquals(1342123547, accountInfo.getServerTime());
 
-        assertEquals(23.998, accountInfo.getFunds().get("btc"), 0.00001);
+        assertEquals(23.998, accountInfo.getFunds().get("BTC"), 0.00001);
     }
 
     @Test
@@ -323,7 +323,7 @@ public class ApiTest {
         assertEquals(343148, trade.getOrderId());
         assertEquals(1342445793, trade.getTimestamp());
         assertTrue(trade.isYourOrder());
-        assertEquals("btc_usd", trade.getPair());
+        assertEquals("BTC/USD", trade.getPair());
         assertEquals("sell", trade.getType());
         assertEquals(1, trade.getRate(), 0.00001);
         assertEquals(1, trade.getAmount(), 0.00001);
@@ -372,7 +372,7 @@ public class ApiTest {
         ActiveOrder activeOrder = activeOrders.get(0);
 
         assertEquals(343154, activeOrder.getId());
-        assertEquals("btc_usd", activeOrder.getPair());
+        assertEquals("BTC/USD", activeOrder.getPair());
         assertEquals("sell", activeOrder.getType());
         assertEquals(1, activeOrder.getAmount(), 0.00001);
         assertEquals(3, activeOrder.getRate(), 0.00001);
@@ -427,7 +427,7 @@ public class ApiTest {
         assertEquals(0.2, tradeResponse.getRemains(), 0.00001);
         assertEquals(123456, tradeResponse.getOrderId());
 
-        assertEquals(2.498, tradeResponse.getFunds().get("btc"), 0.00001);
+        assertEquals(2.498, tradeResponse.getFunds().get("BTC"), 0.00001);
 
     }
 
@@ -472,7 +472,7 @@ public class ApiTest {
 
         assertNotNull(cancelOrderResponse);
         assertEquals(343154, cancelOrderResponse.getOrderId());
-        assertEquals(24.998, cancelOrderResponse.getFunds().get("btc"), 0.00001);
+        assertEquals(24.998, cancelOrderResponse.getFunds().get("BTC"), 0.00001);
     }
 
     @Test

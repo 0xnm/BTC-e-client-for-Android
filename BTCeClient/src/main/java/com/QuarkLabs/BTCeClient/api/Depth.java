@@ -3,6 +3,8 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,7 +34,7 @@ public class Depth {
     public static Depth create(@NonNull String pair, @NonNull JSONObject jsonObject)
             throws JSONException {
         Depth depth = new Depth();
-        depth.pair = pair;
+        depth.pair = PairUtils.serverToLocal(pair);
         depth.asks = new ArrayList<>();
         JSONArray asks = jsonObject.getJSONArray("asks");
         for (int i = 0; i < asks.length(); i++) {

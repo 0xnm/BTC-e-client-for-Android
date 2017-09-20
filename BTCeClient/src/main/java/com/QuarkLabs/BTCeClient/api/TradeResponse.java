@@ -2,11 +2,14 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class TradeResponse {
@@ -42,7 +45,8 @@ public class TradeResponse {
         Iterator<String> fundsIterator = jsonObject.getJSONObject("funds").keys();
         while (fundsIterator.hasNext()) {
             String fund = fundsIterator.next();
-            funds.put(fund, jsonObject.getJSONObject("funds").getDouble(fund));
+            funds.put(fund.toUpperCase(Locale.US),
+                    jsonObject.getJSONObject("funds").getDouble(fund));
         }
         tradeResponse.funds = funds;
         return tradeResponse;

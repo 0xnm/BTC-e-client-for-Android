@@ -98,7 +98,6 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         Map<String, Status> statuses = new HashMap<>();
         for (Ticker ticker : result.getPayload()) {
             String pair = ticker.getPair();
-            String pairInDb = PairUtils.serverToLocal(pair);
             ContentValues cv = new ContentValues(4);
             double last = ticker.getLast();
             double sell = ticker.getSell();
@@ -110,8 +109,8 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
             Status status = new Status();
             status.ticker = ticker;
 
-            if (values.containsKey(pairInDb)) {
-                if (last >= values.get(pairInDb)) {
+            if (values.containsKey(pair)) {
+                if (last >= values.get(pair)) {
                     status.color = Color.GREEN;
                 } else {
                     status.color = Color.RED;
@@ -122,10 +121,9 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
 
             statuses.put(pair, status);
 
-            int changedCount = dbWorker.updateWidgetData(cv,
-                    PairUtils.serverToLocal(pair));
+            int changedCount = dbWorker.updateWidgetData(cv, pair);
             if (changedCount == 0) {
-                cv.put("pair", PairUtils.serverToLocal(pair));
+                cv.put("pair", pair);
                 dbWorker.insertToWidgetData(cv);
             }
         }

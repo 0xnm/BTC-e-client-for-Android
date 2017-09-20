@@ -423,7 +423,7 @@ public class HomeFragment extends Fragment implements
                 PairUtils.getTickersToDisplayThatSupported(getActivity()));
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {
-            if (dashboardPairs.contains(PairUtils.serverToLocal(pair))) {
+            if (dashboardPairs.contains(pair)) {
                 dashboardTickers.add(latestTickers.get(pair));
             }
         }
@@ -479,7 +479,7 @@ public class HomeFragment extends Fragment implements
             TableRow row = new TableRow(getActivity());
             TextView currencyView = new TextView(getActivity());
             TextView amountView = new TextView(getActivity());
-            currencyView.setText(currency.toUpperCase(Locale.US));
+            currencyView.setText(currency);
             amountView.setText(String.valueOf(funds.get(currency)));
             currencyView.setLayoutParams(layoutParams);
             currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);

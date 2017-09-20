@@ -18,6 +18,8 @@ package com.QuarkLabs.BTCeClient.api;
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONObject;
 
 public class Ticker {
@@ -120,7 +122,7 @@ public class Ticker {
     }
 
     public static Ticker createFromServer(String pair, JSONObject pairData) {
-        Ticker ticker = new Ticker(pair);
+        Ticker ticker = new Ticker(PairUtils.serverToLocal(pair));
         ticker.setUpdated(pairData.optLong("updated"));
         ticker.setAvg(pairData.optDouble("avg"));
         ticker.setBuy(pairData.optDouble("buy"));

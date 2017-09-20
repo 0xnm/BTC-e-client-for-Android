@@ -7,6 +7,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -38,7 +39,7 @@ public class CancelOrderResponse {
         Map<String, Double> funds = new HashMap<>();
         while (currenciesIterator.hasNext()) {
             String currency = currenciesIterator.next();
-            funds.put(currency, fundsJson.getDouble(currency));
+            funds.put(currency.toUpperCase(Locale.US), fundsJson.getDouble(currency));
         }
         result.funds = funds;
         return result;

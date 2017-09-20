@@ -345,7 +345,7 @@ public class Api {
 
         try {
             HashMap<String, String> parameters = new HashMap<>();
-            parameters.put("pair", pair);
+            parameters.put("pair", PairUtils.localToServer(pair));
             parameters.put("type", type);
             parameters.put("rate", rate);
             parameters.put("amount", amount);

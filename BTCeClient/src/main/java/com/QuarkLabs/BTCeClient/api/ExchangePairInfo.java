@@ -2,6 +2,8 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -47,7 +49,7 @@ public class ExchangePairInfo {
     public static ExchangePairInfo create(@NonNull String pair,
                                           @NonNull JSONObject jsonObject) throws JSONException {
         ExchangePairInfo pairInfo = new ExchangePairInfo();
-        pairInfo.pair = pair;
+        pairInfo.pair = PairUtils.serverToLocal(pair);
         pairInfo.decimalPlaces = jsonObject.getInt("decimal_places");
         pairInfo.minPrice = jsonObject.getDouble("min_price");
         pairInfo.maxPrice = jsonObject.getDouble("max_price");

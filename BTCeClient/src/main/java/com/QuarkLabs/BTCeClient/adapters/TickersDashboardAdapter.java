@@ -121,7 +121,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         TextView buyView = (TextView) itemView.findViewById(R.id.tickerBuyValue);
         TextView sellView = (TextView) itemView.findViewById(R.id.tickerSellValue);
 
-        String pairValue = PairUtils.serverToLocal(ticker.getPair());
+        String pairValue = ticker.getPair();
 
         pairFrontView.setText(pairValue);
         lastView.setText(String.valueOf(ticker.getLast()));

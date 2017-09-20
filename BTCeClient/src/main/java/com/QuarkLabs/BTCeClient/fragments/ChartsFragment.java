@@ -589,10 +589,9 @@ public class ChartsFragment extends Fragment {
                     isUpdating = true;
                     getActivity().invalidateOptionsMenu();
                 }
-                for (String x : chartsNamesSorted) {
-                    String pair = PairUtils.localToServer(x);
+                for (String pair : chartsNamesSorted) {
                     chartsUpdater.queueChart(
-                            (StockChartView) chartsMap.get(x).findViewById(R.id.stockChartView),
+                            (StockChartView) chartsMap.get(pair).findViewById(R.id.stockChartView),
                             pair);
                 }
             }
@@ -680,6 +679,7 @@ public class ChartsFragment extends Fragment {
 
             StringBuilder out = new StringBuilder();
             BufferedReader rd = null;
+            pair = PairUtils.localToServer(pair);
             try {
                 URL url = new URL(BtcEApplication.get(getActivity()).getHostUrl()
                         + (isToken(pair) ? "/tokens/" : "/exchange/") + pair);
