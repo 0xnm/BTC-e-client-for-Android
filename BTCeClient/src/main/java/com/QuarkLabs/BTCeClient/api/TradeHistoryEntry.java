@@ -2,6 +2,8 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,7 +55,7 @@ public class TradeHistoryEntry {
             throws JSONException {
         TradeHistoryEntry trade = new TradeHistoryEntry();
         trade.id = id;
-        trade.pair = jsonObject.getString("pair");
+        trade.pair = PairUtils.serverToLocal(jsonObject.getString("pair"));
         trade.type = jsonObject.getString("type");
         trade.amount = jsonObject.getDouble("amount");
         trade.rate = jsonObject.getDouble("rate");

@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -44,6 +45,8 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersBookAdapter;
 import com.QuarkLabs.BTCeClient.api.CallResult;
@@ -55,7 +58,10 @@ import org.stockchart.StockChartView;
 import org.stockchart.core.Axis;
 import org.stockchart.series.LinearSeries;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import static android.widget.ListPopupWindow.WRAP_CONTENT;
 
 public class OrdersBookFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<CallResult<Depth>> {
@@ -77,19 +83,29 @@ public class OrdersBookFragment extends Fragment
     private boolean isFragmentOpenedFirstTime = true;
     private int spinnerPosition = -1;
 
+    private AppPreferences appPreferences;
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
 
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         Context themedContext = hostActivity.getSupportActionBar()
                 .getThemedContext();
         pairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
-        pairsSpinner.setAdapter(new ArrayAdapter<>(
+        List<String> pairs = new ArrayList<>(appPreferences.getExchangePairs());
+        ArrayAdapter<String> pairsAdapter = new ArrayAdapter<>(
                 new ContextThemeWrapper(themedContext, R.style.ThemeOverlay_AppCompat_Light),
-                android.R.layout.simple_list_item_1,
-                getResources().getStringArray(R.array.ExchangePairs)));
+                android.R.layout.simple_spinner_item, pairs);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            pairsSpinner.setDropDownWidth((int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 150, getResources().getDisplayMetrics()));
+        }
+        pairsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        pairsSpinner.setAdapter(pairsAdapter);
 
         //restoring spinner position
         if (spinnerPosition != -1) {

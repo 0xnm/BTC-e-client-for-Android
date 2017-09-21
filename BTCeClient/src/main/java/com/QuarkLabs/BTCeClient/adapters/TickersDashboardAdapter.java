@@ -21,6 +21,8 @@ import com.QuarkLabs.BTCeClient.views.FlippingView;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -121,7 +123,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         TextView buyView = (TextView) itemView.findViewById(R.id.tickerBuyValue);
         TextView sellView = (TextView) itemView.findViewById(R.id.tickerSellValue);
 
-        String pairValue = PairUtils.serverToLocal(ticker.getPair());
+        String pairValue = ticker.getPair();
 
         pairFrontView.setText(pairValue);
         lastView.setText(String.valueOf(ticker.getLast()));
@@ -180,6 +182,12 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     public void update(@NonNull Collection<Ticker> newTickers) {
         tickers.clear();
         tickers.addAll(newTickers);
+        Collections.sort(tickers, new Comparator<Ticker>() {
+            @Override
+            public int compare(Ticker lhs, Ticker rhs) {
+                return PairUtils.CURRENCY_COMPARATOR.compare(lhs.getPair(), rhs.getPair());
+            }
+        });
         notifyDataSetChanged();
     }
 

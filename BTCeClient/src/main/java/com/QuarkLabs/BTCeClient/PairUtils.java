@@ -1,12 +1,12 @@
 package com.QuarkLabs.BTCeClient;
 
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
+import com.QuarkLabs.BTCeClient.api.ExchangePairInfo;
+
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -17,64 +17,80 @@ public final class PairUtils {
     private static final String LOCAL_PAIR_DELIMITER = "/";
     private static final String SERVER_PAIR_DELIMITER = "_";
 
-    private PairUtils() { }
-
-    @NonNull
-    public static List<String> getTickersToDisplayThatSupported(@NonNull Context context) {
-        Set<String> supportedPairs = supportedPairs(context);
-
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> pairsToDisplay = sh.getStringSet("PairsToDisplay", new HashSet<String>());
-
-        List<String> supportedPairsToDisplay = new ArrayList<>();
-
-        for (String pair : pairsToDisplay) {
-            if (supportedPairs.contains(pair)) {
-                supportedPairsToDisplay.add(pair);
+    /**
+     * Sorts in the following order: first pairs/currencies with normal tickers in alphabetical
+     * order, then pairs/currencies with tokens
+     */
+    public static final Comparator<String> CURRENCY_COMPARATOR = new Comparator<String>() {
+        @Override
+        public int compare(String lhs, String rhs) {
+            int result;
+            if (lhs == null) {
+                result = -1;
+            } else if (rhs == null) {
+                result = 1;
+            } else if (lhs.length() == rhs.length()) {
+                result = lhs.compareTo(rhs);
+            } else {
+                result = lhs.length() - rhs.length();
             }
-        }
 
-        return supportedPairsToDisplay;
+            return result;
+        }
+    };
+
+    private PairUtils() {
     }
 
-    @NonNull
-    public static List<String> getChartsToDisplayThatSupported(@NonNull Context context) {
-        Set<String> supportedPairs = supportedPairs(context);
-
-        SharedPreferences sh = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> pairsToDisplay = sh.getStringSet("ChartsToDisplay", new HashSet<String>());
-
-        List<String> supportedChartsToDisplay = new ArrayList<>();
-
-        for (String pair : pairsToDisplay) {
-            if (supportedPairs.contains(pair)) {
-                supportedChartsToDisplay.add(pair);
-            }
-        }
-
-        return supportedChartsToDisplay;
-    }
-
+    /**
+     * Converts pair from local format to server format
+     *
+     * @param pair Pair in local format, ex. "BTC/USD"
+     * @return Pair in server format, ex. "btc_usd"
+     */
     @NonNull
     public static String localToServer(@NonNull String pair) {
         return pair.replace(LOCAL_PAIR_DELIMITER, SERVER_PAIR_DELIMITER).toLowerCase(Locale.US);
     }
 
+    /**
+     * Converts pair from server format to local format
+     *
+     * @param pair Pair in server format, ex. "btc_usd"
+     * @return Pair in local format, ex. "BTC/USD"
+     */
     @NonNull
     public static String serverToLocal(@NonNull String pair) {
         return pair.replace(SERVER_PAIR_DELIMITER, LOCAL_PAIR_DELIMITER).toUpperCase(Locale.US);
     }
 
+    /**
+     * Shows is pair is currently supported by exchange
+     *
+     * @param context Context
+     * @param pair    Pair in local format
+     * @return {@code True} if pair is supported by the exchange, {@code false} otherwise.
+     */
     public static boolean isSupportedPair(@NonNull Context context, @NonNull String pair) {
         return supportedPairs(context).contains(pair);
     }
 
-    private static Set<String> supportedPairs(@NonNull Context context) {
-        Set<String> supportedPairs = new HashSet<>();
-        Collections.addAll(supportedPairs,
-                context.getResources().getStringArray(R.array.ExchangePairs));
-        return supportedPairs;
+    private static List<String> supportedPairs(@NonNull Context context) {
+        return BtcEApplication.get(context).getAppPreferences().getExchangePairs();
     }
 
-
+    /**
+     * Gets pairs supported by exchange from server reply.
+     *
+     * @param exchangeInfo Server reply.
+     * @return Collection of pairs in local format.
+     */
+    @NonNull
+    public static Set<String> exchangePairs(@NonNull ExchangeInfo exchangeInfo) {
+        Set<String> pairs = new HashSet<>();
+        for (ExchangePairInfo pairInfo : exchangeInfo.getPairs()) {
+            pairs.add(pairInfo.getPair());
+        }
+        return pairs;
+    }
 }

@@ -32,12 +32,14 @@ import android.widget.RemoteViews;
 import com.QuarkLabs.BTCeClient.tasks.UpdateWidgetsTask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
-public class WidgetConfigure extends ListActivity {
+public class WidgetConfigActivity extends ListActivity {
 
     private static final String DATE_TIME_PATTERN = "EEE HH:mm";
     private int mAppWidgetId;
@@ -55,8 +57,9 @@ public class WidgetConfigure extends ListActivity {
                     AppWidgetManager.EXTRA_APPWIDGET_ID,
                     AppWidgetManager.INVALID_APPWIDGET_ID);
         }
-        String[] currencies = getResources().getStringArray(R.array.ExchangePairs);
-        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, currencies);
+        List<String> pairs = new ArrayList<>(
+                BtcEApplication.get(this).getAppPreferences().getExchangePairs());
+        mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pairs);
         setListAdapter(mAdapter);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -71,7 +74,7 @@ public class WidgetConfigure extends ListActivity {
                 map.put(mAppWidgetId, mAdapter.getItem(position));
 
                 AppWidgetManager appWidgetManager
-                        = AppWidgetManager.getInstance(WidgetConfigure.this);
+                        = AppWidgetManager.getInstance(WidgetConfigActivity.this);
                 RemoteViews views = new RemoteViews(getPackageName(), R.layout.appwidget_layout);
                 views.setTextViewText(R.id.widgetPair, mAdapter.getItem(position));
                 SimpleDateFormat df = new SimpleDateFormat(DATE_TIME_PATTERN, Locale.US);
@@ -81,7 +84,7 @@ public class WidgetConfigure extends ListActivity {
                 appWidgetManager.updateAppWidget(mAppWidgetId, views);
 
                 UpdateWidgetsTask updateWidgetsTask
-                        = new UpdateWidgetsTask(WidgetConfigure.this, map);
+                        = new UpdateWidgetsTask(WidgetConfigActivity.this, map);
                 updateWidgetsTask.execute();
 
                 Intent resultValue = new Intent();

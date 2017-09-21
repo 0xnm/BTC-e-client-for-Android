@@ -8,7 +8,6 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.DateTimeUtils;
-import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.TradeHistoryEntry;
 
@@ -70,11 +69,9 @@ public class TradesAdapter extends BaseAdapter {
         orderIdView.setText(String.valueOf(trade.getOrderId()));
         calendar.setTimeInMillis(trade.getTimestamp() * 1000L);
         timestampView.setText(dateTimeFormat.format(calendar.getTime()));
-        pairView.setText(PairUtils.serverToLocal(pairValue));
-        rateView.setText(trade.getRate() + " "
-                + pairValue.substring(4).toUpperCase(Locale.US));
-        amountView.setText(trade.getAmount() + " "
-                + pairValue.substring(0, 3).toUpperCase(Locale.US));
+        pairView.setText(pairValue);
+        rateView.setText(trade.getRate() + " " + pairValue.substring(4));
+        amountView.setText(trade.getAmount() + " " + pairValue.substring(0, 3));
         typeView.setText(String.valueOf(trade.getType()));
 
         return v;

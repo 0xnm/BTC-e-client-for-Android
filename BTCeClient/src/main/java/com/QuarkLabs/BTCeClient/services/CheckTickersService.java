@@ -32,6 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
@@ -64,9 +65,10 @@ public class CheckTickersService extends IntentService {
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         Api api = BtcEApplication.get(this).getApi();
-
+        AppPreferences appPreferences = BtcEApplication.get(this).getAppPreferences();
         Set<String> pairsToCheck = new HashSet<>();
-        List<String> dashboardPairs = PairUtils.getTickersToDisplayThatSupported(this);
+        List<String> dashboardPairs = appPreferences.getPairsToDisplay();
+
         pairsToCheck.addAll(dashboardPairs);
         pairsToCheck.addAll(watcherPairs());
 
@@ -174,12 +176,11 @@ public class CheckTickersService extends IntentService {
             double newValue = ticker.getLast();
 
             while (!notifiers.isAfterLast()) {
-                String pairAsLocal = PairUtils.serverToLocal(pair);
 
-                boolean pairMatched = pairAsLocal
+                boolean isPairMatched = pair
                         .equals(notifiers.getString(
                                 notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
-                if (pairMatched) {
+                if (isPairMatched) {
 
                     float percent;
                     @Watcher int watcherType = notifiers.getInt(
@@ -188,24 +189,24 @@ public class CheckTickersService extends IntentService {
                         case Watcher.PANIC_BUY:
                             percent = watcherValue(notifiers) / 100;
                             if (newValue > ((1 + percent) * oldValue)) {
-                                messages.add(createPanicBuyMessage(pairAsLocal, percent));
+                                messages.add(createPanicBuyMessage(pair, percent));
                             }
                             break;
                         case Watcher.PANIC_SELL:
                             percent = watcherValue(notifiers) / 100;
                             if (newValue < ((1 - percent) * oldValue)) {
-                                messages.add(createPanicSellMessage(pairAsLocal, percent));
+                                messages.add(createPanicSellMessage(pair, percent));
                             }
                             break;
                         case Watcher.STOP_LOSS:
                             if (newValue < watcherValue(notifiers)) {
-                                messages.add(createStopLossMessage(pairAsLocal,
+                                messages.add(createStopLossMessage(pair,
                                         watcherValue(notifiers)));
                             }
                             break;
                         case Watcher.TAKE_PROFIT:
                             if (newValue > watcherValue(notifiers)) {
-                                messages.add(createTakeProfitMessage(pairAsLocal,
+                                messages.add(createTakeProfitMessage(pair,
                                         watcherValue(notifiers)));
                             }
                             break;

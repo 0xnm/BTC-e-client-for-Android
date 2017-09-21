@@ -25,21 +25,18 @@ import android.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
@@ -57,6 +54,7 @@ import com.QuarkLabs.BTCeClient.fragments.NotifiersFragment;
 import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
+import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -79,6 +77,92 @@ public class MainActivity extends AppCompatActivity
 
     @Nullable
     private Runnable displayTask;
+
+    private AppPreferences appPreferences;
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        displayItem(0, false);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        uiHandler.removeCallbacks(displayTask);
+    }
+
+    /**
+     * Called when the activity is first created.
+     */
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.main);
+
+        appPreferences = BtcEApplication.get(this).getAppPreferences();
+        AppRater.trackAppLaunch(this);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+        }
+
+        appPreferences.registerOnSharedPreferenceChangeListener(this);
+
+        isAlarmSet = appPreferences.isPeriodicCheckEnabled();
+        if (isAlarmSet) {
+            setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
+        }
+
+        drawerListItems = getResources().getStringArray(R.array.NavSections);
+        drawerList = (ListView) findViewById(R.id.left_drawer);
+        drawerList.setAdapter(new ArrayAdapter<>(this,
+                R.layout.drawer_list_item, drawerListItems));
+        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                displayItem(position, true);
+            }
+        });
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawerLayout != null) {
+            drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+            drawerToggle = new ActionBarDrawerToggle(this,
+                    drawerLayout,
+                    R.string.app_name,
+                    R.string.app_name);
+            drawerLayout.setDrawerListener(drawerToggle);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
+        }
+
+        if (savedInstanceState == null) {
+            displayItem(0, false);
+        }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        if (drawerLayout != null) {
+            drawerToggle.syncState();
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        if (drawerLayout != null) {
+            drawerToggle.onConfigurationChanged(newConfig);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        appPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onDestroy();
+    }
 
     /**
      * Displays selected fragment
@@ -155,86 +239,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        displayItem(0, false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        uiHandler.removeCallbacks(displayTask);
-    }
-
-    /**
-     * Called when the activity is first created.
-     */
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
-
-        AppRater.trackAppLaunch(this);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        if (toolbar != null) {
-            setSupportActionBar(toolbar);
-        }
-
-        final SharedPreferences sharedPreferences
-                = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-        isAlarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, true);
-        if (isAlarmSet) {
-            setRecurringAlarm(Integer.parseInt(
-                    sharedPreferences.getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
-        }
-
-        drawerListItems = getResources().getStringArray(R.array.NavSections);
-        drawerList = (ListView) findViewById(R.id.left_drawer);
-        drawerList.setAdapter(new ArrayAdapter<>(this,
-                R.layout.drawer_list_item, drawerListItems));
-        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                displayItem(position, true);
-            }
-        });
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawerLayout != null) {
-            drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-            drawerToggle = new ActionBarDrawerToggle(this,
-                    drawerLayout,
-                    R.string.app_name,
-                    R.string.app_name);
-            drawerLayout.setDrawerListener(drawerToggle);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-        }
-
-        if (savedInstanceState == null) {
-            displayItem(0, false);
-        }
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        if (drawerLayout != null) {
-            drawerToggle.syncState();
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        if (drawerLayout != null) {
-            drawerToggle.onConfigurationChanged(newConfig);
-        }
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
@@ -260,8 +264,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     private PendingIntent pendingIntentForRecurringCheck() {
-        return PendingIntent.getBroadcast(this, 0,
-                new Intent(this, StartServiceReceiver.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        return PendingIntent.getService(this, 0,
+                new Intent(this, CheckTickersService.class), PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     @Override
@@ -294,18 +298,16 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (SettingsFragment.KEY_CHECK_ENABLED.equals(key)) {
-            isAlarmSet = sharedPreferences.getBoolean(SettingsFragment.KEY_CHECK_ENABLED, false);
+        if (appPreferences.keyCheckEnabled.equals(key)) {
+            isAlarmSet = appPreferences.isPeriodicCheckEnabled();
             if (isAlarmSet) {
-                setRecurringAlarm(Integer
-                        .parseInt(sharedPreferences
-                                .getString(SettingsFragment.KEY_CHECK_PERIOD, "60000")));
+                setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
             } else {
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 alarmManager.cancel(pendingIntentForRecurringCheck());
             }
-        } else if (SettingsFragment.KEY_CHECK_PERIOD.equals(key)) {
-            setRecurringAlarm(Integer.parseInt(sharedPreferences.getString(key, "60000")));
+        } else if (appPreferences.keyCheckPeriod.equals(key)) {
+            setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
         }
     }
 }

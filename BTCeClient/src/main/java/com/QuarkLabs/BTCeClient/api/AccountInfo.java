@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
 public class AccountInfo {
@@ -41,7 +42,8 @@ public class AccountInfo {
         Iterator<String> fundsIterator = jsonObject.getJSONObject("funds").keys();
         while (fundsIterator.hasNext()) {
             String fund = fundsIterator.next();
-            funds.put(fund, jsonObject.getJSONObject("funds").getDouble(fund));
+            funds.put(fund.toUpperCase(Locale.US),
+                    jsonObject.getJSONObject("funds").getDouble(fund));
         }
         accountInfo.funds = funds;
         accountInfo.transactionCount = jsonObject.optLong("transaction_count");

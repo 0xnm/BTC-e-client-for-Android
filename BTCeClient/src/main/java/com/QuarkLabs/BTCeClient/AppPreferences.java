@@ -1,0 +1,178 @@
+package com.QuarkLabs.BTCeClient;
+
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public class AppPreferences {
+
+    // should be strictly aligned with key in preferences.xml
+    public final String keyApiKey;
+    public final String keyApiSecret;
+    public final String keyCheckEnabled;
+    public final String keyCheckPeriod;
+
+    private static final String KEY_USE_MIRROR = "use_mirror";
+    private static final String KEY_USE_OLD_CHARTS = "use_btce_charts";
+
+    private static final String KEY_CHARTS_TO_DISPLAY = "ChartsToDisplay";
+    private static final String KEY_PAIRS_TO_DISPLAY = "PairsToDisplay";
+
+    private static final String KEY_EXCHANGE_PAIRS = "EXCHANGE_PAIRS";
+
+    @NonNull
+    private final SharedPreferences preferences;
+
+    AppPreferences(@NonNull Context context) {
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        keyApiKey = context.getString(R.string.settings_key_api_key);
+        keyApiSecret = context.getString(R.string.settings_key_api_secret);
+        keyCheckEnabled = context.getString(R.string.settings_key_check_enabled);
+        keyCheckPeriod = context.getString(R.string.settings_key_check_period);
+    }
+
+    public void registerOnSharedPreferenceChangeListener(
+            SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        preferences.registerOnSharedPreferenceChangeListener(listener);
+    }
+
+    public void unregisterOnSharedPreferenceChangeListener(
+            SharedPreferences.OnSharedPreferenceChangeListener listener) {
+        preferences.unregisterOnSharedPreferenceChangeListener(listener);
+    }
+
+    @NonNull
+    public String getApiKey() {
+        return preferences.getString(keyApiKey, "");
+    }
+
+    @NonNull
+    public String getApiSecret() {
+        return preferences.getString(keyApiSecret, "");
+    }
+
+    @NonNull
+    public String getCheckPeriodMillis() {
+        return preferences.getString(keyCheckPeriod, "60000");
+    }
+
+    public boolean isShowOldCharts() {
+        return preferences.getBoolean(KEY_USE_OLD_CHARTS, false);
+    }
+
+    /**
+     * Get charts to display, that are currently supported by exchange.
+     *
+     * @return Charts to display, that are currently supported by exchange.
+     */
+    @NonNull
+    public List<String> getChartsToDisplay() {
+        Set<String> supportedPairs = getExchangePairsInternal();
+        Set<String> chartsToDisplay = preferences
+                .getStringSet(KEY_CHARTS_TO_DISPLAY, new HashSet<String>());
+
+        List<String> supportedChartsToDisplay = new ArrayList<>();
+
+        for (String pair : chartsToDisplay) {
+            if (supportedPairs.contains(pair)) {
+                supportedChartsToDisplay.add(pair);
+            }
+        }
+
+        Collections.sort(supportedChartsToDisplay, PairUtils.CURRENCY_COMPARATOR);
+        return supportedChartsToDisplay;
+    }
+
+    public void setChartsToDisplay(@NonNull Set<String> charts) {
+        preferences.edit()
+                .putStringSet(KEY_CHARTS_TO_DISPLAY, charts)
+                .apply();
+    }
+
+    /**
+     * Get tickers to display on the home screen (as cards), that are currently supported by
+     * exchange.
+     *
+     * @return Tickers to display on the home screen (as cards), that are currently supported by
+     * exchange.
+     */
+    @NonNull
+    public List<String> getPairsToDisplay() {
+        Set<String> supportedPairs = getExchangePairsInternal();
+        Set<String> pairsToDisplay = preferences
+                .getStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<String>());
+
+        List<String> supportedPairsToDisplay = new ArrayList<>();
+
+        for (String pair : pairsToDisplay) {
+            if (supportedPairs.contains(pair)) {
+                supportedPairsToDisplay.add(pair);
+            }
+        }
+
+        Collections.sort(supportedPairsToDisplay, PairUtils.CURRENCY_COMPARATOR);
+        return supportedPairsToDisplay;
+    }
+
+    public void setPairsToDisplay(@NonNull Collection<String> pairs) {
+        preferences.edit()
+                .putStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<>(pairs))
+                .apply();
+    }
+
+    public boolean isPeriodicCheckEnabled() {
+        return preferences.getBoolean(keyCheckEnabled, false);
+    }
+
+    /**
+     * Sets pairs supported by exchange
+     *
+     * @param pairs Pair supported by exchange
+     */
+    public void setExchangePairs(@NonNull Collection<String> pairs) {
+        preferences.edit()
+                .putStringSet(KEY_EXCHANGE_PAIRS, new HashSet<>(pairs))
+                .apply();
+    }
+
+    /**
+     * Gets pairs supported by exchange
+     *
+     * @return Pairs supported by exchange
+     */
+    @NonNull
+    public List<String> getExchangePairs() {
+        List<String> exchangePairs = new ArrayList<>(getExchangePairsInternal());
+        Collections.sort(exchangePairs, PairUtils.CURRENCY_COMPARATOR);
+        return exchangePairs;
+    }
+
+    @NonNull
+    public Set<String> getExchangePairsInternal() {
+        return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<String>());
+    }
+
+    @NonNull
+    public List<String> getExchangeCurrencies() {
+        Set<String> pairs = getExchangePairsInternal();
+        Set<String> currenciesSet = new HashSet<>();
+
+        for (String pair : pairs) {
+            String[] pairCurrencies = pair.split("/");
+            currenciesSet.add(pairCurrencies[0]);
+            currenciesSet.add(pairCurrencies[1]);
+        }
+
+        List<String> currencies = new ArrayList<>(currenciesSet);
+        Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
+        return currencies;
+    }
+}

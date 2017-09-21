@@ -166,7 +166,6 @@
                     android:layout_column="1"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:entries="@array/Currencies"
                     android:spinnerStyle="@android:style/Widget.Spinner.DropDown" />
 
                 <EditText
@@ -185,7 +184,6 @@
                     android:layout_column="3"
                     android:layout_gravity="center"
                     android:layout_weight="1"
-                    android:entries="@array/Currencies"
                     android:focusable="false"
                     android:spinnerStyle="@android:style/Widget.Spinner.DropDown" />
 

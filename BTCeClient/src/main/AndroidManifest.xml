@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="com.QuarkLabs.BTCeClient"
-    android:versionCode="28"
-    android:versionName="1.6.6">
+    android:versionCode="30"
+    android:versionName="1.6.8">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -30,9 +30,6 @@
         <service
             android:name=".services.CheckTickersService"
             android:exported="false" />
-        <receiver
-            android:name=".StartServiceReceiver"
-            android:enabled="true" />
         <receiver android:name=".WidgetProvider">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
@@ -46,7 +43,7 @@
                 android:resource="@xml/appwidget_info" />
         </receiver>
 
-        <activity android:name=".WidgetConfigure">
+        <activity android:name=".WidgetConfigActivity">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>

@@ -5,6 +5,8 @@ import android.support.annotation.NonNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Locale;
+
 public class Transaction {
     private long id;
     private int type;
@@ -49,7 +51,7 @@ public class Transaction {
             throws JSONException {
         Transaction transaction = new Transaction();
         transaction.id = id;
-        transaction.currency = jsonObject.getString("currency");
+        transaction.currency = jsonObject.getString("currency").toUpperCase(Locale.US);
         transaction.type = jsonObject.getInt("type");
         transaction.amount = jsonObject.getDouble("amount");
         transaction.description = jsonObject.getString("desc");

@@ -41,15 +41,22 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.DBWorker;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.Watcher;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class NotifiersFragment extends Fragment {
 
     private Cursor mCursor;
     private CursorAdapter mCursorAdapter;
     private DBWorker mDbWorker;
+    private AlertDialog watcherDialog;
+    private AppPreferences appPreferences;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,6 +67,7 @@ public class NotifiersFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         ListView listView = (ListView) view.findViewById(R.id.watchers_list);
 
         mDbWorker = DBWorker.getInstance(getActivity());
@@ -152,10 +160,17 @@ public class NotifiersFragment extends Fragment {
         final TextView valueTitle = (TextView) dialogContentView.findViewById(R.id.ValueTitle);
         final TextView notifDesc = (TextView) dialogContentView.findViewById(R.id.NotifDescription);
 
+        Spinner pairsSpinner = (Spinner) dialogContentView.findViewById(R.id.PairSpinner);
+        List<String> pairs = new ArrayList<>(appPreferences.getExchangePairs());
+        ArrayAdapter<String> pairsAdapter = new ArrayAdapter<>(getActivity(),
+                android.R.layout.simple_spinner_item, pairs);
+        pairsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        pairsSpinner.setAdapter(pairsAdapter);
+
         Spinner watcherTypeSpinner = (Spinner) dialogContentView.findViewById(R.id.TypeSpinner);
 
-        ArrayAdapter<CharSequence> adapter =
-                new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item,
+        ArrayAdapter<CharSequence> watcherTypesAdapter =
+                new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
                         new CharSequence[]{
                                 getString(R.string.watcher_panic_sell),
                                 getString(R.string.watcher_panic_buy),
@@ -163,8 +178,8 @@ public class NotifiersFragment extends Fragment {
                                 getString(R.string.watcher_take_profit)
 
                         });
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        watcherTypeSpinner.setAdapter(adapter);
+        watcherTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        watcherTypeSpinner.setAdapter(watcherTypesAdapter);
 
         watcherTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -197,7 +212,7 @@ public class NotifiersFragment extends Fragment {
             }
         });
 
-        new AlertDialog.Builder(getActivity())
+        watcherDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.AddWatcherTitle)
                 .setView(dialogContentView)
                 .setNeutralButton(android.R.string.cancel, null)
@@ -245,6 +260,10 @@ public class NotifiersFragment extends Fragment {
     @Override
     public void onDestroyView() {
         mCursor.close();
+        if (watcherDialog != null) {
+            watcherDialog.dismiss();
+            watcherDialog = null;
+        }
         super.onDestroyView();
     }
 }

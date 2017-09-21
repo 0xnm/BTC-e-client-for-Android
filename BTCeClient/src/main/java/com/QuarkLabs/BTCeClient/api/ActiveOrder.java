@@ -2,6 +2,8 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.PairUtils;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -52,7 +54,7 @@ public class ActiveOrder {
             throws JSONException {
         ActiveOrder activeOrder = new ActiveOrder();
         activeOrder.id = id;
-        activeOrder.pair = jsonObject.getString("pair");
+        activeOrder.pair = PairUtils.serverToLocal(jsonObject.getString("pair"));
         activeOrder.type = jsonObject.getString("type");
         activeOrder.amount = jsonObject.getDouble("amount");
         activeOrder.rate = jsonObject.getDouble("rate");

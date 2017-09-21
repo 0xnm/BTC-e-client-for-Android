@@ -15,20 +15,6 @@
     <string name="RefreshButton">ОБНОВИТЬ</string>
     <string name="AddWatcherTitle">Добавить наблюдателя</string>
     <string name="OoopsError">Упс</string>
-    <string-array name="Currencies">
-        <item>BTC</item>
-        <item>LTC</item>
-        <item>NMC</item>
-        <item>NVC</item>
-        <item>PPC</item>
-        <item>DSH</item>
-        <item>ETH</item>
-        <item>USD</item>
-        <item>GBP</item>
-        <item>CNH</item>
-        <item>EUR</item>
-        <item>RUR</item>
-    </string-array>
     <string-array name="NavSections">
         <item>Терминал</item>
         <item>Список заявок</item>
@@ -69,35 +55,6 @@
     </string-array>
     <string name="period_default_value">60000</string>
     <!--END of consistent sections-->
-    <string-array name="ExchangePairs">
-        <item>BTC/USD</item>
-        <item>BTC/RUR</item>
-        <item>BTC/EUR</item>
-        <item>LTC/BTC</item>
-        <item>LTC/USD</item>
-        <item>LTC/RUR</item>
-        <item>LTC/EUR</item>
-        <item>NMC/BTC</item>
-        <item>NMC/USD</item>
-        <item>NVC/BTC</item>
-        <item>NVC/USD</item>
-        <item>USD/RUR</item>
-        <item>EUR/USD</item>
-        <item>EUR/RUR</item>
-        <item>PPC/BTC</item>
-        <item>PPC/USD</item>
-        <item>DSH/BTC</item>
-        <item>DSH/USD</item>
-        <item>DSH/RUR</item>
-        <item>DSH/EUR</item>
-        <item>DSH/LTC</item>
-        <item>DSH/ETH</item>
-        <item>ETH/BTC</item>
-        <item>ETH/USD</item>
-        <item>ETH/EUR</item>
-        <item>ETH/LTC</item>
-        <item>ETH/RUR</item>
-    </string-array>
 
     <string name="watcher_panic_sell">Паническая продажа</string>
     <string name="watcher_panic_buy">Паническая покупка</string>
@@ -192,4 +149,9 @@
     <string name="sell_confirmation">Продать &lt;b>%1$s %2$s&lt;/b> по &lt;b>%3$s %4$s&lt;/b> за 1 &lt;b>%5$s&lt;/b>? Итого: &lt;b>%6$s (Реально: %7$s, Комиссия: %8$s) %9$s&lt;/b></string>
     <string name="missing_mandatory_fields_error">Не заполнены необходимые поля</string>
     <string name="trade_operation_cost">Стоимость операции: &lt;b>%1$s %2$s&lt;/b></string>
+    <string name="tokens">Токены</string>
+    <string name="exchange_sync_failed">Не удалось выполнить синхронизацию с биржей</string>
+    <string name="msg_syncing_with_exchange">Синхронизация с биржей</string>
+    <string name="settings_sync_exchange_summary">Синхронизировать пары, доступные в приложении, с текущим состоянием биржи</string>
+    <string name="settings_sync_exchange_title">Синхронизировать пары с биржей</string>
 </resources>

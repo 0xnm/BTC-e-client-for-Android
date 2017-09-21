@@ -60,19 +60,20 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.StartServiceReceiver;
 import com.QuarkLabs.BTCeClient.TickersStorage;
-import com.QuarkLabs.BTCeClient.adapters.CheckBoxListAdapter;
+import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.api.AccountInfo;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.TradeResponse;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.api.Ticker;
+import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
 
 import java.util.ArrayList;
@@ -103,6 +104,9 @@ public class HomeFragment extends Fragment implements
 
     private final TextWatcher tradeAmountWatcher = new TradeConditionWatcher();
     private final TextWatcher tradePriceWatcher = new TradeConditionWatcher();
+    private AlertDialog pairsDialog;
+
+    private AppPreferences appPreferences;
 
     @Override
     public void onAttach(Activity activity) {
@@ -131,6 +135,7 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
+        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
         final int dashboardSpacing = getResources()
@@ -186,9 +191,19 @@ public class HomeFragment extends Fragment implements
                 .registerReceiver(statsReceiver, intentFilter);
 
         tradeAmountView = (EditText) view.findViewById(R.id.TradeAmount);
+
+        List<String> currencies = new ArrayList<>(appPreferences.getExchangeCurrencies());
+        ArrayAdapter<String> currenciesAdapter = new ArrayAdapter<>(
+                getActivity(), android.R.layout.simple_spinner_item, currencies);
+        currenciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         tradeCurrencyView = (Spinner) view.findViewById(R.id.TradeCurrency);
+        tradeCurrencyView.setAdapter(currenciesAdapter);
+
         tradePriceView = (EditText) view.findViewById(R.id.TradePrice);
+
         tradePriceCurrencyView = (Spinner) view.findViewById(R.id.TradePriceCurrency);
+        tradePriceCurrencyView.setAdapter(currenciesAdapter);
+
         operationCostView = (TextView) view.findViewById(R.id.operation_cost);
 
         //Trade listener, once "Buy" or "Sell" clicked, send the order to server
@@ -236,7 +251,7 @@ public class HomeFragment extends Fragment implements
         }
 
         //start service to get new data once Dashboard is opened
-        getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+        getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
     }
 
     @Override
@@ -330,7 +345,7 @@ public class HomeFragment extends Fragment implements
      * Updates TickerStorage with new tickers
      */
     private void updateStorageWithTickers() {
-        List<String> pairs = PairUtils.getTickersToDisplayThatSupported(getActivity());
+        List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
             TickersStorage.loadLatestData().clear();
@@ -365,24 +380,24 @@ public class HomeFragment extends Fragment implements
         switch (item.getItemId()) {
             //add pair to dashboard action
             case R.id.action_add:
-                final CheckBoxListAdapter checkBoxListAdapter = new CheckBoxListAdapter(
+                final PairsCheckboxAdapter pairsCheckboxAdapter = new PairsCheckboxAdapter(
                         getActivity(),
-                        getResources().getStringArray(R.array.ExchangePairs),
-                        CheckBoxListAdapter.SettingsScope.PAIRS);
+                        appPreferences.getExchangePairs(),
+                        PairsCheckboxAdapter.SettingsScope.PAIRS);
                 ListView listView = new ListView(getActivity());
-                listView.setAdapter(checkBoxListAdapter);
-                new AlertDialog.Builder(getActivity())
+                listView.setAdapter(pairsCheckboxAdapter);
+                pairsDialog = new AlertDialog.Builder(getActivity())
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
                         .setNeutralButton(R.string.DialogSaveButton,
                                 new DialogInterface.OnClickListener() {
                                     @Override
                                     public void onClick(DialogInterface dialog, int which) {
-                                        checkBoxListAdapter.saveValuesToPreferences();
+                                        pairsCheckboxAdapter.saveValuesToPreferences();
                                         updateStorageWithTickers();
                                         refreshDashboardAdapter();
-                                        getActivity().sendBroadcast(new Intent(getActivity(),
-                                                StartServiceReceiver.class));
+                                        getActivity().startService(new Intent(getActivity(),
+                                                CheckTickersService.class));
                                     }
                                 }
                         )
@@ -393,7 +408,7 @@ public class HomeFragment extends Fragment implements
                 refreshItem = item;
                 refreshItem.setActionView(R.layout.progress_bar_action_view);
                 refreshItem.expandActionView();
-                getActivity().sendBroadcast(new Intent(getActivity(), StartServiceReceiver.class));
+                getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
                 break;
             default:
                 break;
@@ -403,11 +418,10 @@ public class HomeFragment extends Fragment implements
 
     private void refreshDashboardAdapter() {
         Map<String, Ticker> latestTickers = TickersStorage.loadLatestData();
-        Set<String> dashboardPairs = new HashSet<>(
-                PairUtils.getTickersToDisplayThatSupported(getActivity()));
+        Set<String> dashboardPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {
-            if (dashboardPairs.contains(PairUtils.serverToLocal(pair))) {
+            if (dashboardPairs.contains(pair)) {
                 dashboardTickers.add(latestTickers.get(pair));
             }
         }
@@ -425,6 +439,10 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(statsReceiver);
+        if (pairsDialog != null) {
+            pairsDialog.dismiss();
+            pairsDialog = null;
+        }
         super.onDestroyView();
     }
 
@@ -449,7 +467,7 @@ public class HomeFragment extends Fragment implements
         fundsContainer.removeAllViews();
 
         List<String> currencies = new ArrayList<>(funds.keySet());
-        Collections.sort(currencies);
+        Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
 
         TableRow.LayoutParams layoutParams = new TableRow
                 .LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
@@ -459,7 +477,7 @@ public class HomeFragment extends Fragment implements
             TableRow row = new TableRow(getActivity());
             TextView currencyView = new TextView(getActivity());
             TextView amountView = new TextView(getActivity());
-            currencyView.setText(currency.toUpperCase(Locale.US));
+            currencyView.setText(currency);
             amountView.setText(String.valueOf(funds.get(currency)));
             currencyView.setLayoutParams(layoutParams);
             currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);

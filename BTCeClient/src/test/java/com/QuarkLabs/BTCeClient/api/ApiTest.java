@@ -1,6 +1,7 @@
 package com.QuarkLabs.BTCeClient.api;
 
 import android.content.Context;
+import android.support.annotation.Nullable;
 
 import org.json.JSONObject;
 import org.junit.Before;
@@ -50,6 +51,57 @@ public class ApiTest {
     }
 
     @Test
+    public void info_success() throws Exception {
+        when(mockGuestApi.call(anyString()))
+                .thenReturn(new JSONObject("{\"server_time\":1505766539," +
+                        "\"pairs\":{\"btc_usd\":{\"decimal_places\":3,\"min_price\":0.1," +
+                        "\"max_price\":10000,\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}," +
+                        "\"btc_rur\":{\"decimal_places\":5,\"min_price\":1,\"max_price\":1000000," +
+                        "\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}}}"));
+
+        CallResult<ExchangeInfo> callResult = testable.getExchangeInfo();
+        assertTrue(callResult.isSuccess());
+        assertNull(callResult.getError());
+
+        ExchangeInfo exchangeInfo = callResult.getPayload();
+
+        assertNotNull(exchangeInfo);
+        assertEquals(1505766539L, exchangeInfo.getServerTime());
+        assertNotNull(exchangeInfo.getPairs());
+        assertEquals(2, exchangeInfo.getPairs().size());
+
+        ExchangePairInfo pairInfo = findByKey(exchangeInfo.getPairs(),
+                new Predicate<ExchangePairInfo>() {
+                    @Override
+                    public boolean check(ExchangePairInfo element) {
+                        return "BTC/RUR".equals(element.getPair());
+                    }
+                });
+        assertNotNull(pairInfo);
+        assertEquals("BTC/RUR", pairInfo.getPair());
+        assertEquals(5, pairInfo.getDecimalPlaces());
+        assertEquals(1, pairInfo.getMinPrice(), 0.01);
+        assertEquals(1000000, pairInfo.getMaxPrice(), 0.01);
+        assertEquals(0.001, pairInfo.getMinAmount(), 0.0001);
+        assertFalse(pairInfo.isHidden());
+        assertEquals(0.2, pairInfo.getFee(), 0.01);
+    }
+
+    @Test
+    public void info_error() throws Exception {
+        when(mockGuestApi.call(anyString()))
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"API is disabled\"}"));
+
+        CallResult<ExchangeInfo> callResult
+                = testable.getExchangeInfo();
+
+        assertFalse(callResult.isSuccess());
+        assertNotNull(callResult.getError());
+        assertNull(callResult.getPayload());
+    }
+
+    @Test
     public void getPairInfo_success() throws Exception {
         when(mockGuestApi.call(anyString()))
                 .thenReturn(new JSONObject("{\"btc_usd\":{\"high\":2381.507,\"low\":2300," +
@@ -57,7 +109,7 @@ public class ApiTest {
                         "\"last\":2374,\"buy\":2374,\"sell\":2373.551,\"updated\":1496436981}," +
                         "\"ltc_usd\":{\"high\":27.612,\"low\":25.60265,\"avg\":26.607325," +
                         "\"vol\":4404490.34434,\"vol_cur\":164911.27789,\"last\":26.768," +
-                        "\"buy\":26.768,\"sell\":26.65201,\"updated\":1496436981}}"));
+                        "\"buy\":26.769,\"sell\":26.65201,\"updated\":1496436981}}"));
 
         CallResult<List<Ticker>> callResult
                 = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/USD")));
@@ -66,13 +118,33 @@ public class ApiTest {
 
         List<Ticker> tickers = callResult.getPayload();
 
+        assertNotNull(tickers);
         assertEquals(2, tickers.size());
+
+        Ticker ticker = findByKey(tickers, new Predicate<Ticker>() {
+            @Override
+            public boolean check(Ticker element) {
+                return "LTC/USD".equals(element.getPair());
+            }
+        });
+
+        assertNotNull(ticker);
+        assertEquals(27.612, ticker.getHigh(), 0.01);
+        assertEquals(25.60265, ticker.getLow(), 0.00001);
+        assertEquals(26.607325, ticker.getAvg(), 0.00001);
+        assertEquals(4404490.34434, ticker.getVol(), 0.00001);
+        assertEquals(164911.27789, ticker.getVolCur(), 0.00001);
+        assertEquals(26.768, ticker.getLast(), 0.00001);
+        assertEquals(26.769, ticker.getBuy(), 0.00001);
+        assertEquals(26.65201, ticker.getSell(), 0.00001);
+        assertEquals(1496436981L, ticker.getUpdated());
     }
 
     @Test
     public void getPairInfo_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0, \"error\":\"Invalid pair name: ltc_us\"}"));
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: ltc_us\"}"));
 
         CallResult<List<Ticker>> callResult
                 = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/US")));
@@ -94,7 +166,8 @@ public class ApiTest {
 
         Depth depth = depthCallResult.getPayload();
 
-        assertEquals("btc_usd", depth.getPair());
+        assertNotNull(depth);
+        assertEquals("BTC/USD", depth.getPair());
         assertEquals(3, depth.getAsks().size());
         assertEquals(2, depth.getBids().size());
     }
@@ -102,7 +175,8 @@ public class ApiTest {
     @Test
     public void depth_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0, \"error\":\"Invalid pair name: btc_us\"}"));
+                .thenReturn(new JSONObject("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: btc_us\"}"));
 
         CallResult<Depth> depthCallResult = testable.depth("BTC/US");
         assertFalse(depthCallResult.isSuccess());
@@ -138,7 +212,15 @@ public class ApiTest {
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
+
+        AccountInfo accountInfo = callResult.getPayload();
+        assertNotNull(accountInfo);
+
+        assertEquals(80, accountInfo.getTransactionCount());
+        assertEquals(1, accountInfo.getOpenOrdersCount());
+        assertEquals(1342123547, accountInfo.getServerTime());
+
+        assertEquals(23.998, accountInfo.getFunds().get("BTC"), 0.00001);
     }
 
     @Test
@@ -172,15 +254,24 @@ public class ApiTest {
                         "\t}\n" +
                         "}"));
 
-        CallResult<List<Transaction>>
-                callResult = testable.getTransactionsHistory(
+        CallResult<List<Transaction>> callResult = testable.getTransactionsHistory(
                 Collections.<String, String>emptyMap());
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
+        List<Transaction> transactions = callResult.getPayload();
+        assertNotNull(transactions);
 
-        assertEquals(1, callResult.getPayload().size());
+        assertEquals(1, transactions.size());
+
+        Transaction transaction = transactions.get(0);
+        assertEquals(1081672, transaction.getId());
+        assertEquals(1, transaction.getType());
+        assertEquals(1342448420, transaction.getTimestamp());
+        assertEquals(2, transaction.getStatus());
+        assertEquals("BTC", transaction.getCurrency());
+        assertEquals("BTC Payment", transaction.getDescription());
+        assertEquals(1, transaction.getAmount(), 0.00001);
     }
 
     @Test
@@ -221,9 +312,21 @@ public class ApiTest {
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
 
-        assertEquals(1, callResult.getPayload().size());
+        List<TradeHistoryEntry> trades = callResult.getPayload();
+        assertNotNull(trades);
+
+        assertEquals(1, trades.size());
+
+        TradeHistoryEntry trade = trades.get(0);
+        assertEquals(166830, trade.getId());
+        assertEquals(343148, trade.getOrderId());
+        assertEquals(1342445793, trade.getTimestamp());
+        assertTrue(trade.isYourOrder());
+        assertEquals("BTC/USD", trade.getPair());
+        assertEquals("sell", trade.getType());
+        assertEquals(1, trade.getRate(), 0.00001);
+        assertEquals(1, trade.getAmount(), 0.00001);
     }
 
     @Test
@@ -262,9 +365,19 @@ public class ApiTest {
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
+        List<ActiveOrder> activeOrders = callResult.getPayload();
+        assertNotNull(activeOrders);
 
-        assertEquals(1, callResult.getPayload().size());
+        assertEquals(1, activeOrders.size());
+        ActiveOrder activeOrder = activeOrders.get(0);
+
+        assertEquals(343154, activeOrder.getId());
+        assertEquals("BTC/USD", activeOrder.getPair());
+        assertEquals("sell", activeOrder.getType());
+        assertEquals(1, activeOrder.getAmount(), 0.00001);
+        assertEquals(3, activeOrder.getRate(), 0.00001);
+        assertEquals(1342448420, activeOrder.getCreatedAt());
+        assertEquals(0, activeOrder.getStatus());
     }
 
     @Test
@@ -288,8 +401,8 @@ public class ApiTest {
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"received\":0.1,\n" +
-                        "\t\t\"remains\":0,\n" +
-                        "\t\t\"order_id\":0,\n" +
+                        "\t\t\"remains\":0.2,\n" +
+                        "\t\t\"order_id\":123456,\n" +
                         "\t\t\"funds\":{\n" +
                         "\t\t\t\"usd\":325,\n" +
                         "\t\t\t\"btc\":2.498,\n" +
@@ -306,7 +419,16 @@ public class ApiTest {
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
+
+        TradeResponse tradeResponse = callResult.getPayload();
+        assertNotNull(tradeResponse);
+
+        assertEquals(0.1, tradeResponse.getReceived(), 0.00001);
+        assertEquals(0.2, tradeResponse.getRemains(), 0.00001);
+        assertEquals(123456, tradeResponse.getOrderId());
+
+        assertEquals(2.498, tradeResponse.getFunds().get("BTC"), 0.00001);
+
     }
 
     @Test
@@ -346,7 +468,11 @@ public class ApiTest {
 
         assertTrue(callResult.isSuccess());
         assertNull(callResult.getError());
-        assertNotNull(callResult.getPayload());
+        CancelOrderResponse cancelOrderResponse = callResult.getPayload();
+
+        assertNotNull(cancelOrderResponse);
+        assertEquals(343154, cancelOrderResponse.getOrderId());
+        assertEquals(24.998, cancelOrderResponse.getFunds().get("BTC"), 0.00001);
     }
 
     @Test
@@ -361,6 +487,21 @@ public class ApiTest {
         assertFalse(callResult.isSuccess());
         assertNotNull(callResult.getError());
         assertNull(callResult.getPayload());
+    }
+
+    @Nullable
+    private <T> T findByKey(List<T> collection, Predicate<T> predicate) {
+        collection = collection == null ? Collections.<T>emptyList() : collection;
+        for (T element : collection) {
+            if (predicate.check(element)) {
+                return element;
+            }
+        }
+        return null;
+    }
+
+    interface Predicate<T> {
+        boolean check(T element);
     }
 
 }

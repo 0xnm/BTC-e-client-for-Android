@@ -15,7 +15,6 @@ import java.util.Map;
 public class TradesLoader extends AsyncTaskLoader<CallResult<List<TradeHistoryEntry>>> {
 
     private CallResult<List<TradeHistoryEntry>> callResult;
-    private final Context appContext;
     @NonNull
     private final String fromDate;
     @NonNull
@@ -24,7 +23,6 @@ public class TradesLoader extends AsyncTaskLoader<CallResult<List<TradeHistoryEn
     public TradesLoader(@NonNull Context context, @NonNull String fromDate,
                         @NonNull String toDate) {
         super(context);
-        appContext = context.getApplicationContext();
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
@@ -35,7 +33,7 @@ public class TradesLoader extends AsyncTaskLoader<CallResult<List<TradeHistoryEn
         //TODO should be fixed
         parameters.put("since", "0");
         parameters.put("end", toDate);
-        callResult = BtcEApplication.get(appContext).getApi().getTradeHistory(parameters);
+        callResult = BtcEApplication.get(getContext()).getApi().getTradeHistory(parameters);
         return callResult;
     }
 
