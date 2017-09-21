@@ -131,7 +131,6 @@ public class NotifiersFragment extends Fragment {
 
         listView.setAdapter(mCursorAdapter);
         listView.setEmptyView(view.findViewById(R.id.NoItems));
-
     }
 
     @Override
