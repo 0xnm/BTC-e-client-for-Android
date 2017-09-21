@@ -34,7 +34,6 @@ import com.QuarkLabs.BTCeClient.tasks.UpdateWidgetsTask;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -60,7 +59,6 @@ public class WidgetConfigActivity extends ListActivity {
         }
         List<String> pairs = new ArrayList<>(
                 BtcEApplication.get(this).getAppPreferences().getExchangePairs());
-        Collections.sort(pairs);
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pairs);
         setListAdapter(mAdapter);
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {

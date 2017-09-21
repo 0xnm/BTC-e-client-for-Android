@@ -29,10 +29,10 @@ import android.widget.CheckBox;
 
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -53,18 +53,21 @@ public class PairsCheckboxAdapter extends BaseAdapter {
     private final SettingsScope scope;
     private final Context context;
 
-    public PairsCheckboxAdapter(@NonNull Context context, @NonNull Set<String> allPairs,
+    public PairsCheckboxAdapter(@NonNull Context context,
+                                @NonNull Collection<String> allPairs,
                                 @NonNull SettingsScope settingsScope) {
         this.context = context;
+
+        scope = settingsScope;
+        appPreferences = BtcEApplication.get(context).getAppPreferences();
+
         if (settingsScope == CHARTS) {
-            selectedPairs = new HashSet<>(PairUtils.getChartsToDisplayThatSupported(context));
+            selectedPairs = new HashSet<>(appPreferences.getChartsToDisplay());
         } else if (settingsScope == PAIRS) {
-            selectedPairs = new HashSet<>(PairUtils.getTickersToDisplayThatSupported(context));
+            selectedPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         } else {
             throw new RuntimeException("Unsupported scope");
         }
-        scope = settingsScope;
-        appPreferences = BtcEApplication.get(context).getAppPreferences();
 
         List<String> tickers = new ArrayList<>();
         List<String> tokens = new ArrayList<>();

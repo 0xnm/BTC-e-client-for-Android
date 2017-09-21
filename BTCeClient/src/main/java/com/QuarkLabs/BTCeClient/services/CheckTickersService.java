@@ -32,6 +32,7 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
@@ -64,9 +65,10 @@ public class CheckTickersService extends IntentService {
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         Api api = BtcEApplication.get(this).getApi();
-
+        AppPreferences appPreferences = BtcEApplication.get(this).getAppPreferences();
         Set<String> pairsToCheck = new HashSet<>();
-        List<String> dashboardPairs = PairUtils.getTickersToDisplayThatSupported(this);
+        List<String> dashboardPairs = appPreferences.getPairsToDisplay();
+
         pairsToCheck.addAll(dashboardPairs);
         pairsToCheck.addAll(watcherPairs());
 

@@ -26,7 +26,6 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -49,7 +48,6 @@ import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.Watcher;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class NotifiersFragment extends Fragment {
@@ -164,7 +162,6 @@ public class NotifiersFragment extends Fragment {
 
         Spinner pairsSpinner = (Spinner) dialogContentView.findViewById(R.id.PairSpinner);
         List<String> pairs = new ArrayList<>(appPreferences.getExchangePairs());
-        Collections.sort(pairs);
         ArrayAdapter<String> pairsAdapter = new ArrayAdapter<>(getActivity(),
                 android.R.layout.simple_spinner_item, pairs);
         pairsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -173,7 +170,7 @@ public class NotifiersFragment extends Fragment {
         Spinner watcherTypeSpinner = (Spinner) dialogContentView.findViewById(R.id.TypeSpinner);
 
         ArrayAdapter<CharSequence> watcherTypesAdapter =
-                new ArrayAdapter<CharSequence>(getActivity(), android.R.layout.simple_spinner_item,
+                new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item,
                         new CharSequence[]{
                                 getString(R.string.watcher_panic_sell),
                                 getString(R.string.watcher_panic_buy),

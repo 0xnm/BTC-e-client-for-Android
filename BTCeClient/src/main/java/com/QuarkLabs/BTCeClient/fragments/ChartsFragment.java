@@ -74,14 +74,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.text.DecimalFormat;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -223,8 +222,7 @@ public class ChartsFragment extends Fragment {
                     getView().findViewById(R.id.ChartsContainer);
             chartsContainer.removeAllViews();
 
-            Set<String> pairsSet = new HashSet<>(
-                    PairUtils.getChartsToDisplayThatSupported(getActivity()));
+            List<String> pairs = appPreferences.getChartsToDisplay();
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -238,11 +236,9 @@ public class ChartsFragment extends Fragment {
             noCharts.setText(R.string.no_charts_text);
             noCharts.setTypeface(Typeface.DEFAULT_BOLD);
             //if no pairs to display found in prefs, display "NO CHARTS" text
-            if (pairsSet.size() == 0) {
+            if (pairs.isEmpty()) {
                 chartsContainer.addView(noCharts);
             }
-            String[] pairs = pairsSet.toArray(new String[pairsSet.size()]);
-            Arrays.sort(pairs);
 
             for (String pair : pairs) {
                 WebView chartView = new WebView(getActivity());
@@ -446,8 +442,7 @@ public class ChartsFragment extends Fragment {
             chartsContainer.removeAllViews();
 
             chartsMap = new HashMap<>();
-            Set<String> pairsSet = new HashSet<>(
-                    PairUtils.getChartsToDisplayThatSupported(getActivity()));
+            List<String> pairs = appPreferences.getChartsToDisplay();
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
@@ -461,11 +456,9 @@ public class ChartsFragment extends Fragment {
             noCharts.setText(getString(R.string.no_charts_text));
             noCharts.setTypeface(Typeface.DEFAULT_BOLD);
             //if no pairs to display found in prefs, display "NO CHARTS" text
-            if (pairsSet.isEmpty()) {
+            if (pairs.isEmpty()) {
                 chartsContainer.addView(noCharts);
             }
-            String[] pairs = pairsSet.toArray(new String[pairsSet.size()]);
-            Arrays.sort(pairs);
 
             for (String x : pairs) {
                 View element = LayoutInflater.from(getActivity())
@@ -582,14 +575,13 @@ public class ChartsFragment extends Fragment {
                 return;
             }
             if (chartsMap.size() > 0) {
-                Set<String> chartNames = chartsMap.keySet();
-                String[] chartsNamesSorted = chartNames.toArray(new String[chartNames.size()]);
-                Arrays.sort(chartsNamesSorted);
+                List<String> chartNames = new ArrayList<>(chartsMap.keySet());
+                Collections.sort(chartNames, PairUtils.CURRENCY_COMPARATOR);
                 if (getActivity() != null) {
                     isUpdating = true;
                     getActivity().invalidateOptionsMenu();
                 }
-                for (String pair : chartsNamesSorted) {
+                for (String pair : chartNames) {
                     chartsUpdater.queueChart(
                             (StockChartView) chartsMap.get(pair).findViewById(R.id.stockChartView),
                             pair);

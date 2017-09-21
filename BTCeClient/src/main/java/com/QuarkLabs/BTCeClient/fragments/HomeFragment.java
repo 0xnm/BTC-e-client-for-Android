@@ -193,7 +193,6 @@ public class HomeFragment extends Fragment implements
         tradeAmountView = (EditText) view.findViewById(R.id.TradeAmount);
 
         List<String> currencies = new ArrayList<>(appPreferences.getExchangeCurrencies());
-        Collections.sort(currencies);
         ArrayAdapter<String> currenciesAdapter = new ArrayAdapter<>(
                 getActivity(), android.R.layout.simple_spinner_item, currencies);
         currenciesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -346,7 +345,7 @@ public class HomeFragment extends Fragment implements
      * Updates TickerStorage with new tickers
      */
     private void updateStorageWithTickers() {
-        List<String> pairs = PairUtils.getTickersToDisplayThatSupported(getActivity());
+        List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
             TickersStorage.loadLatestData().clear();
@@ -419,8 +418,7 @@ public class HomeFragment extends Fragment implements
 
     private void refreshDashboardAdapter() {
         Map<String, Ticker> latestTickers = TickersStorage.loadLatestData();
-        Set<String> dashboardPairs = new HashSet<>(
-                PairUtils.getTickersToDisplayThatSupported(getActivity()));
+        Set<String> dashboardPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {
             if (dashboardPairs.contains(pair)) {
@@ -469,7 +467,7 @@ public class HomeFragment extends Fragment implements
         fundsContainer.removeAllViews();
 
         List<String> currencies = new ArrayList<>(funds.keySet());
-        Collections.sort(currencies);
+        Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
 
         TableRow.LayoutParams layoutParams = new TableRow
                 .LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);

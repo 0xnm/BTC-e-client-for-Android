@@ -5,7 +5,11 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class AppPreferences {
@@ -64,9 +68,27 @@ public class AppPreferences {
         return preferences.getBoolean(KEY_USE_OLD_CHARTS, false);
     }
 
+    /**
+     * Get charts to display, that are currently supported by exchange.
+     *
+     * @return Charts to display, that are currently supported by exchange.
+     */
     @NonNull
-    public Set<String> getChartsToDisplay() {
-        return preferences.getStringSet(KEY_CHARTS_TO_DISPLAY, new HashSet<String>());
+    public List<String> getChartsToDisplay() {
+        Set<String> supportedPairs = getExchangePairsInternal();
+        Set<String> chartsToDisplay = preferences
+                .getStringSet(KEY_CHARTS_TO_DISPLAY, new HashSet<String>());
+
+        List<String> supportedChartsToDisplay = new ArrayList<>();
+
+        for (String pair : chartsToDisplay) {
+            if (supportedPairs.contains(pair)) {
+                supportedChartsToDisplay.add(pair);
+            }
+        }
+
+        Collections.sort(supportedChartsToDisplay, PairUtils.CURRENCY_COMPARATOR);
+        return supportedChartsToDisplay;
     }
 
     public void setChartsToDisplay(@NonNull Set<String> charts) {
@@ -75,14 +97,34 @@ public class AppPreferences {
                 .apply();
     }
 
+    /**
+     * Get tickers to display on the home screen (as cards), that are currently supported by
+     * exchange.
+     *
+     * @return Tickers to display on the home screen (as cards), that are currently supported by
+     * exchange.
+     */
     @NonNull
-    public Set<String> getPairsToDisplay() {
-        return preferences.getStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<String>());
+    public List<String> getPairsToDisplay() {
+        Set<String> supportedPairs = getExchangePairsInternal();
+        Set<String> pairsToDisplay = preferences
+                .getStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<String>());
+
+        List<String> supportedPairsToDisplay = new ArrayList<>();
+
+        for (String pair : pairsToDisplay) {
+            if (supportedPairs.contains(pair)) {
+                supportedPairsToDisplay.add(pair);
+            }
+        }
+
+        Collections.sort(supportedPairsToDisplay, PairUtils.CURRENCY_COMPARATOR);
+        return supportedPairsToDisplay;
     }
 
-    public void setPairsToDisplay(@NonNull Set<String> pairs) {
+    public void setPairsToDisplay(@NonNull Collection<String> pairs) {
         preferences.edit()
-                .putStringSet(KEY_PAIRS_TO_DISPLAY, pairs)
+                .putStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<>(pairs))
                 .apply();
     }
 
@@ -95,9 +137,9 @@ public class AppPreferences {
      *
      * @param pairs Pair supported by exchange
      */
-    public void setExchangePairs(@NonNull Set<String> pairs) {
+    public void setExchangePairs(@NonNull Collection<String> pairs) {
         preferences.edit()
-                .putStringSet(KEY_EXCHANGE_PAIRS, pairs)
+                .putStringSet(KEY_EXCHANGE_PAIRS, new HashSet<>(pairs))
                 .apply();
     }
 
@@ -107,21 +149,30 @@ public class AppPreferences {
      * @return Pairs supported by exchange
      */
     @NonNull
-    public Set<String> getExchangePairs() {
+    public List<String> getExchangePairs() {
+        List<String> exchangePairs = new ArrayList<>(getExchangePairsInternal());
+        Collections.sort(exchangePairs, PairUtils.CURRENCY_COMPARATOR);
+        return exchangePairs;
+    }
+
+    @NonNull
+    public Set<String> getExchangePairsInternal() {
         return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<String>());
     }
 
     @NonNull
-    public Set<String> getExchangeCurrencies() {
-        Set<String> pairs = getExchangePairs();
-        Set<String> currencies = new HashSet<>();
+    public List<String> getExchangeCurrencies() {
+        Set<String> pairs = getExchangePairsInternal();
+        Set<String> currenciesSet = new HashSet<>();
 
         for (String pair : pairs) {
             String[] pairCurrencies = pair.split("/");
-            currencies.add(pairCurrencies[0]);
-            currencies.add(pairCurrencies[1]);
+            currenciesSet.add(pairCurrencies[0]);
+            currenciesSet.add(pairCurrencies[1]);
         }
 
+        List<String> currencies = new ArrayList<>(currenciesSet);
+        Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
         return currencies;
     }
 }

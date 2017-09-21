@@ -22,6 +22,7 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.content.Context;
 import android.content.Loader;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -58,8 +59,9 @@ import org.stockchart.core.Axis;
 import org.stockchart.series.LinearSeries;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+
+import static android.widget.ListPopupWindow.WRAP_CONTENT;
 
 public class OrdersBookFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<CallResult<Depth>> {
@@ -94,10 +96,16 @@ public class OrdersBookFragment extends Fragment
         pairsSpinner = (Spinner) LayoutInflater.from(themedContext)
                 .inflate(R.layout.spinner, null);
         List<String> pairs = new ArrayList<>(appPreferences.getExchangePairs());
-        Collections.sort(pairs);
-        pairsSpinner.setAdapter(new ArrayAdapter<>(
+        ArrayAdapter<String> pairsAdapter = new ArrayAdapter<>(
                 new ContextThemeWrapper(themedContext, R.style.ThemeOverlay_AppCompat_Light),
-                android.R.layout.simple_list_item_1, pairs));
+                android.R.layout.simple_spinner_item, pairs);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+            pairsSpinner.setDropDownWidth((int) TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP, 150, getResources().getDisplayMetrics()));
+        }
+        pairsAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        pairsSpinner.setAdapter(pairsAdapter);
 
         //restoring spinner position
         if (spinnerPosition != -1) {

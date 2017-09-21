@@ -2,8 +2,6 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.PairUtils;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
