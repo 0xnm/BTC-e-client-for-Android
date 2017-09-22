@@ -31,6 +31,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.util.Log;
@@ -308,7 +309,8 @@ public class ChartsFragment extends Fragment {
             chartsUpdater.setListener(new Listener<StockChartView>() {
                 @Override
                 public void onChartDownloaded(@NonNull StockChartView view,
-                                              @NonNull String pair, @NonNull final String[] data) {
+                                              @NonNull String pair,
+                                              @NonNull final String[] data) {
 
                     final StockSeries fPriceSeries = new StockSeries();
                     fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
@@ -641,7 +643,9 @@ public class ChartsFragment extends Fragment {
                         isUpdating = false;
                         activity.invalidateOptionsMenu();
                     }
-                    mListener.onChartDownloaded(token, pair, data);
+                    if (data != null) {
+                        mListener.onChartDownloaded(token, pair, data);
+                    }
                 }
             });
         }
@@ -667,13 +671,14 @@ public class ChartsFragment extends Fragment {
 
     private class ChartDataDownloader {
 
+        @Nullable
         String[] getChartData(String pair) {
 
             StringBuilder out = new StringBuilder();
             BufferedReader rd = null;
             pair = PairUtils.localToServer(pair);
             try {
-                URL url = new URL(BtcEApplication.get(getActivity()).getHostUrl()
+                URL url = new URL(appPreferences.getExchangeUrl()
                         + (isToken(pair) ? "/tokens/" : "/exchange/") + pair);
                 HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
                 connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));

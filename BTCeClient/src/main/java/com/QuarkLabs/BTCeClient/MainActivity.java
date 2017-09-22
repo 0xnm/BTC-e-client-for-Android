@@ -26,7 +26,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.media.RingtoneManager;
 import android.os.Bundle;
@@ -59,8 +58,7 @@ import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import java.util.concurrent.TimeUnit;
 
 
-public class MainActivity extends AppCompatActivity
-        implements ActivityCallbacks, SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity implements ActivityCallbacks {
 
     private boolean isAlarmSet;
 
@@ -79,6 +77,7 @@ public class MainActivity extends AppCompatActivity
     private Runnable displayTask;
 
     private AppPreferences appPreferences;
+    private PreferencesListener preferencesListener = new PreferencesListener();
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -108,7 +107,7 @@ public class MainActivity extends AppCompatActivity
             setSupportActionBar(toolbar);
         }
 
-        appPreferences.registerOnSharedPreferenceChangeListener(this);
+        appPreferences.addListener(preferencesListener);
 
         isAlarmSet = appPreferences.isPeriodicCheckEnabled();
         if (isAlarmSet) {
@@ -160,7 +159,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     protected void onDestroy() {
-        appPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        appPreferences.addListener(preferencesListener);
         super.onDestroy();
     }
 
@@ -296,18 +295,16 @@ public class MainActivity extends AppCompatActivity
         mNotificationManager.notify(id, mBuilder.build());
     }
 
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (appPreferences.keyCheckEnabled.equals(key)) {
-            isAlarmSet = appPreferences.isPeriodicCheckEnabled();
+    private final class PreferencesListener extends AppPreferences.Listener {
+        @Override
+        public void onCheckStatus(boolean isEnabled, @Nullable String periodMillis) {
+            isAlarmSet = isEnabled;
             if (isAlarmSet) {
-                setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
+                setRecurringAlarm(Integer.parseInt(periodMillis));
             } else {
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
                 alarmManager.cancel(pendingIntentForRecurringCheck());
             }
-        } else if (appPreferences.keyCheckPeriod.equals(key)) {
-            setRecurringAlarm(Integer.parseInt(appPreferences.getCheckPeriodMillis()));
         }
     }
 }

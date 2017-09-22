@@ -28,16 +28,17 @@
             android:key="@string/settings_key_check_period"
             android:summary="@string/CheckPeriodSummary"
             android:title="@string/check_period_option" />
-        <!--<CheckBoxPreference
-            android:defaultValue="false"
-            android:key="use_mirror"
-            android:title="@string/UseMirror" />-->
     </PreferenceCategory>
     <PreferenceCategory android:title="Exchange">
         <Preference
             android:key="@string/settings_key_sync_exchange_pairs"
             android:summary="@string/settings_sync_exchange_summary"
             android:title="@string/settings_sync_exchange_title" />
+        <com.QuarkLabs.BTCeClient.NoSpaceEditTextPreference
+            android:defaultValue="@string/settings_exchange_url_default"
+            android:key="@string/settings_key_exchange_url"
+            android:singleLine="true"
+            android:title="@string/settings_exchange_url_title" />
     </PreferenceCategory>
     <!--<PreferenceCategory
         android:key="charts"

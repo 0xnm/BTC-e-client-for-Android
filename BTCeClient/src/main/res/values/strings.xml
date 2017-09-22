@@ -196,6 +196,9 @@
     <string name="msg_syncing_with_exchange">Syncing with exchange</string>
     <string name="settings_sync_exchange_summary">Synchronize pairs available in the app with current state of exchange</string>
     <string name="settings_sync_exchange_title">Sync exchange pairs</string>
+    <string name="settings_exchange_url_title">Exchange URL</string>
+    <string name="settings_exchange_url_default">https://wex.nz</string>
+    <string name="exchange_url_no_https_warning">New value doesn\'t have "https://" protocol specified. Do you want to proceed?</string>
 
     <!-- Settings keys -->
     <string name="settings_key_api_key" translatable="false">API_Key</string>
@@ -203,4 +206,5 @@
     <string name="settings_key_check_enabled" translatable="false">check_enabled</string>
     <string name="settings_key_check_period" translatable="false">check_period</string>
     <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
+    <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
 </resources>

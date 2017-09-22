@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,15 +13,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class AppPreferences {
+public class AppPreferences implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     // should be strictly aligned with key in preferences.xml
-    public final String keyApiKey;
-    public final String keyApiSecret;
-    public final String keyCheckEnabled;
-    public final String keyCheckPeriod;
+    private final String keyApiKey;
+    private final String keyApiSecret;
+    private final String keyCheckEnabled;
+    private final String keyCheckPeriod;
+    private final String keyExchangeUrl;
 
-    private static final String KEY_USE_MIRROR = "use_mirror";
+    private final String defaultExchangeUrl;
+
     private static final String KEY_USE_OLD_CHARTS = "use_btce_charts";
 
     private static final String KEY_CHARTS_TO_DISPLAY = "ChartsToDisplay";
@@ -28,25 +31,21 @@ public class AppPreferences {
 
     private static final String KEY_EXCHANGE_PAIRS = "EXCHANGE_PAIRS";
 
+    private final Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>());
+
     @NonNull
     private final SharedPreferences preferences;
 
     AppPreferences(@NonNull Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences.registerOnSharedPreferenceChangeListener(this);
         keyApiKey = context.getString(R.string.settings_key_api_key);
         keyApiSecret = context.getString(R.string.settings_key_api_secret);
         keyCheckEnabled = context.getString(R.string.settings_key_check_enabled);
         keyCheckPeriod = context.getString(R.string.settings_key_check_period);
-    }
+        keyExchangeUrl = context.getString(R.string.settings_key_exchange_url);
 
-    public void registerOnSharedPreferenceChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        preferences.registerOnSharedPreferenceChangeListener(listener);
-    }
-
-    public void unregisterOnSharedPreferenceChangeListener(
-            SharedPreferences.OnSharedPreferenceChangeListener listener) {
-        preferences.unregisterOnSharedPreferenceChangeListener(listener);
+        defaultExchangeUrl = context.getString(R.string.settings_exchange_url_default);
     }
 
     @NonNull
@@ -156,7 +155,7 @@ public class AppPreferences {
     }
 
     @NonNull
-    public Set<String> getExchangePairsInternal() {
+    private Set<String> getExchangePairsInternal() {
         return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<String>());
     }
 
@@ -174,5 +173,52 @@ public class AppPreferences {
         List<String> currencies = new ArrayList<>(currenciesSet);
         Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
         return currencies;
+    }
+
+    public void addListener(@NonNull Listener listener) {
+        this.listeners.add(listener);
+    }
+
+    public void removeListener(@NonNull Listener listener) {
+        this.listeners.remove(listener);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        for (Listener listener : listeners) {
+            if (keyApiKey.equals(key)) {
+                listener.onApiKeyChanged(getApiKey());
+            } else if (keyApiSecret.equals(key)) {
+                listener.onApiSecretChanged(getApiSecret());
+            } else if (keyExchangeUrl.equals(key)) {
+                listener.onExchangeUrlChanged(getExchangeUrl());
+            } else if (keyCheckEnabled.equals(key) || keyCheckPeriod.equals(key)) {
+                listener.onCheckStatus(isPeriodicCheckEnabled(), getCheckPeriodMillis());
+            }
+        }
+    }
+
+    @NonNull
+    public String getExchangeUrl() {
+        return preferences.getString(keyExchangeUrl, defaultExchangeUrl);
+    }
+
+    public static abstract class Listener {
+        public void onApiKeyChanged(@Nullable String apiKey) {
+            // do nothing
+        }
+
+        public void onApiSecretChanged(@Nullable String apiKey) {
+            // do nothing
+        }
+
+        public void onCheckStatus(boolean isEnabled, @Nullable String periodMillis) {
+            // do nothing
+        }
+
+        public void onExchangeUrlChanged(@NonNull String apiUrl) {
+            // do nothing
+        }
+
     }
 }
