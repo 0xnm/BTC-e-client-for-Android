@@ -20,12 +20,15 @@ package com.QuarkLabs.BTCeClient.fragments;
 
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Loader;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
@@ -38,8 +41,7 @@ import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
 import com.QuarkLabs.BTCeClient.loaders.ExchangeInfoLoader;
 
 public class SettingsFragment extends PreferenceFragment
-        implements SharedPreferences.OnSharedPreferenceChangeListener,
-        LoaderManager.LoaderCallbacks<CallResult<ExchangeInfo>> {
+        implements LoaderManager.LoaderCallbacks<CallResult<ExchangeInfo>> {
 
     private static final int EXCHANGE_INFO_LOADER_ID = 0;
     private static final String IS_EXCHANGE_SYNC_ONGOING_KEY = "IS_EXCHANGE_SYNC_ONGOING";
@@ -52,6 +54,21 @@ public class SettingsFragment extends PreferenceFragment
     private boolean isExchangeSyncOngoing;
     @Nullable
     private ProgressDialog exchangeSyncProgressDialog;
+
+    private AppPreferences.Listener appPrefListener = new AppPreferences.Listener() {
+        @Override
+        public void onCheckStatus(boolean isEnabled, @Nullable String periodMillis) {
+            String currentPeriodText = findCheckPeriodText();
+            final String keyCheckPeriod = getString(R.string.settings_key_check_period);
+            Preference checkPeriod = findPreference(keyCheckPeriod);
+            if (isEnabled) {
+                checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
+                        .replace(getString(R.string.NATitle), currentPeriodText));
+            } else {
+                checkPeriod.setSummary(mDefaultCheckPeriodSummaryText);
+            }
+        }
+    };
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -78,6 +95,40 @@ public class SettingsFragment extends PreferenceFragment
                         return true;
                     }
                 });
+
+        final EditTextPreference exchangeUrlPreference = (EditTextPreference) findPreference(
+                getString(R.string.settings_key_exchange_url));
+        exchangeUrlPreference.setSummary(appPreferences.getExchangeUrl());
+
+        exchangeUrlPreference.setOnPreferenceChangeListener(
+                new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(Preference preference, Object newValue) {
+                        final String newUrl = (String) newValue;
+                        if (!newUrl.startsWith("https://")) {
+                            showNonHttpsWarning(exchangeUrlPreference, newUrl);
+                            return false;
+                        }
+                        exchangeUrlPreference.setSummary(newUrl);
+                        return true;
+                    }
+                });
+    }
+
+    private void showNonHttpsWarning(@NonNull final EditTextPreference preference,
+                                     @NonNull final String newValue) {
+        new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.exchange_url_no_https_warning)
+                .setPositiveButton(android.R.string.yes,
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                preference.setText(newValue);
+                                preference.setSummary(newValue);
+                            }
+                        })
+                .setNegativeButton(android.R.string.no, null)
+                .show();
     }
 
     @Override
@@ -92,7 +143,7 @@ public class SettingsFragment extends PreferenceFragment
     @Override
     public void onResume() {
         super.onResume();
-        appPreferences.registerOnSharedPreferenceChangeListener(this);
+        appPreferences.addListener(appPrefListener);
     }
 
     private void showExchangeOngoingProgressDialog() {
@@ -106,28 +157,7 @@ public class SettingsFragment extends PreferenceFragment
     @Override
     public void onPause() {
         super.onPause();
-        appPreferences.unregisterOnSharedPreferenceChangeListener(this);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        String currentPeriodText = findCheckPeriodText();
-        final String keyCheckEnabled = getString(R.string.settings_key_check_enabled);
-        final String keyCheckPeriod = getString(R.string.settings_key_check_period);
-        if (keyCheckEnabled.equals(key)) {
-            boolean checkEnabled = sharedPreferences.getBoolean(key, false);
-            Preference checkPeriod = findPreference(keyCheckPeriod);
-            if (checkEnabled) {
-                checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
-                        .replace(getString(R.string.NATitle), currentPeriodText));
-            } else {
-                checkPeriod.setSummary(mDefaultCheckPeriodSummaryText);
-            }
-        } else if (keyCheckPeriod.equals(key)) {
-            Preference checkPeriod = findPreference(keyCheckPeriod);
-            checkPeriod.setSummary(mDefaultCheckPeriodSummaryText
-                    .replace(getString(R.string.NATitle), currentPeriodText));
-        }
+        appPreferences.removeListener(appPrefListener);
     }
 
     private String findCheckPeriodText() {

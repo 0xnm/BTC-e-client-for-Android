@@ -154,4 +154,6 @@
     <string name="msg_syncing_with_exchange">Синхронизация с биржей</string>
     <string name="settings_sync_exchange_summary">Синхронизировать пары, доступные в приложении, с текущим состоянием биржи</string>
     <string name="settings_sync_exchange_title">Синхронизировать пары с биржей</string>
+    <string name="settings_exchange_url_title">Адрес биржи</string>
+    <string name="exchange_url_no_https_warning">Новое значение не имеет протокола "https://". Вы хотите продолжить?</string>
 </resources>

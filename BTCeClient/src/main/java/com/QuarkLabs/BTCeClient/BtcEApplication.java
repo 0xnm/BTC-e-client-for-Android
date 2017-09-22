@@ -2,8 +2,8 @@ package com.QuarkLabs.BTCeClient;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.api.Api;
@@ -15,8 +15,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BtcEApplication extends Application implements
-        SharedPreferences.OnSharedPreferenceChangeListener {
+public class BtcEApplication extends Application {
 
     private Api api;
     private AppPreferences appPreferences;
@@ -35,13 +34,28 @@ public class BtcEApplication extends Application implements
                     .apply();
         }*/
 
-        appPreferences.registerOnSharedPreferenceChangeListener(this);
+        appPreferences.addListener(new AppPreferences.Listener() {
+            @Override
+            public void onApiKeyChanged(@Nullable String apiKey) {
+                refreshApiCredentials();
+            }
+
+            @Override
+            public void onApiSecretChanged(@Nullable String apiKey) {
+                refreshApiCredentials();
+            }
+
+            @Override
+            public void onExchangeUrlChanged(@NonNull String exchangeUrl) {
+                api.setHostUrl(exchangeUrl);
+            }
+        });
 
         SecurityManager securityManager = SecurityManager.getInstance(this);
 
         String apiKey = securityManager.decryptString(appPreferences.getApiKey());
         String apiSecret = securityManager.decryptString(appPreferences.getApiSecret());
-        api = new Api(this, getHostUrl(), apiKey, apiSecret);
+        api = new Api(this, appPreferences.getExchangeUrl(), apiKey, apiSecret);
 
         if (appPreferences.getExchangePairs().isEmpty()) {
             // if didn't update yet, lets set hardcoded one
@@ -73,10 +87,6 @@ public class BtcEApplication extends Application implements
         api.setCredentials(apiKey, apiSecret);
     }
 
-    public String getHostUrl() {
-        return "https://wex.nz";
-    }
-
     @NonNull
     public Api getApi() {
         return api;
@@ -89,13 +99,5 @@ public class BtcEApplication extends Application implements
 
     public static BtcEApplication get(@NonNull Context context) {
         return (BtcEApplication) context.getApplicationContext();
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (appPreferences.keyApiKey.equals(key)
-                || appPreferences.keyApiSecret.equals(key)) {
-            refreshApiCredentials();
-        }
     }
 }

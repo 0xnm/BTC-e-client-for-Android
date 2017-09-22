@@ -61,8 +61,6 @@ import org.stockchart.series.LinearSeries;
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.widget.ListPopupWindow.WRAP_CONTENT;
-
 public class OrdersBookFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<CallResult<Depth>> {
     private static final int LOADER_ID = 1;
