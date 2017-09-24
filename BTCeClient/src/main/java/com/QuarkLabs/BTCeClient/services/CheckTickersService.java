@@ -64,8 +64,10 @@ public class CheckTickersService extends IntentService {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-        Api api = BtcEApplication.get(this).getApi();
-        AppPreferences appPreferences = BtcEApplication.get(this).getAppPreferences();
+        final Api api = BtcEApplication.get(this).getApi();
+        final AppPreferences appPreferences = BtcEApplication.get(this).getAppPreferences();
+        final TickersStorage tickersStorage = BtcEApplication.get(this).getTickersStorage();
+
         Set<String> pairsToCheck = new HashSet<>();
         List<String> dashboardPairs = appPreferences.getPairsToDisplay();
 
@@ -92,7 +94,7 @@ public class CheckTickersService extends IntentService {
         List<Ticker> tickers = result.getPayload();
 
         List<NotificationMessage> messages =
-                createNotificationMessages(tickers, TickersStorage.loadLatestData());
+                createNotificationMessages(tickers, tickersStorage.getLatestData());
 
         for (NotificationMessage message : messages) {
             NotificationManager notificationManager =
@@ -123,7 +125,8 @@ public class CheckTickersService extends IntentService {
         for (Ticker ticker : tickers) {
             newData.put(ticker.getPair(), ticker);
         }
-        TickersStorage.saveData(newData);
+
+        tickersStorage.saveTickers(newData);
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_ACTION));
     }

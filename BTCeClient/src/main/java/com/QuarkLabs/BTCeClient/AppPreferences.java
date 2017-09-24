@@ -21,6 +21,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private final String keyCheckEnabled;
     private final String keyCheckPeriod;
     private final String keyExchangeUrl;
+    private final String keyLinkifyChat;
 
     private final String defaultExchangeUrl;
 
@@ -30,6 +31,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private static final String KEY_PAIRS_TO_DISPLAY = "PairsToDisplay";
 
     private static final String KEY_EXCHANGE_PAIRS = "EXCHANGE_PAIRS";
+    private static final String KEY_CHAT_LOCALE = "CHAT_LOCALE";
 
     private final Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>());
 
@@ -44,6 +46,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         keyCheckEnabled = context.getString(R.string.settings_key_check_enabled);
         keyCheckPeriod = context.getString(R.string.settings_key_check_period);
         keyExchangeUrl = context.getString(R.string.settings_key_exchange_url);
+        keyLinkifyChat = context.getString(R.string.settings_key_linkify_chat);
 
         defaultExchangeUrl = context.getString(R.string.settings_exchange_url_default);
     }
@@ -201,6 +204,29 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     @NonNull
     public String getExchangeUrl() {
         return preferences.getString(keyExchangeUrl, defaultExchangeUrl);
+    }
+
+    @WexLocale
+    @NonNull
+    public String getChatLocale() {
+        //noinspection WrongConstant
+        return preferences.getString(KEY_CHAT_LOCALE, WexLocale.EN);
+    }
+
+    public void setChatLocale(@NonNull @WexLocale String locale) {
+        preferences.edit()
+                .putString(KEY_CHAT_LOCALE, locale)
+                .apply();
+    }
+
+    public boolean isLinkifyChat() {
+        return preferences.getBoolean(keyLinkifyChat, false);
+    }
+
+    public void setLinkifyChat(boolean linkify) {
+        preferences.edit()
+                .putBoolean(keyLinkifyChat, linkify)
+                .apply();
     }
 
     public static abstract class Listener {

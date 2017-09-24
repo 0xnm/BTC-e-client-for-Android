@@ -22,6 +22,7 @@
         <item>My Trades</item>
         <item>My Transactions</item>
         <item>Charts</item>
+        <item>Chat</item>
         <item>Settings</item>
         <item>Watchers</item>
         <item>Help</item>
@@ -115,7 +116,8 @@
     <string name="AboutText"><![CDATA[<b>Used libraries: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
     <br /><br />
     <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies
-    <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br />
+    <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br /> <b>Why chat is displayed in \"read-only\" mode?</b> Unfortunately, WEX API doesn\'t have any methods to work with chat,
+     so that is why chat is being loaded from web-page in guest mode.<br /><br />
     Authors of this app are not affiliated with WEX exchange]]></string>
     <string name="StopLossDescription">You will be notified once the price get below the specified value</string>
     <string name="TakeProfitDescription">You will be notified once the price get above the specified value</string>
@@ -197,8 +199,19 @@
     <string name="settings_sync_exchange_summary">Synchronize pairs available in the app with current state of exchange</string>
     <string name="settings_sync_exchange_title">Sync exchange pairs</string>
     <string name="settings_exchange_url_title">Exchange URL</string>
+    <string name="settings_exchange_category_title">Exchange</string>
     <string name="settings_exchange_url_default">https://wex.nz</string>
     <string name="exchange_url_no_https_warning">New value doesn\'t have "https://" protocol specified. Do you want to proceed?</string>
+    <string name="language">Language</string>
+    <!-- order matters in lookup in ChatFragment -->
+    <array name="languages">
+        <item>English</item>
+        <item>Russian</item>
+        <item>Chinese</item>
+    </array>
+    <string name="chat_readonly_warning">Chat is working in read-only mode</string>
+    <string name="chat_linkify_warning">Warning: do not trust links in chat, it may contain malware content</string>
+    <string name="settings_chat_category_title">Chat</string>
 
     <!-- Settings keys -->
     <string name="settings_key_api_key" translatable="false">API_Key</string>
@@ -207,4 +220,7 @@
     <string name="settings_key_check_period" translatable="false">check_period</string>
     <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
     <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
+    <string name="settings_key_linkify_chat" translatable="false">linkify_chat</string>
+    <string name="chat_loading_error">Failed to load chat</string>
+    <string name="settings_linkify_chat">Show links in chat</string>
 </resources>

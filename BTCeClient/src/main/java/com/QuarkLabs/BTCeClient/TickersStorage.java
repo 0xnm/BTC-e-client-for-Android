@@ -22,19 +22,25 @@ import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.api.Ticker;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class TickersStorage {
-    private static Map<String, Ticker> mLatestTickers = new HashMap<>();
-    private static Map<String, Ticker> mPreviousTickers = new HashMap<>();
+    @NonNull
+    private final Map<String, Ticker> latestTickers =
+            Collections.synchronizedMap(new HashMap<String, Ticker>());
+    @NonNull
+    private final Map<String, Ticker> previousTickers =
+            Collections.synchronizedMap(new HashMap<String, Ticker>());
 
-    private TickersStorage() {
-    }
+    TickersStorage() { }
 
-    public static void saveData(Map<String, Ticker> newData) {
-        mPreviousTickers = new HashMap<>(mLatestTickers);
-        mLatestTickers = newData;
+    public void saveTickers(@NonNull Map<String, Ticker> newTickers) {
+        previousTickers.clear();
+        previousTickers.putAll(latestTickers);
+        latestTickers.clear();
+        latestTickers.putAll(newTickers);
     }
 
     /**
@@ -43,8 +49,8 @@ public final class TickersStorage {
      * @return Map in format pair - ticker
      */
     @NonNull
-    public static Map<String, Ticker> loadPreviousData() {
-        return new HashMap<>(mPreviousTickers);
+    public Map<String, Ticker> getPreviousData() {
+        return new HashMap<>(previousTickers);
     }
 
     /**
@@ -53,12 +59,12 @@ public final class TickersStorage {
      * @return Map in format pair - ticker
      */
     @NonNull
-    public static Map<String, Ticker> loadLatestData() {
-        return new HashMap<>(mLatestTickers);
+    public Map<String, Ticker> getLatestData() {
+        return new HashMap<>(latestTickers);
     }
 
-    public static void addNewTicker(Ticker ticker) {
-        mLatestTickers.put(ticker.getPair(), ticker);
+    public void addNewTicker(@NonNull Ticker ticker) {
+        latestTickers.put(ticker.getPair(), ticker);
     }
 
 }
