@@ -1,10 +1,15 @@
 package com.QuarkLabs.BTCeClient.ui.chat;
 
 import android.annotation.SuppressLint;
+import android.graphics.Typeface;
+import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.text.util.Linkify;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +22,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
+
+    private static final String DEFAULT_AUTHOR_COLOR = "#8da0b9";
 
     private List<ChatMessage> messages = new ArrayList<>();
 
@@ -42,14 +49,18 @@ class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
     @Override
     public void onBindViewHolder(ChatViewHolder holder, int position) {
         ChatMessage message = messages.get(position);
-        holder.authorView.setText(message.getAuthor() + ":");
-        if (message.getColor() != -1) {
-            holder.authorView.setTextColor(message.getColor());
-        } else {
-            holder.authorView.setTextColor(ContextCompat.getColor(holder.authorView.getContext(),
-                    R.color.chat_author_default));
-        }
-        holder.messageView.setText(message.getMessage());
+        SpannableString content = new SpannableString(
+                String.format("%s: %s", message.getAuthor(), message.getMessage()));
+
+        content.setSpan(new StyleSpan(Typeface.BOLD), 0,
+                message.getAuthor().length(), 0);
+        @ColorInt int authorColor = message.getColor() != -1 ?
+                message.getColor() : ContextCompat.getColor(holder.itemView.getContext(),
+                R.color.chat_author_default);
+        content.setSpan(new ForegroundColorSpan(authorColor), 0,
+                message.getAuthor().length(), 0);
+
+        holder.messageView.setText(content);
         if (isLinkify) {
             Linkify.addLinks(holder.messageView, Linkify.WEB_URLS);
         }
@@ -95,13 +106,10 @@ class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     static final class ChatViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView authorView;
         private TextView messageView;
 
         ChatViewHolder(View itemView) {
             super(itemView);
-
-            authorView = (TextView) itemView.findViewById(R.id.chat_author);
             messageView = (TextView) itemView.findViewById(R.id.chat_message);
         }
     }
