@@ -1,27 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/chat_message"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="2dp"
-    android:layout_marginTop="2dp"
-    android:gravity="top"
-    android:orientation="horizontal">
-
-    <TextView
-        android:id="@+id/chat_author"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/chat_author_default"
-        android:textStyle="bold"
-        tools:text="Admin" />
-
-    <TextView
-        android:id="@+id/chat_message"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:textIsSelectable="true"
-        tools:text="Message" />
-</LinearLayout>
+    android:layout_marginLeft="8dp"
+    android:layout_marginStart="8dp"
+    android:textIsSelectable="true"
+    tools:text="support: Message" />
