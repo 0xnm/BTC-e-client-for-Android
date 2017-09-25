@@ -5,12 +5,14 @@
             android:hint="@string/APIKeyDefaultText"
             android:key="@string/settings_key_api_key"
             android:singleLine="true"
+            android:summary="@string/setting_api_key_secret_location_hint"
             android:title="@string/KeyTitle" />
 
         <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
             android:hint="@string/APISecretDefaultText"
             android:key="@string/settings_key_api_secret"
             android:singleLine="true"
+            android:summary="@string/setting_api_key_secret_location_hint"
             android:title="@string/SettingsSecretTitle" />
 
     </PreferenceCategory>
