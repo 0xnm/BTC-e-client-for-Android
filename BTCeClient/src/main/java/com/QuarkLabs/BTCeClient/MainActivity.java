@@ -54,6 +54,7 @@ import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
 import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
+import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
 
 import java.util.concurrent.TimeUnit;
 
@@ -195,12 +196,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCallbacks
                 fragment = new ChartsFragment();
                 break;
             case 6:
-                fragment = new SettingsFragment();
+                fragment = new ChatFragment();
                 break;
             case 7:
-                fragment = new NotifiersFragment();
+                fragment = new SettingsFragment();
                 break;
             case 8:
+                fragment = new NotifiersFragment();
+                break;
+            case 9:
                 fragment = new HelpFragment();
                 break;
             default:

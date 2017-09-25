@@ -107,6 +107,7 @@ public class HomeFragment extends Fragment implements
     private AlertDialog pairsDialog;
 
     private AppPreferences appPreferences;
+    private TickersStorage tickersStorage;
 
     @Override
     public void onAttach(Activity activity) {
@@ -136,6 +137,8 @@ public class HomeFragment extends Fragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
+        tickersStorage = BtcEApplication.get(getActivity()).getTickersStorage();
+
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
         final int dashboardSpacing = getResources()
@@ -348,20 +351,20 @@ public class HomeFragment extends Fragment implements
         List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
-            TickersStorage.loadLatestData().clear();
-            TickersStorage.loadPreviousData().clear();
+            tickersStorage.getLatestData().clear();
+            tickersStorage.getPreviousData().clear();
             return;
         }
         //checking for added tickers
         for (String pair : pairs) {
-            if (!TickersStorage.loadLatestData()
+            if (!tickersStorage.getLatestData()
                     .containsKey(PairUtils.localToServer(pair))) {
                 Ticker ticker = new Ticker(pair);
-                TickersStorage.addNewTicker(ticker);
+                tickersStorage.addNewTicker(ticker);
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = TickersStorage.loadLatestData().keySet().<String>iterator();
+        for (Iterator<String> iterator = tickersStorage.getLatestData().keySet().<String>iterator();
              iterator.hasNext();) {
             String key = iterator.next();
             if (!pairs.contains(key)) {
@@ -417,7 +420,7 @@ public class HomeFragment extends Fragment implements
     }
 
     private void refreshDashboardAdapter() {
-        Map<String, Ticker> latestTickers = TickersStorage.loadLatestData();
+        Map<String, Ticker> latestTickers = tickersStorage.getLatestData();
         Set<String> dashboardPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {

@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.TickersStorage;
@@ -51,16 +52,17 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet leftInAnimation;
     private final AnimatorSet rightOutAnimation;
     private final AnimatorSet rightInAnimation;
+    private final TickersStorage tickersStorage;
     private List<Ticker> tickers = new ArrayList<>();
 
-    private TickersDashboardAdapterCallbackInterface mCallback;
+    private TickersDashboardAdapterCallbackInterface callback;
     private int mNumColumns = 0;
     private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());
 
     public TickersDashboardAdapter(@NonNull Context context,
                                    TickersDashboardAdapterCallbackInterface callback) {
-        mCallback = callback;
+        this.callback = callback;
         leftOutAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_left_out);
         leftInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
@@ -69,6 +71,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
                 context, R.animator.card_flip_right_out);
         rightInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_right_in);
+        tickersStorage = BtcEApplication.get(context).getTickersStorage();
     }
 
     public int getNumColumns() {
@@ -108,7 +111,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
             view = (FlippingView) convertView;
         }
         Ticker ticker = tickers.get(position);
-        Ticker oldTicker = TickersStorage.loadPreviousData().get(ticker.getPair());
+        Ticker oldTicker = tickersStorage.getPreviousData().get(ticker.getPair());
 
         bindFrontSide(view, ticker, oldTicker);
         bindBackSide(view, ticker, oldTicker);
@@ -197,8 +200,8 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         String pair = (String) v.getTag();
         double price = Double.parseDouble(String.valueOf(clickedTextView.getText()));
         //just a safety measure
-        if (mCallback != null) {
-            mCallback.onPriceClicked(pair, price);
+        if (callback != null) {
+            callback.onPriceClicked(pair, price);
         }
     }
 

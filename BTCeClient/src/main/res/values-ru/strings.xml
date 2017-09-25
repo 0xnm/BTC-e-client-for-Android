@@ -22,6 +22,7 @@
         <item>Мои сделки</item>
         <item>Мои транзакции</item>
         <item>Графики</item>
+        <item>Чат</item>
         <item>Настройки</item>
         <item>Наблюдатели</item>
         <item>Помощь</item>
@@ -73,7 +74,8 @@
     <string name="AboutText"><![CDATA[<b>Использованные библиотеки: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
     <br /><br />
     <b>Полезные советы:</b><br /> Нажмите на любой паре в <b>Терминале</b> и поля раздела <b>Торговля</b> будут автоматически заполнены соответствующей парой и её значением
-    <br /><br /> Нажмите на любой валюте в разделе <b>Мои средства</b> и поле <b>Количество</b> секции <b>Торговля</b> будет автоматически заполнено<br /><br />
+    <br /><br /> Нажмите на любой валюте в разделе <b>Мои средства</b> и поле <b>Количество</b> секции <b>Торговля</b> будет автоматически заполнено<br /><br /> <b>Почему чат работает в режиме \"только чтение\"</b> К сожалению, API биржи не предоставляет методов для работы с чатом,
+     поэтому чат загружается с веб-страницы в гостевом режиме.<br /><br />
     Авторы этого приложения не связаны с wex.nz]]></string>
     <string name="StopLossDescription">Вы будете оповещены при падении значения ниже указанного уровня</string>
     <string name="TakeProfitDescription">Вы будете оповещены при превышении значения указанного уровня</string>
@@ -155,5 +157,17 @@
     <string name="settings_sync_exchange_summary">Синхронизировать пары, доступные в приложении, с текущим состоянием биржи</string>
     <string name="settings_sync_exchange_title">Синхронизировать пары с биржей</string>
     <string name="settings_exchange_url_title">Адрес биржи</string>
+    <string name="settings_exchange_category_title">Биржа</string>
     <string name="exchange_url_no_https_warning">Новое значение не имеет протокола "https://". Вы хотите продолжить?</string>
+    <string name="chat_loading_error">Не удалось загрузить чат</string>
+    <string name="language">Язык</string>
+    <array name="languages">
+        <item>Английский</item>
+        <item>Русский</item>
+        <item>Китайский</item>
+    </array>
+    <string name="chat_readonly_warning">Чат работает в режиме "только чтение"</string>
+    <string name="chat_linkify_warning">Внимание: не доверяйте ссылкам в чате, они могут содержать вредоносный контент</string>
+    <string name="settings_chat_category_title">Чат</string>
+    <string name="settings_linkify_chat">Показывать ссылки в чате</string>
 </resources>

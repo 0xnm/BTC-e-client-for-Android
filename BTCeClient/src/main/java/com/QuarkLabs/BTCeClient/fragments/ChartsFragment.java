@@ -34,7 +34,6 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -52,6 +51,7 @@ import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.PageDownloader;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
@@ -70,10 +70,6 @@ import org.stockchart.indicators.RsiIndicator;
 import org.stockchart.indicators.SmaIndicator;
 import org.stockchart.series.StockSeries;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -82,11 +78,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.net.ssl.HttpsURLConnection;
 
 public class ChartsFragment extends Fragment {
 
@@ -674,51 +667,23 @@ public class ChartsFragment extends Fragment {
         @Nullable
         String[] getChartData(String pair) {
 
-            StringBuilder out = new StringBuilder();
-            BufferedReader rd = null;
-            pair = PairUtils.localToServer(pair);
-            try {
-                URL url = new URL(appPreferences.getExchangeUrl()
-                        + (isToken(pair) ? "/tokens/" : "/exchange/") + pair);
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-                connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
-                connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
-                try {
-                    connection.addRequestProperty("Cookie", "old_charts=1");
-                    if (connection.getResponseCode() != HttpsURLConnection.HTTP_OK) {
-                        showError();
-                        return null;
-                    }
-                    rd = new BufferedReader(
-                            new InputStreamReader(connection.getInputStream()));
-                    String line;
-                    while ((line = rd.readLine()) != null) {
-                        out.append(line);
-                    }
-                    Pattern pattern = Pattern.compile("arrayToDataTable\\(\\[\\[(.+?)\\]\\], true");
-                    Matcher matcher = pattern.matcher(out.toString());
-                    if (matcher.find()) {
-                        //chart data
-                        return matcher.group(1).split("\\],\\[");
-                    } else {
-                        return null;
-                    }
-                } finally {
-                    if (connection != null) {
-                        connection.disconnect();
-                    }
-                    if (rd != null) {
-                        rd.close();
-                    }
-                }
-            } catch (IOException e) {
-                Log.e(ChartDataDownloader.class.getSimpleName(), "Failed to get chart data", e);
-            }
-            return null;
-        }
+            String content = new PageDownloader().download(appPreferences.getExchangeUrl(),
+                    pair, null);
 
-        private boolean isToken(String pair) {
-            return pair.split("_")[0].length() == 5;
+            if (content == null) {
+                showError();
+                return null;
+            }
+
+            Pattern pattern = Pattern.compile("arrayToDataTable\\(\\[\\[(.+?)\\]\\], true");
+            Matcher matcher = pattern.matcher(content);
+            if (matcher.find()) {
+                //chart data
+                return matcher.group(1).split("\\],\\[");
+            } else {
+                return null;
+            }
+
         }
     }
 

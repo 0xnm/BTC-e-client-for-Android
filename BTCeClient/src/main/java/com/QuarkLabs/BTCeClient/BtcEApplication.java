@@ -10,19 +10,29 @@ import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
 import com.QuarkLabs.BTCeClient.tasks.ApiResultListener;
 import com.QuarkLabs.BTCeClient.tasks.GetExchangeInfoTask;
+import com.QuarkLabs.BTCeClient.ui.chat.ChatMessage;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class BtcEApplication extends Application {
 
     private Api api;
+    @SuppressWarnings("NullableProblems")
+    @NonNull
     private AppPreferences appPreferences;
+    // in-memory storage, won't keep it across app restarts
+    @NonNull
+    private TickersStorage tickersStorage;
+    @Nullable
+    private List<ChatMessage> chatMessages;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        tickersStorage = new TickersStorage();
         appPreferences = new AppPreferences(this);
         /* // in Russia btc-e.com is blocked, so need to use mirror
         if ("RU".equalsIgnoreCase(getResources().getConfiguration().locale.getCountry())
@@ -97,7 +107,21 @@ public class BtcEApplication extends Application {
         return appPreferences;
     }
 
+    @NonNull
+    public TickersStorage getTickersStorage() {
+        return tickersStorage;
+    }
+
     public static BtcEApplication get(@NonNull Context context) {
         return (BtcEApplication) context.getApplicationContext();
+    }
+
+    @Nullable
+    public List<ChatMessage> getChatMessages() {
+        return chatMessages;
+    }
+
+    public void setChatMessages(@Nullable List<ChatMessage> chatMessages) {
+        this.chatMessages = chatMessages;
     }
 }

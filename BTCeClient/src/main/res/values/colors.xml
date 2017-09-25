@@ -7,5 +7,6 @@
     <color name="dashboard_card_front">#434343</color>
     <color name="dashboard_card_back">#263238</color>
     <color name="colorPrimary">#ffff9100</color>
+    <color name="chat_author_default">#ff8da0b9</color>
 
 </resources>
