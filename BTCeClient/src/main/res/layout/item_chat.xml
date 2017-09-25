@@ -22,5 +22,6 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginStart="8dp"
+        android:textIsSelectable="true"
         tools:text="Message" />
 </LinearLayout>

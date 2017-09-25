@@ -212,6 +212,9 @@
     <string name="chat_readonly_warning">Chat is working in read-only mode</string>
     <string name="chat_linkify_warning">Warning: do not trust links in chat, it may contain malware content</string>
     <string name="settings_chat_category_title">Chat</string>
+    <string name="chat_loading_error">Failed to load chat</string>
+    <string name="settings_linkify_chat">Show links in chat</string>
+    <string name="setting_api_key_secret_location_hint">Can be found in Profile on the website</string>
 
     <!-- Settings keys -->
     <string name="settings_key_api_key" translatable="false">API_Key</string>
@@ -221,6 +224,4 @@
     <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
     <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
     <string name="settings_key_linkify_chat" translatable="false">linkify_chat</string>
-    <string name="chat_loading_error">Failed to load chat</string>
-    <string name="settings_linkify_chat">Show links in chat</string>
 </resources>
