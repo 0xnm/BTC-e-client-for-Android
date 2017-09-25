@@ -200,7 +200,7 @@
     <string name="settings_sync_exchange_title">Sync exchange pairs</string>
     <string name="settings_exchange_url_title">Exchange URL</string>
     <string name="settings_exchange_category_title">Exchange</string>
-    <string name="settings_exchange_url_default">https://wex.nz</string>
+    <string name="settings_exchange_url_default" translatable="false">https://wex.nz</string>
     <string name="exchange_url_no_https_warning">New value doesn\'t have "https://" protocol specified. Do you want to proceed?</string>
     <string name="language">Language</string>
     <!-- order matters in lookup in ChatFragment -->
