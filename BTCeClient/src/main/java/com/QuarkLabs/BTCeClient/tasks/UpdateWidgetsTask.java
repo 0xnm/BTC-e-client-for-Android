@@ -136,7 +136,7 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         for (int widgetId : pairWidgets.keySet()) {
             RemoteViews views = new RemoteViews(appContext.getPackageName(),
                     R.layout.appwidget_layout);
-            Status status = statuses.get(PairUtils.localToServer(pairWidgets.get(widgetId)));
+            Status status = statuses.get(pairWidgets.get(widgetId));
             if (status == null) {
                 continue;
             }

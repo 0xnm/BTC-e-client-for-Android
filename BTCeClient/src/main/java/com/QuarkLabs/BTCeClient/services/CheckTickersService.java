@@ -190,14 +190,14 @@ public class CheckTickersService extends IntentService {
                             notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
                     switch (watcherType) {
                         case Watcher.PANIC_BUY:
-                            percent = watcherValue(notifiers) / 100;
-                            if (newValue > ((1 + percent) * oldValue)) {
+                            percent = watcherValue(notifiers);
+                            if (newValue > ((1 + (percent/100)) * oldValue)) {
                                 messages.add(createPanicBuyMessage(pair, percent));
                             }
                             break;
                         case Watcher.PANIC_SELL:
-                            percent = watcherValue(notifiers) / 100;
-                            if (newValue < ((1 - percent) * oldValue)) {
+                            percent = watcherValue(notifiers);
+                            if (newValue < ((1 - (percent / 100)) * oldValue)) {
                                 messages.add(createPanicSellMessage(pair, percent));
                             }
                             break;
