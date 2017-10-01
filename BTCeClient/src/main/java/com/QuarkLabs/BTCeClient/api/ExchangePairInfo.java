@@ -3,18 +3,18 @@ package com.QuarkLabs.BTCeClient.api;
 import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
+import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.math.BigDecimal;
 
 public class ExchangePairInfo {
     private String pair;
     private int decimalPlaces;
-    private double minPrice;
-    private double maxPrice;
-    private double minAmount;
+    private BigDecimal minPrice;
+    private BigDecimal maxPrice;
+    private BigDecimal minAmount;
     private boolean hidden;
-    private double fee;
+    private BigDecimal fee;
 
     private ExchangePairInfo() { }
 
@@ -26,15 +26,15 @@ public class ExchangePairInfo {
         return decimalPlaces;
     }
 
-    public double getMinPrice() {
+    public BigDecimal getMinPrice() {
         return minPrice;
     }
 
-    public double getMaxPrice() {
+    public BigDecimal getMaxPrice() {
         return maxPrice;
     }
 
-    public double getMinAmount() {
+    public BigDecimal getMinAmount() {
         return minAmount;
     }
 
@@ -42,21 +42,22 @@ public class ExchangePairInfo {
         return hidden;
     }
 
-    public double getFee() {
+    public BigDecimal getFee() {
         return fee;
     }
 
+    @NonNull
     public static ExchangePairInfo create(@NonNull String pair,
-                                          @NonNull JSONObject jsonObject) throws JSONException {
+                                          @NonNull JsonObject jsonObject) {
         ExchangePairInfo pairInfo = new ExchangePairInfo();
         pairInfo.pair = PairUtils.serverToLocal(pair);
-        pairInfo.decimalPlaces = jsonObject.getInt("decimal_places");
-        pairInfo.minPrice = jsonObject.getDouble("min_price");
-        pairInfo.maxPrice = jsonObject.getDouble("max_price");
-        pairInfo.decimalPlaces = jsonObject.getInt("decimal_places");
-        pairInfo.minAmount = jsonObject.getDouble("min_amount");
-        pairInfo.hidden = jsonObject.getInt("hidden") == 1;
-        pairInfo.fee = jsonObject.getDouble("fee");
+        pairInfo.decimalPlaces = jsonObject.get("decimal_places").getAsInt();
+        pairInfo.minPrice = jsonObject.get("min_price").getAsBigDecimal().stripTrailingZeros();
+        pairInfo.maxPrice = jsonObject.get("max_price").getAsBigDecimal().stripTrailingZeros();
+        pairInfo.decimalPlaces = jsonObject.get("decimal_places").getAsInt();
+        pairInfo.minAmount = jsonObject.get("min_amount").getAsBigDecimal().stripTrailingZeros();
+        pairInfo.hidden = jsonObject.get("hidden").getAsInt() == 1;
+        pairInfo.fee = jsonObject.get("fee").getAsBigDecimal().stripTrailingZeros();
         return pairInfo;
     }
 }

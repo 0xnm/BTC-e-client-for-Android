@@ -2,15 +2,15 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
+import java.math.BigDecimal;
 import java.util.Locale;
 
 public class Transaction {
     private long id;
     private int type;
-    private double amount;
+    private BigDecimal amount;
     private String currency;
     private String description;
     private int status;
@@ -27,7 +27,7 @@ public class Transaction {
         return type;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
@@ -47,16 +47,16 @@ public class Transaction {
         return timestamp;
     }
 
-    public static Transaction create(long id, @NonNull JSONObject jsonObject)
-            throws JSONException {
+    @NonNull
+    public static Transaction create(long id, @NonNull JsonObject jsonObject) {
         Transaction transaction = new Transaction();
         transaction.id = id;
-        transaction.currency = jsonObject.getString("currency").toUpperCase(Locale.US);
-        transaction.type = jsonObject.getInt("type");
-        transaction.amount = jsonObject.getDouble("amount");
-        transaction.description = jsonObject.getString("desc");
-        transaction.timestamp = jsonObject.getLong("timestamp");
-        transaction.status = jsonObject.getInt("status");
+        transaction.currency = jsonObject.get("currency").getAsString().toUpperCase(Locale.US);
+        transaction.type = jsonObject.get("type").getAsInt();
+        transaction.amount = jsonObject.get("amount").getAsBigDecimal().stripTrailingZeros();
+        transaction.description = jsonObject.get("desc").getAsString();
+        transaction.timestamp = jsonObject.get("timestamp").getAsLong();
+        transaction.status = jsonObject.get("status").getAsInt();
         return transaction;
     }
 }

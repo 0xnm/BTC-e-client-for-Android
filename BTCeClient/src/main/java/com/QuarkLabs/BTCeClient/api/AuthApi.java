@@ -25,9 +25,9 @@ import android.support.annotation.StringDef;
 import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -47,7 +47,6 @@ import java.net.URL;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -60,6 +59,7 @@ import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRANSACTIONS_HIST
 
 class AuthApi {
 
+    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final String TAG = AuthApi.class.getSimpleName();
 
     private String key;
@@ -119,35 +119,15 @@ class AuthApi {
      *
      * @param method     Method of Trade API
      * @param parameters Additional arguments, which can exist for this method
-     * @return Response of type {@link JSONObject}
+     * @return Response of type {@link JsonObject}
      */
     @Nullable
-    JSONObject makeRequest(@TradeMethod @NonNull String method,
+    JsonObject makeRequest(@TradeMethod @NonNull String method,
                            @Nullable Map<String, String> parameters) {
 
-        try {
-            return makeRequestInternal(method, parameters);
-        } catch (JSONException je) {
-            Log.e(AuthApi.class.getSimpleName(), "Error making auth request", je);
-            return null;
-        }
-    }
-
-    /**
-     * Makes any request, which require authentication
-     *
-     * @param method     Method of Trade API
-     * @param parameters Additional arguments, which can exist for this method
-     * @return Response of type {@link JSONObject}
-     * @throws JSONException Just because constructor of {@link JSONObject} can throw it
-     */
-    @Nullable
-    private JSONObject makeRequestInternal(@NonNull String method,
-                                           @Nullable Map<String, String> parameters)
-            throws JSONException {
         if (key.length() == 0 || secret.length() == 0) {
-            return new JSONObject("{success:0,error:'"
-                    + appContext.getString(R.string.no_key_secret_error) + "'}");
+            return JSON_PARSER.parse("{success:0,error:'"
+                    + appContext.getString(R.string.no_key_secret_error) + "'}").getAsJsonObject();
         }
 
         if (parameters == null) {
@@ -157,9 +137,7 @@ class AuthApi {
         parameters.put("method", method);
         parameters.put("nonce", "" + ++nonce);
         String postData = "";
-        for (Iterator<Map.Entry<String, String>> it = parameters.entrySet().iterator();
-             it.hasNext();) {
-            Map.Entry<String, String> ent = it.next();
+        for (Map.Entry<String, String> ent : parameters.entrySet()) {
             if (postData.length() > 0) {
                 postData += "&";
             }
@@ -192,6 +170,7 @@ class AuthApi {
         HttpURLConnection connection = null;
         BufferedReader bufferedReader = null;
         DataOutputStream wr = null;
+        //noinspection TryWithIdenticalCatches
         try {
             connection = (HttpURLConnection) (new URL(hostUrl + "/tapi"))
                     .openConnection();
@@ -214,10 +193,12 @@ class AuthApi {
                 while ((line = bufferedReader.readLine()) != null) {
                     sb.append(line);
                 }
-                return new JSONObject(sb.toString());
+                return JSON_PARSER.parse(sb.toString()).getAsJsonObject();
             }
         } catch (IOException e) {
             logException(e);
+        } catch (JsonParseException jpe) {
+            logException(jpe);
         } finally {
             if (connection != null) {
                 connection.disconnect();

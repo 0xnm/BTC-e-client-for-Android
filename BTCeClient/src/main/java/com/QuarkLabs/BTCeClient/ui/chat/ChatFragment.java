@@ -24,7 +24,6 @@ import com.QuarkLabs.BTCeClient.WexLocale;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 
 public class ChatFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<List<ChatMessage>> {

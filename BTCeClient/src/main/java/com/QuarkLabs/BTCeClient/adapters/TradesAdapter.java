@@ -47,20 +47,20 @@ public class TradesAdapter extends BaseAdapter {
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         TradeHistoryEntry trade = (TradeHistoryEntry) getItem(position);
-        View v;
+        View view;
         if (convertView == null) {
-            v = LayoutInflater.from(parent.getContext())
+            view = LayoutInflater.from(parent.getContext())
                     .inflate(R.layout.fragment_trade_history_item, parent, false);
         } else {
-            v = convertView;
+            view = convertView;
         }
 
-        TextView pairView = (TextView) v.findViewById(R.id.TradeHistoryPair);
-        TextView rateView = (TextView) v.findViewById(R.id.TradeHistoryRate);
-        TextView amountView = (TextView) v.findViewById(R.id.TradeHistoryAmount);
-        TextView typeView = (TextView) v.findViewById(R.id.TradeHistoryType);
-        TextView orderIdView = (TextView) v.findViewById(R.id.TradeHistoryOrderID);
-        TextView timestampView = (TextView) v.findViewById(R.id.TradeHistoryTimestamp);
+        TextView pairView = (TextView) view.findViewById(R.id.TradeHistoryPair);
+        TextView rateView = (TextView) view.findViewById(R.id.TradeHistoryRate);
+        TextView amountView = (TextView) view.findViewById(R.id.TradeHistoryAmount);
+        TextView typeView = (TextView) view.findViewById(R.id.TradeHistoryType);
+        TextView orderIdView = (TextView) view.findViewById(R.id.TradeHistoryOrderID);
+        TextView timestampView = (TextView) view.findViewById(R.id.TradeHistoryTimestamp);
 
         String pairValue = trade.getPair();
         checkPairFormat(pairValue);
@@ -70,11 +70,11 @@ public class TradesAdapter extends BaseAdapter {
         calendar.setTimeInMillis(trade.getTimestamp() * 1000L);
         timestampView.setText(dateTimeFormat.format(calendar.getTime()));
         pairView.setText(pairValue);
-        rateView.setText(trade.getRate() + " " + pairValue.substring(4));
-        amountView.setText(trade.getAmount() + " " + pairValue.substring(0, 3));
+        rateView.setText(trade.getRate().toPlainString() + " " + pairValue.substring(4));
+        amountView.setText(trade.getAmount().toPlainString() + " " + pairValue.substring(0, 3));
         typeView.setText(String.valueOf(trade.getType()));
 
-        return v;
+        return view;
     }
 
     private void checkPairFormat(String pair) {

@@ -32,14 +32,13 @@ import android.widget.RemoteViews;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.DBWorker;
-import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WidgetProvider;
 import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 
-import java.text.DecimalFormat;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -99,9 +98,9 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
         for (Ticker ticker : result.getPayload()) {
             String pair = ticker.getPair();
             ContentValues cv = new ContentValues(4);
-            double last = ticker.getLast();
-            double sell = ticker.getSell();
-            double buy = ticker.getBuy();
+            double last = ticker.getLast().doubleValue();
+            double sell = ticker.getSell().doubleValue();
+            double buy = ticker.getBuy().doubleValue();
             cv.put("last", last);
             cv.put("buy", buy);
             cv.put("sell", sell);
@@ -140,14 +139,9 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
             if (status == null) {
                 continue;
             }
-            double price = status.ticker.getLast();
-            String priceString;
-            if (price > 1) {
-                priceString = new DecimalFormat("#.##").format(price);
-            } else {
-                priceString = String.valueOf(price);
-            }
-            views.setTextViewText(R.id.widgetCurrencyValue, priceString);
+            BigDecimal price = status.ticker.getLast();
+
+            views.setTextViewText(R.id.widgetCurrencyValue, price.toPlainString());
             views.setTextViewText(R.id.widgetPair, pairWidgets.get(widgetId));
 
             int colorValue = status.color;
@@ -159,11 +153,12 @@ public class UpdateWidgetsTask extends AsyncTask<Void, Void,
                     appWidgetManager.getAppWidgetIds(new ComponentName(appContext,
                             WidgetProvider.class)));
             intent.putExtras(bundle);
-            PendingIntent pi = PendingIntent.getBroadcast(appContext,
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(appContext,
                     0,
                     intent,
                     PendingIntent.FLAG_UPDATE_CURRENT);
-            views.setOnClickPendingIntent(R.id.widgetContainer, pi);
+
+            views.setOnClickPendingIntent(R.id.widgetContainer, pendingIntent);
             SimpleDateFormat df = new SimpleDateFormat("EEE HH:mm", Locale.US);
             Calendar calendar = Calendar.getInstance();
             views.setTextViewText(R.id.widgetDate, df.format(calendar.getTime()));

@@ -71,7 +71,9 @@
     <string name="watcher_alarm_stop_loss_details">%1$s упало ниже %2$s %3$s</string>
     <string name="watcher_alarm_take_profit_details">%1$s поднялось больше %2$s %3$s</string>
 
-    <string name="AboutText"><![CDATA[<b>Использованные библиотеки: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
+    <string name="AboutText"><![CDATA[<b>Использованные библиотеки: </b><br />StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)
+    <br />GSON (<a href=\"https://github.com/google/gson\">https://github.com/google/gson</a>)
+    <br />jsoup (<a href=\"https://jsoup.org\">https://jsoup.org</a>)
     <br /><br />
     <b>Полезные советы:</b><br /> Нажмите на любой паре в <b>Терминале</b> и поля раздела <b>Торговля</b> будут автоматически заполнены соответствующей парой и её значением
     <br /><br /> Нажмите на любой валюте в разделе <b>Мои средства</b> и поле <b>Количество</b> секции <b>Торговля</b> будет автоматически заполнено<br /><br /> <b>Почему чат работает в режиме \"только чтение\"</b> К сожалению, API биржи не предоставляет методов для работы с чатом,

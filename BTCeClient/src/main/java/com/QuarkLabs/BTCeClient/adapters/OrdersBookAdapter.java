@@ -28,15 +28,13 @@ import android.widget.TextView;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.PriceVolumePair;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
+import java.math.BigDecimal;
 import java.util.List;
-import java.util.Locale;
 
 public class OrdersBookAdapter extends BaseAdapter {
 
     private List<PriceVolumePair> data;
-    private double maxVolume = 0;
+    private BigDecimal maxVolume = new BigDecimal(0);
 
     @Override
     public int getCount() {
@@ -63,13 +61,13 @@ public class OrdersBookAdapter extends BaseAdapter {
             v = convertView;
         }
         PriceVolumePair priceVolume = (PriceVolumePair) getItem(position);
-        double price = priceVolume.getPrice();
-        double volume = priceVolume.getVolume();
+        BigDecimal price = priceVolume.getPrice();
+        BigDecimal volume = priceVolume.getVolume();
         TextView priceView = (TextView) v.findViewById(R.id.orderBookPrice);
         TextView volumeView = (TextView) v.findViewById(R.id.ordersBookVolume);
-        priceView.setText(decimalToStringWithoutExponent(price));
-        volumeView.setText(decimalToStringWithoutExponent(volume));
-        if (volume == maxVolume) {
+        priceView.setText(price.toPlainString());
+        volumeView.setText(volume.toPlainString());
+        if (volume.equals(maxVolume)) {
             priceView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
             volumeView.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
         } else {
@@ -80,12 +78,6 @@ public class OrdersBookAdapter extends BaseAdapter {
         return v;
     }
 
-    private String decimalToStringWithoutExponent(double value) {
-        DecimalFormat df = new DecimalFormat("0", DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-        df.setMaximumFractionDigits(340);
-        return df.format(value);
-    }
-
     /**
      * Updates data in adapter
      *
@@ -94,7 +86,7 @@ public class OrdersBookAdapter extends BaseAdapter {
     public void pushData(List<PriceVolumePair> data) {
         this.data = data;
         for (int i = 0; i < data.size(); i++) {
-            maxVolume = maxVolume < data.get(i).getVolume() ?
+            maxVolume = maxVolume.compareTo(data.get(i).getVolume()) < 0 ?
                     data.get(i).getVolume() : maxVolume;
         }
         notifyDataSetChanged();

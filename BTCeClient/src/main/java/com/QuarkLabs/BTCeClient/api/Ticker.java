@@ -18,29 +18,32 @@ package com.QuarkLabs.BTCeClient.api;
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-import com.QuarkLabs.BTCeClient.PairUtils;
+import android.support.annotation.NonNull;
 
-import org.json.JSONObject;
+import com.QuarkLabs.BTCeClient.PairUtils;
+import com.google.gson.JsonObject;
+
+import java.math.BigDecimal;
 
 public class Ticker {
 
     private String pair;
-    private double high;
-    private double low;
-    private double avg;
-    private double vol;
-    private double volCur;
-    private double last;
-    private double buy;
-    private double sell;
+    private BigDecimal high = BigDecimal.ZERO;
+    private BigDecimal low = BigDecimal.ZERO;
+    private BigDecimal avg = BigDecimal.ZERO;
+    private BigDecimal vol = BigDecimal.ZERO;
+    private BigDecimal volCur = BigDecimal.ZERO;
+    private BigDecimal last = BigDecimal.ZERO;
+    private BigDecimal buy = BigDecimal.ZERO;
+    private BigDecimal sell = BigDecimal.ZERO;
     private long updated;
-    private double fee;
+    private BigDecimal fee = BigDecimal.ZERO;
 
     public Ticker(String pair) {
         this.pair = pair;
     }
 
-    public double getFee() {
+    public BigDecimal getFee() {
         return fee;
     }
 
@@ -48,68 +51,69 @@ public class Ticker {
         return pair;
     }
 
-    public double getHigh() {
+    public BigDecimal getHigh() {
         return high;
     }
 
-    public void setHigh(double high) {
+    public void setHigh(BigDecimal high) {
         this.high = high;
     }
 
-    public double getLow() {
+    public BigDecimal getLow() {
         return low;
     }
 
-    public void setLow(double low) {
+    public void setLow(BigDecimal low) {
         this.low = low;
     }
 
-    public double getAvg() {
+    public BigDecimal getAvg() {
         return avg;
     }
 
-    public void setAvg(double avg) {
+    public void setAvg(BigDecimal avg) {
         this.avg = avg;
     }
 
-    public double getVol() {
+    public BigDecimal getVol() {
         return vol;
     }
 
-    public void setVol(double vol) {
+    public void setVol(BigDecimal vol) {
         this.vol = vol;
     }
 
-    public double getVolCur() {
+    public BigDecimal getVolCur() {
         return volCur;
     }
 
-    public void setVolCur(double volCur) {
+    public void setVolCur(BigDecimal volCur) {
         this.volCur = volCur;
     }
 
-    public double getLast() {
+    public BigDecimal getLast() {
         return last;
     }
 
-    public void setLast(double last) {
+    public void setLast(BigDecimal last) {
         this.last = last;
-        fee = last * 0.002 * 2;
+        //TODO check this
+        fee = last.multiply(new BigDecimal("0.004"));
     }
 
-    public double getBuy() {
+    public BigDecimal getBuy() {
         return buy;
     }
 
-    public void setBuy(double buy) {
+    public void setBuy(BigDecimal buy) {
         this.buy = buy;
     }
 
-    public double getSell() {
+    public BigDecimal getSell() {
         return sell;
     }
 
-    public void setSell(double sell) {
+    public void setSell(BigDecimal sell) {
         this.sell = sell;
     }
 
@@ -121,17 +125,18 @@ public class Ticker {
         this.updated = updated;
     }
 
-    public static Ticker createFromServer(String pair, JSONObject pairData) {
+    @NonNull
+    public static Ticker createFromServer(@NonNull String pair, @NonNull JsonObject pairData) {
         Ticker ticker = new Ticker(PairUtils.serverToLocal(pair));
-        ticker.setUpdated(pairData.optLong("updated"));
-        ticker.setAvg(pairData.optDouble("avg"));
-        ticker.setBuy(pairData.optDouble("buy"));
-        ticker.setSell(pairData.optDouble("sell"));
-        ticker.setHigh(pairData.optDouble("high"));
-        ticker.setLast(pairData.optDouble("last"));
-        ticker.setLow(pairData.optDouble("low"));
-        ticker.setVol(pairData.optDouble("vol"));
-        ticker.setVolCur(pairData.optDouble("vol_cur"));
+        ticker.setUpdated(pairData.get("updated").getAsLong());
+        ticker.setAvg(pairData.get("avg").getAsBigDecimal().stripTrailingZeros());
+        ticker.setBuy(pairData.get("buy").getAsBigDecimal().stripTrailingZeros());
+        ticker.setSell(pairData.get("sell").getAsBigDecimal().stripTrailingZeros());
+        ticker.setHigh(pairData.get("high").getAsBigDecimal().stripTrailingZeros());
+        ticker.setLast(pairData.get("last").getAsBigDecimal().stripTrailingZeros());
+        ticker.setLow(pairData.get("low").getAsBigDecimal().stripTrailingZeros());
+        ticker.setVol(pairData.get("vol").getAsBigDecimal().stripTrailingZeros());
+        ticker.setVolCur(pairData.get("vol_cur").getAsBigDecimal().stripTrailingZeros());
         return ticker;
     }
 }

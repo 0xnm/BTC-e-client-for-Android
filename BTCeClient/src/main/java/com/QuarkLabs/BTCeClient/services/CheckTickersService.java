@@ -175,8 +175,8 @@ public class CheckTickersService extends IntentService {
                 continue;
             }
 
-            double oldValue = oldData.get(pair).getLast();
-            double newValue = ticker.getLast();
+            double oldValue = oldData.get(pair).getLast().doubleValue();
+            double newValue = ticker.getLast().doubleValue();
 
             while (!notifiers.isAfterLast()) {
 

@@ -2,27 +2,27 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class TradeResponse {
-    private double received;
-    private double remains;
+    private BigDecimal received;
+    private BigDecimal remains;
     private long orderId;
-    private Map<String, Double> funds;
+    private Map<String, BigDecimal> funds;
 
     private TradeResponse() { }
 
-    public double getReceived() {
+    public BigDecimal getReceived() {
         return received;
     }
 
-    public double getRemains() {
+    public BigDecimal getRemains() {
         return remains;
     }
 
@@ -30,21 +30,21 @@ public class TradeResponse {
         return orderId;
     }
 
-    public Map<String, Double> getFunds() {
+    public Map<String, BigDecimal> getFunds() {
         return funds;
     }
 
-    public static TradeResponse create(@NonNull JSONObject jsonObject) throws JSONException {
+    @NonNull
+    public static TradeResponse create(@NonNull JsonObject jsonObject) {
         TradeResponse tradeResponse = new TradeResponse();
-        tradeResponse.received = jsonObject.getDouble("received");
-        tradeResponse.remains = jsonObject.getDouble("remains");
-        tradeResponse.orderId = jsonObject.getLong("order_id");
-        Map<String, Double> funds = new HashMap<>();
-        Iterator<String> fundsIterator = jsonObject.getJSONObject("funds").keys();
-        while (fundsIterator.hasNext()) {
-            String fund = fundsIterator.next();
-            funds.put(fund.toUpperCase(Locale.US),
-                    jsonObject.getJSONObject("funds").getDouble(fund));
+        tradeResponse.received = jsonObject.get("received").getAsBigDecimal().stripTrailingZeros();
+        tradeResponse.remains = jsonObject.get("remains").getAsBigDecimal().stripTrailingZeros();
+        tradeResponse.orderId = jsonObject.get("order_id").getAsLong();
+        Map<String, BigDecimal> funds = new HashMap<>();
+        Set<String> currencies = jsonObject.getAsJsonObject("funds").keySet();
+        for (String currency : currencies) {
+            funds.put(currency.toUpperCase(Locale.US),
+                    jsonObject.getAsJsonObject("funds").get(currency).getAsBigDecimal().stripTrailingZeros());
         }
         tradeResponse.funds = funds;
         return tradeResponse;

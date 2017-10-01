@@ -2,11 +2,9 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ExchangeInfo {
@@ -23,15 +21,14 @@ public class ExchangeInfo {
         return pairs;
     }
 
-    public static ExchangeInfo create(@NonNull JSONObject json) throws JSONException {
+    @NonNull
+    public static ExchangeInfo create(@NonNull JsonObject json) {
         ExchangeInfo exchangeInfo = new ExchangeInfo();
-        exchangeInfo.serverTime = json.getLong("server_time");
-        JSONObject pairsJson = json.getJSONObject("pairs");
-        Iterator<String> pairKeysIterator = pairsJson.keys();
-        while (pairKeysIterator.hasNext()) {
-            String pair = pairKeysIterator.next();
+        exchangeInfo.serverTime = json.get("server_time").getAsLong();
+        JsonObject pairsJson = json.getAsJsonObject("pairs");
+        for (String pair : pairsJson.keySet()) {
             exchangeInfo.pairs.add(ExchangePairInfo.create(pair,
-                    pairsJson.getJSONObject(pair)));
+                    pairsJson.getAsJsonObject(pair)));
         }
         return exchangeInfo;
     }

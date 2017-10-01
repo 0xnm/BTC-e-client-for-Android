@@ -198,15 +198,15 @@ public class OrdersBookFragment extends Fragment
             double sumAsks = 0.0;
             double sumBids = 0.0;
             for (int i = 0; i < bids.size(); i++) {
-                sumBids += bids.get(i).getVolume();
+                sumBids += bids.get(i).getVolume().doubleValue();
             }
             for (int i = bids.size() - 1; i >= 0; i--) {
-                sumBids -= bids.get(i).getVolume();
+                sumBids -= bids.get(i).getVolume().doubleValue();
                 bidsSeries.addPoint(sumBids);
             }
             for (int i = 0; i < asks.size(); i++) {
                 asksSeries.addPoint(sumAsks);
-                sumAsks += asks.get(i).getVolume();
+                sumAsks += asks.get(i).getVolume().doubleValue();
             }
 
             asksSeries.setIndexOffset(bidsSeries.getPointCount());
@@ -232,10 +232,10 @@ public class OrdersBookFragment extends Fragment
                                     index = asksSeries.getPointCount() - 1;
                                 }
                             }
-                            return String.valueOf(asks.get(index).getPrice());
+                            return asks.get(index).getPrice().toPlainString();
                         }
-                        return String.valueOf(bids
-                                .get(bidsSeries.getPointCount() - 1 - index).getPrice());
+                        return bids.get(bidsSeries.getPointCount() - 1 - index)
+                                .getPrice().toPlainString();
                     }
                     return null;
 

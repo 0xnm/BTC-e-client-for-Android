@@ -1,18 +1,16 @@
 package com.QuarkLabs.BTCeClient.api;
 
-
 import android.support.annotation.NonNull;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
 
 public class AccountInfo {
-    private Map<String, Double> funds;
+    private Map<String, BigDecimal> funds;
     // here can be rights, but not used in the app
     private long transactionCount;
     private int openOrdersCount;
@@ -20,7 +18,7 @@ public class AccountInfo {
 
     private AccountInfo() { }
 
-    public Map<String, Double> getFunds() {
+    public Map<String, BigDecimal> getFunds() {
         return funds;
     }
 
@@ -36,19 +34,19 @@ public class AccountInfo {
         return serverTime;
     }
 
-    public static AccountInfo create(@NonNull JSONObject jsonObject) throws JSONException {
+    @NonNull
+    public static AccountInfo create(@NonNull JsonObject jsonObject) {
         AccountInfo accountInfo = new AccountInfo();
-        Map<String, Double> funds = new HashMap<>();
-        Iterator<String> fundsIterator = jsonObject.getJSONObject("funds").keys();
-        while (fundsIterator.hasNext()) {
-            String fund = fundsIterator.next();
-            funds.put(fund.toUpperCase(Locale.US),
-                    jsonObject.getJSONObject("funds").getDouble(fund));
+        Map<String, BigDecimal> funds = new HashMap<>();
+        JsonObject fundsJson = jsonObject.getAsJsonObject("funds");
+        for (String currency : fundsJson.keySet()) {
+            funds.put(currency.toUpperCase(Locale.US),
+                    fundsJson.get(currency).getAsBigDecimal().stripTrailingZeros());
         }
         accountInfo.funds = funds;
-        accountInfo.transactionCount = jsonObject.optLong("transaction_count");
-        accountInfo.openOrdersCount = jsonObject.optInt("open_orders");
-        accountInfo.serverTime = jsonObject.optInt("server_time");
+        accountInfo.transactionCount = jsonObject.get("transaction_count").getAsLong();
+        accountInfo.openOrdersCount = jsonObject.get("open_orders").getAsInt();
+        accountInfo.serverTime = jsonObject.get("server_time").getAsLong();
         return accountInfo;
     }
 }

@@ -82,8 +82,8 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         Calendar calendar = Calendar.getInstance(TimeZone.getDefault(), Locale.getDefault());
         pairView.setText(pair);
         typeView.setText(order.getType());
-        amountView.setText(order.getAmount() + " " + pair.substring(0, 3));
-        rateView.setText(order.getRate() + " " + pair.substring(4));
+        amountView.setText(order.getAmount().toPlainString() + " " + pair.substring(0, 3));
+        rateView.setText(order.getRate().toPlainString() + " " + pair.substring(4));
         calendar.setTimeInMillis(order.getCreatedAt() * 1000L);
         timestampView.setText(dateTimeFormat.format(calendar.getTime()));
         orderIdView.setText(String.valueOf(order.getId()));

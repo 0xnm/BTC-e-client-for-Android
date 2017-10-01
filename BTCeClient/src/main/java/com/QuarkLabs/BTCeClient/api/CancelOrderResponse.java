@@ -2,21 +2,20 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
-
+import java.util.Set;
 
 public class CancelOrderResponse {
 
     @NonNull
     private long orderId;
     @NonNull
-    private Map<String, Double> funds;
+    private Map<String, BigDecimal> funds;
 
     private CancelOrderResponse() { }
 
@@ -26,20 +25,21 @@ public class CancelOrderResponse {
     }
 
     @NonNull
-    public Map<String, Double> getFunds() {
+    public Map<String, BigDecimal> getFunds() {
         return funds;
     }
 
-    public static CancelOrderResponse create(@NonNull JSONObject payload) throws JSONException {
+    @NonNull
+    public static CancelOrderResponse create(@NonNull JsonObject payload) {
         CancelOrderResponse result = new CancelOrderResponse();
 
-        result.orderId = payload.getLong("order_id");
-        JSONObject fundsJson = payload.getJSONObject("funds");
-        Iterator<String> currenciesIterator = fundsJson.keys();
-        Map<String, Double> funds = new HashMap<>();
-        while (currenciesIterator.hasNext()) {
-            String currency = currenciesIterator.next();
-            funds.put(currency.toUpperCase(Locale.US), fundsJson.getDouble(currency));
+        result.orderId = payload.get("order_id").getAsLong();
+        JsonObject fundsJson = payload.getAsJsonObject("funds");
+        Set<String> currencies = fundsJson.keySet();
+        Map<String, BigDecimal> funds = new HashMap<>();
+        for (String currency : currencies) {
+            funds.put(currency.toUpperCase(Locale.US),
+                    fundsJson.get(currency).getAsBigDecimal().stripTrailingZeros());
         }
         result.funds = funds;
         return result;
