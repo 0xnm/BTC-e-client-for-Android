@@ -10,13 +10,9 @@ import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
 import com.QuarkLabs.BTCeClient.tasks.ApiResultListener;
 import com.QuarkLabs.BTCeClient.tasks.GetExchangeInfoTask;
-import com.QuarkLabs.BTCeClient.ui.chat.ChatMessage;
 
-import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 public class BtcEApplication extends Application {
