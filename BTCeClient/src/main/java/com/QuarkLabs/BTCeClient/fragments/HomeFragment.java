@@ -80,9 +80,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class HomeFragment extends Fragment implements
@@ -108,6 +110,9 @@ public class HomeFragment extends Fragment implements
 
     private AppPreferences appPreferences;
     private TickersStorage tickersStorage;
+
+    @NonNull
+    private Queue<Runnable> pendingTasks = new LinkedList<>();
 
     @Override
     public void onAttach(Activity activity) {
@@ -273,6 +278,9 @@ public class HomeFragment extends Fragment implements
                 // not interested
             }
         });
+        while (!pendingTasks.isEmpty()) {
+            pendingTasks.poll().run();
+        }
     }
 
     private void refreshOperationCostView() {
@@ -498,10 +506,8 @@ public class HomeFragment extends Fragment implements
     @Override
     @SuppressWarnings("unchecked")
     public void onPriceClicked(@NonNull String pair, @NonNull BigDecimal price) {
-        ScrollView scrollView = (ScrollView) getView();
+        final ScrollView scrollView = (ScrollView) getView();
         if (scrollView != null) {
-            scrollView.smoothScrollTo(
-                    0, scrollView.findViewById(R.id.tradingSection).getBottom());
             String[] currencies = pair.split("/");
             EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
             tradePrice.setText(price.toPlainString());
@@ -514,7 +520,41 @@ public class HomeFragment extends Fragment implements
             tradePriceCurrency.setSelection(
                     ((ArrayAdapter<String>) tradePriceCurrency.getAdapter())
                             .getPosition(currencies[1]));
+
+            int y = scrollView.findViewById(R.id.tradingSection).getBottom();
+            if (y != 0) {
+                scrollView.smoothScrollTo(0, y);
+            } else {
+                getView().getViewTreeObserver()
+                        .addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                            @Override
+                            public boolean onPreDraw() {
+                                View view = getView();
+                                if (view != null) {
+                                    view.getViewTreeObserver().removeOnPreDrawListener(this);
+                                }
+                                scrollView.smoothScrollTo(0,
+                                        scrollView.findViewById(R.id.tradingSection).getBottom());
+                                return true;
+                            }
+                        });
+            }
         }
+    }
+
+    /**
+     * Will be run on the next {@link #onResume()}
+     *
+     * @param pair  Pair to put in Trading section
+     * @param price Price
+     */
+    public void addShowTradingTask(@NonNull final String pair, @NonNull final BigDecimal price) {
+        pendingTasks.add(new Runnable() {
+            @Override
+            public void run() {
+                onPriceClicked(pair, price);
+            }
+        });
     }
 
     /**

@@ -226,4 +226,5 @@
     <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
     <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
     <string name="settings_key_linkify_chat" translatable="false">linkify_chat</string>
+    <string name="trade_button_label">Trade</string>
 </resources>
