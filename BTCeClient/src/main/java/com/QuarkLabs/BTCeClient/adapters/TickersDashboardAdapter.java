@@ -13,12 +13,13 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;
 
+import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +53,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet leftInAnimation;
     private final AnimatorSet rightOutAnimation;
     private final AnimatorSet rightInAnimation;
-    private final TickersStorage tickersStorage;
+    private final InMemoryStorage inMemoryStorage;
     private List<Ticker> tickers = new ArrayList<>();
 
     private TickersDashboardAdapterCallbackInterface callback;
@@ -71,7 +72,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
                 context, R.animator.card_flip_right_out);
         rightInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_right_in);
-        tickersStorage = BtcEApplication.get(context).getTickersStorage();
+        inMemoryStorage = BtcEApplication.get(context).getInMemoryStorage();
     }
 
     public int getNumColumns() {
@@ -111,7 +112,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
             view = (FlippingView) convertView;
         }
         Ticker ticker = tickers.get(position);
-        Ticker oldTicker = tickersStorage.getPreviousData().get(ticker.getPair());
+        Ticker oldTicker = inMemoryStorage.getPreviousData().get(ticker.getPair());
 
         bindFrontSide(view, ticker, oldTicker);
         bindBackSide(view, ticker, oldTicker);
@@ -129,9 +130,10 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         String pairValue = ticker.getPair();
 
         pairFrontView.setText(pairValue);
-        lastView.setText(String.valueOf(ticker.getLast()));
-        buyView.setText(String.valueOf(ticker.getBuy()));
-        sellView.setText(String.valueOf(ticker.getSell()));
+        lastView.setText(ticker.getLast().toPlainString());
+        buyView.setText(ticker.getBuy().toPlainString());
+        sellView.setText(ticker.getSell().toPlainString());
+
         lastView.setOnClickListener(this);
         buyView.setOnClickListener(this);
         sellView.setOnClickListener(this);
@@ -139,11 +141,11 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         buyView.setTag(pairValue);
         sellView.setTag(pairValue);
         if (oldTicker != null) {
-            lastView.setTextColor(ticker.getLast() < oldTicker.getLast() ?
+            lastView.setTextColor(ticker.getLast().compareTo(oldTicker.getLast()) < 0 ?
                     Color.RED : Color.GREEN);
-            buyView.setTextColor(ticker.getBuy() < oldTicker.getBuy() ?
+            buyView.setTextColor(ticker.getBuy().compareTo(oldTicker.getBuy()) < 0 ?
                     Color.RED : Color.GREEN);
-            sellView.setTextColor(ticker.getSell() < oldTicker.getSell() ?
+            sellView.setTextColor(ticker.getSell().compareTo(oldTicker.getSell()) < 0 ?
                     Color.RED : Color.GREEN);
         } else {
             lastView.setTextColor(Color.GREEN);
@@ -159,20 +161,20 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
         TextView buyBackView = (TextView) itemView.findViewById(R.id.tickerBackBuyValue);
         TextView sellBackView = (TextView) itemView.findViewById(R.id.tickerBackSellValue);
         TextView updatedBackView = (TextView) itemView.findViewById(R.id.tickerUpdated);
-        highBackView.setText(String.valueOf(ticker.getHigh()));
-        lowBackView.setText(String.valueOf(ticker.getLow()));
-        buyBackView.setText(String.valueOf(ticker.getBuy()));
-        sellBackView.setText(String.valueOf(ticker.getSell()));
+        highBackView.setText(ticker.getHigh().toPlainString());
+        lowBackView.setText(ticker.getLow().toPlainString());
+        buyBackView.setText(ticker.getBuy().toPlainString());
+        sellBackView.setText(ticker.getSell().toPlainString());
         Date updatedDate = new Date(ticker.getUpdated() * 1000);
         updatedBackView.setText(dateFormat.format(updatedDate));
         if (oldTicker != null) {
-            highBackView.setTextColor(ticker.getHigh() < oldTicker.getHigh() ?
+            highBackView.setTextColor(ticker.getHigh().compareTo(oldTicker.getHigh()) < 0 ?
                     Color.RED : Color.GREEN);
-            lowBackView.setTextColor(ticker.getLow() < oldTicker.getLow() ?
+            lowBackView.setTextColor(ticker.getLow().compareTo(oldTicker.getLow()) < 0 ?
                     Color.RED : Color.GREEN);
-            buyBackView.setTextColor(ticker.getBuy() < oldTicker.getBuy() ?
+            buyBackView.setTextColor(ticker.getBuy().compareTo(oldTicker.getBuy()) < 0 ?
                     Color.RED : Color.GREEN);
-            sellBackView.setTextColor(ticker.getSell() < oldTicker.getSell() ?
+            sellBackView.setTextColor(ticker.getSell().compareTo(oldTicker.getSell()) < 0 ?
                     Color.RED : Color.GREEN);
         } else {
             highBackView.setTextColor(Color.GREEN);
@@ -198,7 +200,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     public void onClick(View v) {
         TextView clickedTextView = (TextView) v;
         String pair = (String) v.getTag();
-        double price = Double.parseDouble(String.valueOf(clickedTextView.getText()));
+        BigDecimal price = new BigDecimal(clickedTextView.getText().toString());
         //just a safety measure
         if (callback != null) {
             callback.onPriceClicked(pair, price);
@@ -216,6 +218,6 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     }
 
     public interface TickersDashboardAdapterCallbackInterface {
-        void onPriceClicked(String pair, double price);
+        void onPriceClicked(String pair, BigDecimal price);
     }
 }

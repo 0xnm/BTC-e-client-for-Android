@@ -3,9 +3,9 @@ package com.QuarkLabs.BTCeClient.api;
 import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
+import com.google.gson.JsonObject;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.math.BigDecimal;
 
 public class ActiveOrder {
     private long id;
@@ -13,8 +13,8 @@ public class ActiveOrder {
     private String pair;
     @NonNull
     private String type;
-    private double amount;
-    private double rate;
+    private BigDecimal amount;
+    private BigDecimal rate;
     private long createdAt;
     private int status;
 
@@ -34,11 +34,11 @@ public class ActiveOrder {
         return type;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public double getRate() {
+    public BigDecimal getRate() {
         return rate;
     }
 
@@ -50,16 +50,16 @@ public class ActiveOrder {
         return status;
     }
 
-    public static ActiveOrder create(long id, @NonNull JSONObject jsonObject)
-            throws JSONException {
+    @NonNull
+    public static ActiveOrder create(long id, @NonNull JsonObject jsonObject) {
         ActiveOrder activeOrder = new ActiveOrder();
         activeOrder.id = id;
-        activeOrder.pair = PairUtils.serverToLocal(jsonObject.getString("pair"));
-        activeOrder.type = jsonObject.getString("type");
-        activeOrder.amount = jsonObject.getDouble("amount");
-        activeOrder.rate = jsonObject.getDouble("rate");
-        activeOrder.createdAt = jsonObject.getLong("timestamp_created");
-        activeOrder.status = jsonObject.getInt("status");
+        activeOrder.pair = PairUtils.serverToLocal(jsonObject.get("pair").getAsString());
+        activeOrder.type = jsonObject.get("type").getAsString();
+        activeOrder.amount = jsonObject.get("amount").getAsBigDecimal().stripTrailingZeros();
+        activeOrder.rate = jsonObject.get("rate").getAsBigDecimal().stripTrailingZeros();
+        activeOrder.createdAt = jsonObject.get("timestamp_created").getAsLong();
+        activeOrder.status = jsonObject.get("status").getAsInt();
         return activeOrder;
     }
 }

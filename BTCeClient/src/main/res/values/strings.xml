@@ -113,7 +113,9 @@
     <string name="watcher_alarm_stop_loss_details">%1$s went below %2$s %3$s</string>
     <string name="watcher_alarm_take_profit_details">%1$s went above %2$s %3$s</string>
 
-    <string name="AboutText"><![CDATA[<b>Used libraries: </b><br /><ul><li>StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org/</a>)</li></ul>
+    <string name="AboutText"><![CDATA[<b>Used libraries: </b><br />StockChartView (<a href=\"http://www.stockchartview.org\">http://stockchartview.org</a>)
+    <br />GSON (<a href=\"https://github.com/google/gson\">https://github.com/google/gson</a>)
+    <br />jsoup (<a href=\"https://jsoup.org\">https://jsoup.org</a>)
     <br /><br />
     <b>Useful hints:</b><br /> Tap on any price at the <b>Dashboard</b> and <b>Trading</b> fields will be automatically populated with this price and corresponding currencies
     <br /><br /> Tap on any fund value at <b>My Funds</b> section and <b>Amount</b> field at the <b>Trading</b> section will be automatically populated<br /><br /> <b>Why chat is displayed in \"read-only\" mode?</b> Unfortunately, WEX API doesn\'t have any methods to work with chat,
@@ -224,4 +226,5 @@
     <string name="settings_key_sync_exchange_pairs" translatable="false">sync_exchange_pairs</string>
     <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
     <string name="settings_key_linkify_chat" translatable="false">linkify_chat</string>
+    <string name="trade_button_label">Trade</string>
 </resources>

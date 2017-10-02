@@ -32,6 +32,7 @@ import android.os.HandlerThread;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.WorkerThread;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.SwitchCompat;
 import android.util.TypedValue;
@@ -51,11 +52,18 @@ import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.MainNavigator;
 import com.QuarkLabs.BTCeClient.PageDownloader;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
+import com.QuarkLabs.BTCeClient.api.Api;
+import com.QuarkLabs.BTCeClient.api.CallResult;
+import com.QuarkLabs.BTCeClient.api.Ticker;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
 import org.stockchart.StockChartView;
 import org.stockchart.core.Appearance;
 import org.stockchart.core.Area;
@@ -70,6 +78,7 @@ import org.stockchart.indicators.RsiIndicator;
 import org.stockchart.indicators.SmaIndicator;
 import org.stockchart.series.StockSeries;
 
+import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -89,6 +98,8 @@ public class ChartsFragment extends Fragment {
     private AlertDialog chartsDialog;
     private AppPreferences appPreferences;
 
+    private MainNavigator mainNavigator;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -100,13 +111,14 @@ public class ChartsFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
+        mainNavigator = (MainNavigator) getActivity();
         setHasOptionsMenu(true);
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         boolean useOldCharts = BtcEApplication.get(getActivity())
                 .getAppPreferences().isShowOldCharts();
         chartsDelegate = new BtceChartsDelegate();
         chartsDelegate.onViewCreated();
-        chartsDelegate.createChartViews();
+        chartsDelegate.createChartViews(view);
         chartsDelegate.updateChartData();
     }
 
@@ -121,19 +133,20 @@ public class ChartsFragment extends Fragment {
                         new PairsCheckboxAdapter(getActivity(),
                                 appPreferences.getExchangePairs(),
                                 PairsCheckboxAdapter.SettingsScope.CHARTS);
-                ListView v = new ListView(getActivity());
-                v.setAdapter(pairsCheckboxAdapter);
+                ListView pairsView = new ListView(getActivity());
+                pairsView.setAdapter(pairsCheckboxAdapter);
                 chartsDialog = new AlertDialog.Builder(getActivity())
                         .setTitle(R.string.SelectPairsPromptTitle)
-                        .setView(v)
-                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                pairsCheckboxAdapter.saveValuesToPreferences();
-                                chartsDelegate.createChartViews();
-                                chartsDelegate.updateChartData();
-                            }
-                        })
+                        .setView(pairsView)
+                        .setNeutralButton(android.R.string.ok,
+                                new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        pairsCheckboxAdapter.saveValuesToPreferences();
+                                        chartsDelegate.createChartViews(getView());
+                                        chartsDelegate.updateChartData();
+                                    }
+                                })
                         .show();
                 break;
             default:
@@ -157,6 +170,7 @@ public class ChartsFragment extends Fragment {
         }
         chartsDelegate.onDestroyView();
         chartsDelegate = null;
+        mainNavigator = null;
     }
 
     /**
@@ -192,7 +206,7 @@ public class ChartsFragment extends Fragment {
 
         void onDestroyView();
 
-        void createChartViews();
+        void createChartViews(@NonNull View rootView);
 
         void updateChartData();
     }
@@ -211,9 +225,9 @@ public class ChartsFragment extends Fragment {
         }
 
         @Override
-        public void createChartViews() {
-            LinearLayout chartsContainer = (LinearLayout)
-                    getView().findViewById(R.id.ChartsContainer);
+        public void createChartViews(@NonNull View rootView) {
+            LinearLayout chartsContainer = (LinearLayout) rootView
+                    .findViewById(R.id.ChartsContainer);
             chartsContainer.removeAllViews();
 
             List<String> pairs = appPreferences.getChartsToDisplay();
@@ -299,124 +313,12 @@ public class ChartsFragment extends Fragment {
         public void onViewCreated() {
             responseHandler = new Handler();
             chartsUpdater = new ChartsUpdater(responseHandler);
-            chartsUpdater.setListener(new Listener<StockChartView>() {
+            chartsUpdater.setListener(new Listener<View>() {
                 @Override
-                public void onChartDownloaded(@NonNull StockChartView view,
-                                              @NonNull String pair,
-                                              @NonNull final String[] data) {
-
-                    final StockSeries fPriceSeries = new StockSeries();
-                    fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
-                    fPriceSeries.setName("price");
-                    view.reset();
-                    view.getCrosshair().setAuto(true);
-                    Area area = view.addArea();
-                    area.getLegend().getAppearance().getFont().setSize(16);
-                    area.setTitle(PairUtils.serverToLocal(pair));
-
-                    for (String x : data) {
-                        String[] values = x.split(", ");
-                        fPriceSeries.addPoint(Double.parseDouble(values[2]),
-                                Double.parseDouble(values[4]),
-                                Double.parseDouble(values[1]),
-                                Double.parseDouble(values[3]));
-                    }
-                    area.getSeries().add(fPriceSeries);
-                    //provider for bottom axis (time)
-                    Axis.ILabelFormatProvider bottomLfp = new Axis.ILabelFormatProvider() {
-                        @Override
-                        public String getAxisLabel(Axis axis, double v) {
-                            int index = fPriceSeries.convertToArrayIndex(v);
-                            if (index < 0)
-                                index = 0;
-                            if (index >= 0) {
-                                if (index >= fPriceSeries.getPointCount())
-                                    index = fPriceSeries.getPointCount() - 1;
-
-                                return data[index].split(", ")[0].replace("\"", "");
-                            }
-                            return null;
-                        }
-                    };
-                    //provider for crosshair
-                    Crosshair.ILabelFormatProvider dp = new Crosshair.ILabelFormatProvider() {
-                        @Override
-                        public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
-                            int index = fPriceSeries.convertToArrayIndex(v);
-                            if (index < 0)
-                                index = 0;
-                            if (index >= 0) {
-                                if (index >= fPriceSeries.getPointCount())
-                                    index = fPriceSeries.getPointCount() - 1;
-
-                                return data[index].split(", ")[0].replace("\"", "")
-                                        + " - "
-                                        + (new DecimalFormat("#.#####")
-                                        .format(v2));
-                            }
-                            return null;
-                        }
-                    };
-
-                    view.getCrosshair().setLabelFormatProvider(dp);
-                    //provider for right axis (value)
-                    Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
-                        @Override
-                        public String getAxisLabel(Axis axis, double v) {
-                            DecimalFormat decimalFormat = new DecimalFormat("#.#######");
-                            return decimalFormat.format(v);
-                        }
-                    };
-                    area.getRightAxis().setLabelFormatProvider(rightLfp);
-                    area.getBottomAxis().setLabelFormatProvider(bottomLfp);
-
-                    //by some reason rise and fall appearance should be switched
-                    Appearance riseAppearance = fPriceSeries.getRiseAppearance();
-                    Appearance riseAppearance1 = new Appearance();
-                    riseAppearance1.fill(riseAppearance);
-                    Appearance fallAppearance = fPriceSeries.getFallAppearance();
-                    riseAppearance.fill(fallAppearance);
-                    fallAppearance.fill(riseAppearance1);
-
-                    Activity activity = getActivity();
-                    if (activity == null) {
-                        return;
-                    }
-
-                    final Resources resources = activity.getResources();
-
-                    //styling: setting fonts
-                    area.getPlot()
-                            .getAppearance()
-                            .getFont()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16,
-                                    resources.getDisplayMetrics()));
-                    area.getLeftAxis()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                                    resources.getDisplayMetrics()));
-                    area.getTopAxis()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                                    resources.getDisplayMetrics()));
-                    area.getBottomAxis()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
-                                    resources.getDisplayMetrics()));
-                    area.getRightAxis()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
-                                    resources.getDisplayMetrics()));
-                    area.getBottomAxis()
-                            .getAppearance()
-                            .getFont()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
-                                    resources.getDisplayMetrics()));
-                    area.getRightAxis()
-                            .getAppearance()
-                            .getFont()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
-                                    resources.getDisplayMetrics()));
-                    view.getCrosshair().getAppearance().getFont()
-                            .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
-                                    resources.getDisplayMetrics()));
-                    view.invalidate();
+                public void onChartDownloaded(@NonNull View chartView,
+                                              @NonNull final String pair,
+                                              @NonNull final ChartData data) {
+                    updateChart(chartView, pair, data);
                 }
             });
 
@@ -430,8 +332,144 @@ public class ChartsFragment extends Fragment {
             chartsUpdater.quit();
         }
 
+        private void updateChart(@NonNull View chartView, @NonNull final String pair,
+                                 @NonNull final ChartData data) {
+            StockChartView stockChartView =
+                    (StockChartView) chartView.findViewById(R.id.stockChartView);
+
+            View tradeButton = chartView.findViewById(R.id.chart_trade_button);
+            TextView namePriceView = (TextView) chartView.findViewById(R.id.chart_name_price);
+            if (data.last != null) {
+                tradeButton.setEnabled(true);
+                tradeButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        mainNavigator.openTradingSection(pair, new BigDecimal(data.last));
+                    }
+                });
+                namePriceView.setText(String.format("%s: %s", pair, data.last));
+            } else {
+                tradeButton.setEnabled(false);
+                tradeButton.setOnClickListener(null);
+                namePriceView.setText(String.format("%s: %s", pair, "–"));
+            }
+
+            final StockSeries fPriceSeries = new StockSeries();
+            fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
+            fPriceSeries.setName("price");
+            stockChartView.reset();
+            stockChartView.getCrosshair().setAuto(true);
+            Area area = stockChartView.addArea();
+            area.getLegend().getAppearance().getFont().setSize(16);
+
+            for (String items : data.history) {
+                String[] values = items.split(", ");
+                fPriceSeries.addPoint(Double.parseDouble(values[2]),
+                        Double.parseDouble(values[4]),
+                        Double.parseDouble(values[1]),
+                        Double.parseDouble(values[3]));
+            }
+            area.getSeries().add(fPriceSeries);
+            //provider for bottom axis (time)
+            Axis.ILabelFormatProvider bottomLfp = new Axis.ILabelFormatProvider() {
+                @Override
+                public String getAxisLabel(Axis axis, double v) {
+                    int index = fPriceSeries.convertToArrayIndex(v);
+                    if (index < 0)
+                        index = 0;
+                    if (index >= 0) {
+                        if (index >= fPriceSeries.getPointCount())
+                            index = fPriceSeries.getPointCount() - 1;
+
+                        return data.history[index].split(", ")[0].replace("\"", "");
+                    }
+                    return null;
+                }
+            };
+            //provider for crosshair
+            Crosshair.ILabelFormatProvider dp = new Crosshair.ILabelFormatProvider() {
+                @Override
+                public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
+                    int index = fPriceSeries.convertToArrayIndex(v);
+                    if (index < 0)
+                        index = 0;
+                    if (index >= 0) {
+                        if (index >= fPriceSeries.getPointCount())
+                            index = fPriceSeries.getPointCount() - 1;
+
+                        return data.history[index].split(", ")[0].replace("\"", "")
+                                + " - "
+                                + (new DecimalFormat("#.#####")
+                                .format(v2));
+                    }
+                    return null;
+                }
+            };
+
+            stockChartView.getCrosshair().setLabelFormatProvider(dp);
+            //provider for right axis (value)
+            Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
+                @Override
+                public String getAxisLabel(Axis axis, double v) {
+                    DecimalFormat decimalFormat = new DecimalFormat("#.#######");
+                    return decimalFormat.format(v);
+                }
+            };
+
+            area.getRightAxis().setLabelFormatProvider(rightLfp);
+            area.getBottomAxis().setLabelFormatProvider(bottomLfp);
+
+            //by some reason rise and fall appearance should be switched
+            Appearance riseAppearance = fPriceSeries.getRiseAppearance();
+            Appearance tmpAppearance = new Appearance();
+            tmpAppearance.fill(riseAppearance);
+            Appearance fallAppearance = fPriceSeries.getFallAppearance();
+            riseAppearance.fill(fallAppearance);
+            fallAppearance.fill(tmpAppearance);
+
+            Activity activity = getActivity();
+            if (activity == null) {
+                return;
+            }
+
+            final Resources resources = activity.getResources();
+
+            //styling: setting fonts
+            area.getPlot()
+                    .getAppearance()
+                    .getFont()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16,
+                            resources.getDisplayMetrics()));
+            area.getLeftAxis()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
+                            resources.getDisplayMetrics()));
+            area.getTopAxis()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
+                            resources.getDisplayMetrics()));
+            area.getBottomAxis()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
+                            resources.getDisplayMetrics()));
+            area.getRightAxis()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
+                            resources.getDisplayMetrics()));
+            area.getBottomAxis()
+                    .getAppearance()
+                    .getFont()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
+                            resources.getDisplayMetrics()));
+            area.getRightAxis()
+                    .getAppearance()
+                    .getFont()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
+                            resources.getDisplayMetrics()));
+            stockChartView.getCrosshair().getAppearance().getFont()
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
+                            resources.getDisplayMetrics()));
+            stockChartView.invalidate();
+        }
+
         @Override
-        public void createChartViews() {
+        public void createChartViews(@NonNull View rootView) {
             LinearLayout chartsContainer = (LinearLayout) getView()
                     .findViewById(R.id.ChartsContainer);
             chartsContainer.removeAllViews();
@@ -455,11 +493,16 @@ public class ChartsFragment extends Fragment {
                 chartsContainer.addView(noCharts);
             }
 
-            for (String x : pairs) {
-                View element = LayoutInflater.from(getActivity())
+            for (String pair : pairs) {
+                View chartView = LayoutInflater.from(getActivity())
                         .inflate(R.layout.chart_item, chartsContainer, false);
-                chartsContainer.addView(element);
-                chartsMap.put(x, element);
+                TextView namePriceView = (TextView) chartView.findViewById(R.id.chart_name_price);
+                namePriceView.setText(String.format("%s: –", pair));
+                View tradeButton = chartView.findViewById(R.id.chart_trade_button);
+                tradeButton.setEnabled(false);
+                tradeButton.setOnClickListener(null);
+                chartsContainer.addView(chartView);
+                chartsMap.put(pair, chartView);
             }
 
             CompoundButton.OnCheckedChangeListener indicatorChangeStateListener
@@ -505,33 +548,26 @@ public class ChartsFragment extends Fragment {
                                     .iterator();
                             while (iterator.hasNext()) {
                                 AbstractIndicator x = iterator.next();
+                                boolean shouldRemoveCurrent = false;
                                 switch (buttonView.getId()) {
                                     case R.id.enableEMAIndicator:
-                                        if (x instanceof EmaIndicator) {
-                                            iterator.remove();
-                                            stockChartView.getIndicatorManager().removeIndicator(x);
-                                        }
+                                        shouldRemoveCurrent = x instanceof EmaIndicator;
                                         break;
                                     case R.id.enableMACDIndicator:
-                                        if (x instanceof MacdIndicator) {
-                                            iterator.remove();
-                                            stockChartView.getIndicatorManager().removeIndicator(x);
-                                        }
+                                        shouldRemoveCurrent = x instanceof MacdIndicator;
                                         break;
                                     case R.id.enableRSIIndicator:
-                                        if (x instanceof RsiIndicator) {
-                                            iterator.remove();
-                                            stockChartView.getIndicatorManager().removeIndicator(x);
-                                        }
+                                        shouldRemoveCurrent = x instanceof RsiIndicator;
                                         break;
                                     case R.id.enableSMAIndicator:
-                                        if (x instanceof SmaIndicator) {
-                                            iterator.remove();
-                                            stockChartView.getIndicatorManager().removeIndicator(x);
-                                        }
+                                        shouldRemoveCurrent = x instanceof SmaIndicator;
                                         break;
                                     default:
                                         break;
+                                }
+                                if (shouldRemoveCurrent) {
+                                    iterator.remove();
+                                    stockChartView.getIndicatorManager().removeIndicator(x);
                                 }
                             }
                             stockChartView.recalc();
@@ -546,14 +582,15 @@ public class ChartsFragment extends Fragment {
             };
 
             //add listeners to switches
-            for (String x : chartsMap.keySet()) {
-                ((SwitchCompat) chartsMap.get(x).findViewById(R.id.enableEMAIndicator))
+            for (String pair : chartsMap.keySet()) {
+                View chartView = chartsMap.get(pair);
+                ((SwitchCompat) chartView.findViewById(R.id.enableEMAIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
-                ((SwitchCompat) chartsMap.get(x).findViewById(R.id.enableRSIIndicator))
+                ((SwitchCompat) chartView.findViewById(R.id.enableRSIIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
-                ((SwitchCompat) chartsMap.get(x).findViewById(R.id.enableSMAIndicator))
+                ((SwitchCompat) chartView.findViewById(R.id.enableSMAIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
-                ((SwitchCompat) chartsMap.get(x).findViewById(R.id.enableMACDIndicator))
+                ((SwitchCompat) chartView.findViewById(R.id.enableMACDIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
             }
         }
@@ -577,17 +614,16 @@ public class ChartsFragment extends Fragment {
                     getActivity().invalidateOptionsMenu();
                 }
                 for (String pair : chartNames) {
-                    chartsUpdater.queueChart(
-                            (StockChartView) chartsMap.get(pair).findViewById(R.id.stockChartView),
-                            pair);
+                    chartsUpdater.queueChart(chartsMap.get(pair), pair);
                 }
             }
         }
     }
 
     private interface Listener<T> {
-        void onChartDownloaded(@NonNull T token, @NonNull String pair,
-                               @NonNull final String[] data);
+        void onChartDownloaded(@NonNull View token,
+                               @NonNull String pair,
+                               @NonNull final ChartData data);
     }
 
     private class ChartsUpdater extends HandlerThread {
@@ -596,9 +632,9 @@ public class ChartsFragment extends Fragment {
         private static final String TAG = "ChartsUpdaterThread";
         private Handler workerHandler;
         private Handler responseHandler;
-        private Map<StockChartView, String> requestMap
-                = Collections.synchronizedMap(new HashMap<StockChartView, String>());
-        private Listener<StockChartView> mListener;
+        private Map<View, String> requestMap
+                = Collections.synchronizedMap(new HashMap<View, String>());
+        private Listener<View> mListener;
 
 
         ChartsUpdater(Handler responseHandler) {
@@ -612,7 +648,7 @@ public class ChartsFragment extends Fragment {
                 public boolean handleMessage(Message msg) {
                     if (msg.what == MESSAGE_DOWNLOAD) {
                         @SuppressWarnings("unchecked")
-                        StockChartView token = (StockChartView) msg.obj;
+                        View token = (View) msg.obj;
                         handleRequest(token);
                     }
                     return true;
@@ -620,13 +656,13 @@ public class ChartsFragment extends Fragment {
             });
         }
 
-        private void handleRequest(final StockChartView token) {
+        private void handleRequest(final View token) {
             final String pair = requestMap.get(token);
             if (pair == null) {
                 return;
             }
             ChartDataDownloader chartDataDownloader = new ChartDataDownloader();
-            final String[] data = chartDataDownloader.getChartData(pair);
+            final ChartData data = chartDataDownloader.getChartData(pair);
             requestMap.remove(token);
             responseHandler.post(new Runnable() {
                 @Override
@@ -643,17 +679,17 @@ public class ChartsFragment extends Fragment {
             });
         }
 
-        void setListener(Listener<StockChartView> listener) {
+        void setListener(@NonNull Listener<View> listener) {
             mListener = listener;
         }
 
-        void queueChart(StockChartView token, String pair) {
+        void queueChart(@NonNull View chartView, @NonNull String pair) {
             if (workerHandler == null) {
                 throw new NullPointerException("Handler was not created. You can" +
                         " do it by calling createHandler()");
             }
-            requestMap.put(token, pair);
-            workerHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
+            requestMap.put(chartView, pair);
+            workerHandler.obtainMessage(MESSAGE_DOWNLOAD, chartView).sendToTarget();
         }
 
         void clearQueue() {
@@ -665,7 +701,8 @@ public class ChartsFragment extends Fragment {
     private class ChartDataDownloader {
 
         @Nullable
-        String[] getChartData(String pair) {
+        @WorkerThread
+        ChartData getChartData(@NonNull String pair) {
 
             String content = new PageDownloader().download(appPreferences.getExchangeUrl(),
                     pair, null);
@@ -677,14 +714,43 @@ public class ChartsFragment extends Fragment {
 
             Pattern pattern = Pattern.compile("arrayToDataTable\\(\\[\\[(.+?)\\]\\], true");
             Matcher matcher = pattern.matcher(content);
-            if (matcher.find()) {
-                //chart data
-                return matcher.group(1).split("\\],\\[");
-            } else {
+            if (!matcher.find()) {
                 return null;
             }
+            ChartData chartData = new ChartData();
+            chartData.history = matcher.group(1).split("\\],\\[");
 
+            Document document = Jsoup.parse(content);
+            Elements pairsHostElements = document.getElementsByClass("pairs-selected");
+            if (pairsHostElements == null || pairsHostElements.size() != 1) {
+                chartData.last = tryGetPriceFromApi(pair);
+            } else {
+                Elements pairValueElements =
+                        pairsHostElements.get(0).getElementsByAttributeValueStarting("id", "last");
+                if (pairValueElements == null || pairValueElements.size() != 1) {
+                    chartData.last = tryGetPriceFromApi(pair);
+                } else {
+                    chartData.last = pairValueElements.get(0).html();
+                }
+            }
+            return chartData;
         }
+
+        @Nullable
+        @WorkerThread
+        private String tryGetPriceFromApi(@NonNull String pair) {
+            Api api = BtcEApplication.get(getActivity()).getApi();
+            CallResult<List<Ticker>> callResult = api.getPairInfo(Collections.singleton(pair));
+            if (callResult.isSuccess()) {
+                return callResult.getPayload().get(0).getLast().toPlainString();
+            }
+            return null;
+        }
+    }
+
+    private class ChartData {
+        String[] history;
+        String last;
     }
 
 }

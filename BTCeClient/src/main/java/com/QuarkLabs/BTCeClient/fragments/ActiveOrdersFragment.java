@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.ActiveOrdersAdapter;
 import com.QuarkLabs.BTCeClient.api.ActiveOrder;
@@ -61,6 +62,7 @@ public class ActiveOrdersFragment extends Fragment
     private ProgressBar loadingView;
     private TextView errorView;
     private AlertDialog cancelOrderDialog;
+    private InMemoryStorage inMemoryStorage;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,6 +80,7 @@ public class ActiveOrdersFragment extends Fragment
         loadingView = (ProgressBar) getView().findViewById(R.id.Loading);
         errorView = (TextView) getView().findViewById(R.id.NoItems);
         ordersView.setEmptyView(loadingView);
+        inMemoryStorage = BtcEApplication.get(getActivity()).getInMemoryStorage();
     }
 
     @Override
@@ -136,10 +139,11 @@ public class ActiveOrdersFragment extends Fragment
 
     @Override
     public void onSuccess(@NonNull CancelOrderResponse result) {
-       if (isVisible()) {
-           ordersAdapter.removeOrder(result.getOrderId());
-           notifyAboutOrderDeletionResult(getString(R.string.order_deleted_successfully));
-       }
+        inMemoryStorage.setFunds(result.getFunds());
+        if (isVisible()) {
+            ordersAdapter.removeOrder(result.getOrderId());
+            notifyAboutOrderDeletionResult(getString(R.string.order_deleted_successfully));
+        }
     }
 
     @Override

@@ -23,17 +23,13 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
-import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -43,8 +39,6 @@ public class Api {
     private static final String SUCCESS_KEY = "success";
     private static final String ERROR_KEY = "error";
     private static final String RETURN_KEY = "return";
-
-    private static final String TAG = Api.class.getSimpleName();
 
     @NonNull
     private final String generalErrorText;
@@ -103,23 +97,18 @@ public class Api {
     @WorkerThread
     @NonNull
     public CallResult<ExchangeInfo> getExchangeInfo() {
-        try {
-            JSONObject response = guestApi.call(hostUrl + "/api/3/info");
-            CallResult<ExchangeInfo> result = new CallResult<>();
-            if (response == null || response.optInt(SUCCESS_KEY, 1) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            result.payload = ExchangeInfo.create(response);
+        JsonObject response = guestApi.call(hostUrl + "/api/3/info");
+        CallResult<ExchangeInfo> result = new CallResult<>();
+        if (response == null || response.has(SUCCESS_KEY)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "info call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        result.payload = ExchangeInfo.create(response);
+        return result;
     }
 
     /**
@@ -131,33 +120,28 @@ public class Api {
     @WorkerThread
     @NonNull
     public CallResult<List<Ticker>> getPairInfo(@NonNull Set<String> pairs) {
-        try {
-            String url = hostUrl + "/api/3/ticker/";
-            for (String pair : pairs) {
-                url += PairUtils.localToServer(pair) + "-";
-            }
-            JSONObject response = guestApi.call(url.substring(0, url.length() - 1));
-            CallResult<List<Ticker>> result = new CallResult<>();
-            if (response == null || response.optInt(SUCCESS_KEY, 1) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            Iterator<String> pairsIterator = response.keys();
-            List<Ticker> tickers = new ArrayList<>();
-            while (pairsIterator.hasNext()) {
-                String pair = pairsIterator.next();
-                tickers.add(Ticker.createFromServer(pair, response.getJSONObject(pair)));
-            }
-            result.payload = tickers;
-            return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "getPairInfo call failed", e);
-            return generateFailureResult();
+        String url = hostUrl + "/api/3/ticker/";
+        for (String pair : pairs) {
+            url += PairUtils.localToServer(pair) + "-";
         }
+        JsonObject response = guestApi.call(url.substring(0, url.length() - 1));
+        CallResult<List<Ticker>> result = new CallResult<>();
+        if (response == null || response.has(SUCCESS_KEY)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
+            return result;
+        }
+
+        result.isSuccess = true;
+
+        List<Ticker> tickers = new ArrayList<>();
+        for (String pair : response.keySet()) {
+            tickers.add(Ticker.createFromServer(pair, response.getAsJsonObject(pair)));
+        }
+
+        result.payload = tickers;
+        return result;
     }
 
     /**
@@ -169,25 +153,20 @@ public class Api {
     @NonNull
     @WorkerThread
     public CallResult<Depth> depth(@NonNull String pair) {
-        try {
-            pair = PairUtils.localToServer(pair);
-            final String url = hostUrl + "/api/3/depth/" + pair;
-            JSONObject response = guestApi.call(url);
-            CallResult<Depth> result = new CallResult<>();
-            if (response == null || response.optInt(SUCCESS_KEY, 1) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            result.payload = Depth.create(pair, response.getJSONObject(pair));
+        pair = PairUtils.localToServer(pair);
+        final String url = hostUrl + "/api/3/depth/" + pair;
+        JsonObject response = guestApi.call(url);
+        CallResult<Depth> result = new CallResult<>();
+        if (response == null || response.has(SUCCESS_KEY)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "depth call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        result.payload = Depth.create(pair, response.getAsJsonObject(pair));
+        return result;
     }
 
     /**
@@ -199,23 +178,19 @@ public class Api {
     @WorkerThread
     public CallResult<AccountInfo> getAccountInfo() {
 
-        try {
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.GET_INFO, null);
-            CallResult<AccountInfo> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            result.payload = AccountInfo.create(response.getJSONObject(RETURN_KEY));
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.GET_INFO, null);
+        CallResult<AccountInfo> result = new CallResult<>();
+        if (response == null
+                || (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "getAccountInfo call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        result.payload = AccountInfo.create(response.getAsJsonObject(RETURN_KEY));
+        return result;
     }
 
     /**
@@ -228,32 +203,29 @@ public class Api {
     @WorkerThread
     public CallResult<List<Transaction>> getTransactionsHistory(
             @NonNull Map<String, String> parameters) {
-        try {
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.TRANSACTIONS_HISTORY,
-                    parameters);
-            CallResult<List<Transaction>> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            List<Transaction> transactions = new ArrayList<>();
-            Iterator<String> transactionIdsIterator = response.getJSONObject(RETURN_KEY).keys();
-            while (transactionIdsIterator.hasNext()) {
-                String key = transactionIdsIterator.next();
-                long transactionId = Long.parseLong(key);
-                transactions.add(Transaction.create(transactionId,
-                        response.getJSONObject(RETURN_KEY).getJSONObject(key)));
-            }
-            result.payload = transactions;
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.TRANSACTIONS_HISTORY,
+                parameters);
+        CallResult<List<Transaction>> result = new CallResult<>();
+        if (response == null ||
+                (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "getTransactionsHistory call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        List<Transaction> transactions = new ArrayList<>();
+        Set<String> transactionIds = response.getAsJsonObject(RETURN_KEY).keySet();
+        for (String item : transactionIds) {
+            long transactionId = Long.parseLong(item);
+            transactions.add(Transaction.create(transactionId,
+                    response.getAsJsonObject(RETURN_KEY).getAsJsonObject(item)));
+
+        }
+
+        result.payload = transactions;
+        return result;
     }
 
     /**
@@ -266,32 +238,27 @@ public class Api {
     @WorkerThread
     public CallResult<List<TradeHistoryEntry>> getTradeHistory(
             @NonNull Map<String, String> parameters) {
-        try {
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.TRADE_HISTORY,
-                    parameters);
-            CallResult<List<TradeHistoryEntry>> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            List<TradeHistoryEntry> trades = new ArrayList<>();
-            Iterator<String> transactionIdsIterator = response.getJSONObject(RETURN_KEY).keys();
-            while (transactionIdsIterator.hasNext()) {
-                String key = transactionIdsIterator.next();
-                long tradeId = Long.parseLong(key);
-                trades.add(TradeHistoryEntry.create(tradeId,
-                        response.getJSONObject(RETURN_KEY).getJSONObject(key)));
-            }
-            result.payload = trades;
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.TRADE_HISTORY,
+                parameters);
+        CallResult<List<TradeHistoryEntry>> result = new CallResult<>();
+        if (response == null
+                || (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "getTradeHistory call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        List<TradeHistoryEntry> trades = new ArrayList<>();
+        Set<String> tradeIds = response.getAsJsonObject(RETURN_KEY).keySet();
+        for (String item : tradeIds) {
+            long tradeId = Long.parseLong(item);
+            trades.add(TradeHistoryEntry.create(tradeId,
+                    response.getAsJsonObject(RETURN_KEY).getAsJsonObject(item)));
+        }
+        result.payload = trades;
+        return result;
     }
 
     /**
@@ -302,31 +269,26 @@ public class Api {
     @NonNull
     @WorkerThread
     public CallResult<List<ActiveOrder>> getActiveOrders() {
-        try {
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.ACTIVE_ORDERS, null);
-            CallResult<List<ActiveOrder>> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            List<ActiveOrder> activeOrders = new ArrayList<>();
-            Iterator<String> orderIdsIterator = response.getJSONObject(RETURN_KEY).keys();
-            while (orderIdsIterator.hasNext()) {
-                String key = orderIdsIterator.next();
-                long orderId = Long.parseLong(key);
-                activeOrders.add(ActiveOrder.create(orderId,
-                        response.getJSONObject(RETURN_KEY).getJSONObject(key)));
-            }
-            result.payload = activeOrders;
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.ACTIVE_ORDERS, null);
+        CallResult<List<ActiveOrder>> result = new CallResult<>();
+        if (response == null ||
+                (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "getActiveOrders call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        List<ActiveOrder> activeOrders = new ArrayList<>();
+        Set<String> orderIds = response.getAsJsonObject(RETURN_KEY).keySet();
+        for (String item : orderIds) {
+            long orderId = Long.parseLong(item);
+            activeOrders.add(ActiveOrder.create(orderId,
+                    response.getAsJsonObject(RETURN_KEY).getAsJsonObject(item)));
+        }
+        result.payload = activeOrders;
+        return result;
     }
 
     /**
@@ -343,30 +305,26 @@ public class Api {
     public CallResult<TradeResponse> trade(@NonNull String pair, @NonNull String type,
                                            @NonNull String rate, @NonNull String amount) {
 
-        try {
-            HashMap<String, String> parameters = new HashMap<>();
-            parameters.put("pair", PairUtils.localToServer(pair));
-            parameters.put("type", type);
-            parameters.put("rate", rate);
-            parameters.put("amount", amount);
+        HashMap<String, String> parameters = new HashMap<>();
+        parameters.put("pair", PairUtils.localToServer(pair));
+        parameters.put("type", type);
+        parameters.put("rate", rate);
+        parameters.put("amount", amount);
 
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.TRADE, parameters);
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.TRADE, parameters);
 
-            CallResult<TradeResponse> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            result.payload = TradeResponse.create(response.getJSONObject(RETURN_KEY));
+        CallResult<TradeResponse> result = new CallResult<>();
+        if (response == null ||
+                (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "trade call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        result.payload = TradeResponse.create(response.getAsJsonObject(RETURN_KEY));
+        return result;
 
     }
 
@@ -380,26 +338,22 @@ public class Api {
     @WorkerThread
     public CallResult<CancelOrderResponse> cancelOrder(long orderId) {
 
-        try {
-            Map<String, String> parameters = new HashMap<>();
-            parameters.put("order_id", String.valueOf(orderId));
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("order_id", String.valueOf(orderId));
 
-            JSONObject response = authApi.makeRequest(AuthApi.TradeMethod.CANCEL_ORDER, parameters);
-            CallResult<CancelOrderResponse> result = new CallResult<>();
-            if (response == null || response.getInt(SUCCESS_KEY) == 0) {
-                result.isSuccess = false;
-                result.error = response == null ?
-                        generalErrorText : response.optString(ERROR_KEY, generalErrorText);
-                return result;
-            }
-
-            result.isSuccess = true;
-            result.payload = CancelOrderResponse.create(response.getJSONObject(RETURN_KEY));
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.CANCEL_ORDER, parameters);
+        CallResult<CancelOrderResponse> result = new CallResult<>();
+        if (response == null
+                || (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
             return result;
-        } catch (JSONException e) {
-            Log.e(TAG, "cancelOrder call failed", e);
-            return generateFailureResult();
         }
+
+        result.isSuccess = true;
+        result.payload = CancelOrderResponse.create(response.getAsJsonObject(RETURN_KEY));
+        return result;
     }
 
 }

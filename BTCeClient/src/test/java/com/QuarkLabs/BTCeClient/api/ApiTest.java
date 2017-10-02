@@ -3,12 +3,14 @@ package com.QuarkLabs.BTCeClient.api;
 import android.content.Context;
 import android.support.annotation.Nullable;
 
-import org.json.JSONObject;
+import com.google.gson.JsonParser;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,6 +24,7 @@ import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE_HISTORY;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRANSACTIONS_HISTORY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -33,6 +36,8 @@ import static org.mockito.Mockito.when;
 
 @SuppressWarnings("WrongConstant")
 public class ApiTest {
+
+    private static final JsonParser JSON_PARSER = new JsonParser();
 
     @Mock
     private GuestApi mockGuestApi;
@@ -51,13 +56,23 @@ public class ApiTest {
     }
 
     @Test
+    public void bigDecimal_behavior() {
+        assertNotEquals(new BigDecimal("1E+6"), new BigDecimal("1000000"));
+        assertEquals(new BigDecimal("1E+6").toPlainString(),
+                new BigDecimal("1000000").toPlainString());
+        assertEquals(new BigDecimal("1000000").stripTrailingZeros().toString(), "1E+6");
+
+        assertEquals(new BigDecimal("1.00000").stripTrailingZeros().toPlainString(), "1");
+    }
+
+    @Test
     public void info_success() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"server_time\":1505766539," +
+                .thenReturn(JSON_PARSER.parse("{\"server_time\":1505766539," +
                         "\"pairs\":{\"btc_usd\":{\"decimal_places\":3,\"min_price\":0.1," +
                         "\"max_price\":10000,\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}," +
                         "\"btc_rur\":{\"decimal_places\":5,\"min_price\":1,\"max_price\":1000000," +
-                        "\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}}}"));
+                        "\"min_amount\":0.001,\"hidden\":0,\"fee\":0.2}}}").getAsJsonObject());
 
         CallResult<ExchangeInfo> callResult = testable.getExchangeInfo();
         assertTrue(callResult.isSuccess());
@@ -80,18 +95,20 @@ public class ApiTest {
         assertNotNull(pairInfo);
         assertEquals("BTC/RUR", pairInfo.getPair());
         assertEquals(5, pairInfo.getDecimalPlaces());
-        assertEquals(1, pairInfo.getMinPrice(), 0.01);
-        assertEquals(1000000, pairInfo.getMaxPrice(), 0.01);
-        assertEquals(0.001, pairInfo.getMinAmount(), 0.0001);
+        assertEquals(new BigDecimal("1"), pairInfo.getMinPrice());
+        // because of stripTrailingZeros
+        assertEquals(new BigDecimal("1000000").toPlainString(),
+                pairInfo.getMaxPrice().toPlainString());
+        assertEquals(new BigDecimal("0.001"), pairInfo.getMinAmount());
         assertFalse(pairInfo.isHidden());
-        assertEquals(0.2, pairInfo.getFee(), 0.01);
+        assertEquals(new BigDecimal("0.2"), pairInfo.getFee());
     }
 
     @Test
     public void info_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0," +
-                        " \"error\":\"API is disabled\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0," +
+                        " \"error\":\"API is disabled\"}").getAsJsonObject());
 
         CallResult<ExchangeInfo> callResult
                 = testable.getExchangeInfo();
@@ -104,12 +121,13 @@ public class ApiTest {
     @Test
     public void getPairInfo_success() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"btc_usd\":{\"high\":2381.507,\"low\":2300," +
+                .thenReturn(JSON_PARSER.parse("{\"btc_usd\":{\"high\":2381.507,\"low\":2300," +
                         "\"avg\":2340.7535,\"vol\":10359347.87922,\"vol_cur\":4423.75448," +
                         "\"last\":2374,\"buy\":2374,\"sell\":2373.551,\"updated\":1496436981}," +
                         "\"ltc_usd\":{\"high\":27.612,\"low\":25.60265,\"avg\":26.607325," +
                         "\"vol\":4404490.34434,\"vol_cur\":164911.27789,\"last\":26.768," +
-                        "\"buy\":26.769,\"sell\":26.65201,\"updated\":1496436981}}"));
+                        "\"buy\":26.769,\"sell\":26.65201,\"updated\":1496436981}}")
+                        .getAsJsonObject());
 
         CallResult<List<Ticker>> callResult
                 = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/USD")));
@@ -129,22 +147,22 @@ public class ApiTest {
         });
 
         assertNotNull(ticker);
-        assertEquals(27.612, ticker.getHigh(), 0.01);
-        assertEquals(25.60265, ticker.getLow(), 0.00001);
-        assertEquals(26.607325, ticker.getAvg(), 0.00001);
-        assertEquals(4404490.34434, ticker.getVol(), 0.00001);
-        assertEquals(164911.27789, ticker.getVolCur(), 0.00001);
-        assertEquals(26.768, ticker.getLast(), 0.00001);
-        assertEquals(26.769, ticker.getBuy(), 0.00001);
-        assertEquals(26.65201, ticker.getSell(), 0.00001);
+        assertEquals(new BigDecimal("27.612"), ticker.getHigh());
+        assertEquals(new BigDecimal("25.60265"), ticker.getLow());
+        assertEquals(new BigDecimal("26.607325"), ticker.getAvg());
+        assertEquals(new BigDecimal("4404490.34434"), ticker.getVol());
+        assertEquals(new BigDecimal("164911.27789"), ticker.getVolCur());
+        assertEquals(new BigDecimal("26.768"), ticker.getLast());
+        assertEquals(new BigDecimal("26.769"), ticker.getBuy());
+        assertEquals(new BigDecimal("26.65201"), ticker.getSell());
         assertEquals(1496436981L, ticker.getUpdated());
     }
 
     @Test
     public void getPairInfo_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0," +
-                        " \"error\":\"Invalid pair name: ltc_us\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: ltc_us\"}").getAsJsonObject());
 
         CallResult<List<Ticker>> callResult
                 = testable.getPairInfo(new HashSet<>(Arrays.asList("BTC/USD", "LTC/US")));
@@ -157,8 +175,9 @@ public class ApiTest {
     @Test
     public void depth_success() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"btc_usd\":{\"asks\":[[2377,1],[2377.45,0.15]" +
-                        ",[2377.7,0.2]],\"bids\":[[2369.801,0.1],[2369.551,0.15]]}}"));
+                .thenReturn(JSON_PARSER.parse("{\"btc_usd\":{\"asks\":[[2377,1],[2377.45,0.15]" +
+                        ",[2377.7,0.2]],\"bids\":[[2369.801,0.1],[2369.551,0.15]]}}")
+                        .getAsJsonObject());
 
         CallResult<Depth> depthCallResult = testable.depth("BTC/USD");
         assertTrue(depthCallResult.isSuccess());
@@ -175,8 +194,8 @@ public class ApiTest {
     @Test
     public void depth_error() throws Exception {
         when(mockGuestApi.call(anyString()))
-                .thenReturn(new JSONObject("{\"success\":0," +
-                        " \"error\":\"Invalid pair name: btc_us\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0," +
+                        " \"error\":\"Invalid pair name: btc_us\"}").getAsJsonObject());
 
         CallResult<Depth> depthCallResult = testable.depth("BTC/US");
         assertFalse(depthCallResult.isSuccess());
@@ -187,7 +206,7 @@ public class ApiTest {
     @Test
     public void getAccountInfo_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(GET_INFO), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\t\"return\":{\n" +
                         "\t\t\"funds\":{\n" +
@@ -206,7 +225,7 @@ public class ApiTest {
                         "\t\t\"open_orders\":1,\n" +
                         "\t\t\"server_time\":1342123547\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<AccountInfo> callResult = testable.getAccountInfo();
 
@@ -220,14 +239,15 @@ public class ApiTest {
         assertEquals(1, accountInfo.getOpenOrdersCount());
         assertEquals(1342123547, accountInfo.getServerTime());
 
-        assertEquals(23.998, accountInfo.getFunds().get("BTC"), 0.00001);
+        assertEquals(new BigDecimal("23.998"), accountInfo.getFunds().get("BTC"));
     }
 
     @Test
     public void getAccountInfo_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(GET_INFO),
                 anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
         CallResult<AccountInfo> callResult = testable.getAccountInfo();
 
@@ -240,7 +260,7 @@ public class ApiTest {
     public void getTransactionsHistory_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRANSACTIONS_HISTORY),
                 anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"1081672\":{\n" +
@@ -252,7 +272,7 @@ public class ApiTest {
                         "\t\t\t\"timestamp\":1342448420\n" +
                         "\t\t}\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<List<Transaction>> callResult = testable.getTransactionsHistory(
                 Collections.<String, String>emptyMap());
@@ -271,14 +291,15 @@ public class ApiTest {
         assertEquals(2, transaction.getStatus());
         assertEquals("BTC", transaction.getCurrency());
         assertEquals("BTC Payment", transaction.getDescription());
-        assertEquals(1, transaction.getAmount(), 0.00001);
+        assertEquals(new BigDecimal("1"), transaction.getAmount());
     }
 
     @Test
     public void getTransactionsHistory_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRANSACTIONS_HISTORY),
                 anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
 
         CallResult<List<Transaction>> callResult =
@@ -292,7 +313,7 @@ public class ApiTest {
     @Test
     public void getTradeHistory_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRADE_HISTORY), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"166830\":{\n" +
@@ -305,7 +326,7 @@ public class ApiTest {
                         "\t\t\t\"timestamp\":1342445793\n" +
                         "\t\t}\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<List<TradeHistoryEntry>>
                 callResult = testable.getTradeHistory(Collections.<String, String>emptyMap());
@@ -325,14 +346,15 @@ public class ApiTest {
         assertTrue(trade.isYourOrder());
         assertEquals("BTC/USD", trade.getPair());
         assertEquals("sell", trade.getType());
-        assertEquals(1, trade.getRate(), 0.00001);
-        assertEquals(1, trade.getAmount(), 0.00001);
+        assertEquals(new BigDecimal("1"), trade.getRate());
+        assertEquals(new BigDecimal("1"), trade.getAmount());
     }
 
     @Test
     public void getTradeHistory_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRADE_HISTORY), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
 
         CallResult<List<TradeHistoryEntry>> callResult =
@@ -346,7 +368,7 @@ public class ApiTest {
     @Test
     public void activeOrders_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(ACTIVE_ORDERS), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"343154\":{\n" +
@@ -358,7 +380,7 @@ public class ApiTest {
                         "\t\t\t\"status\":0\n" +
                         "\t\t}\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<List<ActiveOrder>>
                 callResult = testable.getActiveOrders();
@@ -374,8 +396,8 @@ public class ApiTest {
         assertEquals(343154, activeOrder.getId());
         assertEquals("BTC/USD", activeOrder.getPair());
         assertEquals("sell", activeOrder.getType());
-        assertEquals(1, activeOrder.getAmount(), 0.00001);
-        assertEquals(3, activeOrder.getRate(), 0.00001);
+        assertEquals(new BigDecimal("1"), activeOrder.getAmount());
+        assertEquals(new BigDecimal("3"), activeOrder.getRate());
         assertEquals(1342448420, activeOrder.getCreatedAt());
         assertEquals(0, activeOrder.getStatus());
     }
@@ -383,7 +405,8 @@ public class ApiTest {
     @Test
     public void activeOrders_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(ACTIVE_ORDERS), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
 
         CallResult<List<TradeHistoryEntry>> callResult =
@@ -397,7 +420,7 @@ public class ApiTest {
     @Test
     public void trade_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRADE), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"received\":0.1,\n" +
@@ -412,7 +435,7 @@ public class ApiTest {
                         "\t\t\t\"nmc\":0\n" +
                         "\t\t}\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<TradeResponse>
                 callResult = testable.trade("", "", "", "");
@@ -423,18 +446,19 @@ public class ApiTest {
         TradeResponse tradeResponse = callResult.getPayload();
         assertNotNull(tradeResponse);
 
-        assertEquals(0.1, tradeResponse.getReceived(), 0.00001);
-        assertEquals(0.2, tradeResponse.getRemains(), 0.00001);
+        assertEquals(new BigDecimal("0.1"), tradeResponse.getReceived());
+        assertEquals(new BigDecimal("0.2"), tradeResponse.getRemains());
         assertEquals(123456, tradeResponse.getOrderId());
 
-        assertEquals(2.498, tradeResponse.getFunds().get("BTC"), 0.00001);
+        assertEquals(new BigDecimal("2.498"), tradeResponse.getFunds().get("BTC"));
 
     }
 
     @Test
     public void trade_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(TRADE), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
 
         CallResult<List<TradeHistoryEntry>> callResult =
@@ -448,7 +472,7 @@ public class ApiTest {
     @Test
     public void cancelOrder_success() throws Exception {
         when(mockAuthApi.makeRequest(eq(CANCEL_ORDER), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\n" +
+                .thenReturn(JSON_PARSER.parse("{\n" +
                         "\t\"success\":1,\n" +
                         "\t\"return\":{\n" +
                         "\t\t\"order_id\":343154,\n" +
@@ -461,7 +485,7 @@ public class ApiTest {
                         "\t\t\t\"nmc\":0\n" +
                         "\t\t}\n" +
                         "\t}\n" +
-                        "}"));
+                        "}").getAsJsonObject());
 
         CallResult<CancelOrderResponse>
                 callResult = testable.cancelOrder(123456);
@@ -472,13 +496,15 @@ public class ApiTest {
 
         assertNotNull(cancelOrderResponse);
         assertEquals(343154, cancelOrderResponse.getOrderId());
-        assertEquals(24.998, cancelOrderResponse.getFunds().get("BTC"), 0.00001);
+        assertEquals(new BigDecimal("24.998"),
+                cancelOrderResponse.getFunds().get("BTC"));
     }
 
     @Test
     public void cancelOrder_error() throws Exception {
         when(mockAuthApi.makeRequest(eq(CANCEL_ORDER), anyMapOf(String.class, String.class)))
-                .thenReturn(new JSONObject("{\"success\":0,\"error\":\"error\"}"));
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
 
 
         CallResult<List<TradeHistoryEntry>> callResult =

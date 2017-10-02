@@ -36,10 +36,10 @@ import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.MainActivity;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.Watcher;
 import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.CallResult;
@@ -66,7 +66,7 @@ public class CheckTickersService extends IntentService {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         final Api api = BtcEApplication.get(this).getApi();
         final AppPreferences appPreferences = BtcEApplication.get(this).getAppPreferences();
-        final TickersStorage tickersStorage = BtcEApplication.get(this).getTickersStorage();
+        final InMemoryStorage inMemoryStorage = BtcEApplication.get(this).getInMemoryStorage();
 
         Set<String> pairsToCheck = new HashSet<>();
         List<String> dashboardPairs = appPreferences.getPairsToDisplay();
@@ -94,7 +94,7 @@ public class CheckTickersService extends IntentService {
         List<Ticker> tickers = result.getPayload();
 
         List<NotificationMessage> messages =
-                createNotificationMessages(tickers, tickersStorage.getLatestData());
+                createNotificationMessages(tickers, inMemoryStorage.getLatestData());
 
         for (NotificationMessage message : messages) {
             NotificationManager notificationManager =
@@ -126,7 +126,7 @@ public class CheckTickersService extends IntentService {
             newData.put(ticker.getPair(), ticker);
         }
 
-        tickersStorage.saveTickers(newData);
+        inMemoryStorage.saveTickers(newData);
         LocalBroadcastManager.getInstance(this)
                 .sendBroadcast(new Intent(ConstantHolder.UPDATE_TICKERS_ACTION));
     }
@@ -175,8 +175,8 @@ public class CheckTickersService extends IntentService {
                 continue;
             }
 
-            double oldValue = oldData.get(pair).getLast();
-            double newValue = ticker.getLast();
+            double oldValue = oldData.get(pair).getLast().doubleValue();
+            double newValue = ticker.getLast().doubleValue();
 
             while (!notifiers.isAfterLast()) {
 

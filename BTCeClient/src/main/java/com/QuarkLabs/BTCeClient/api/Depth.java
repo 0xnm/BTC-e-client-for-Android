@@ -1,13 +1,10 @@
 package com.QuarkLabs.BTCeClient.api;
 
-
 import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.PairUtils;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,21 +28,23 @@ public class Depth {
         return bids;
     }
 
-    public static Depth create(@NonNull String pair, @NonNull JSONObject jsonObject)
-            throws JSONException {
+    @NonNull
+    public static Depth create(@NonNull String pair, @NonNull JsonObject jsonObject) {
         Depth depth = new Depth();
         depth.pair = PairUtils.serverToLocal(pair);
         depth.asks = new ArrayList<>();
-        JSONArray asks = jsonObject.getJSONArray("asks");
-        for (int i = 0; i < asks.length(); i++) {
-            depth.asks.add(PriceVolumePair.create(asks.getJSONArray(i).getDouble(0),
-                    asks.getJSONArray(i).getDouble(1)));
+        JsonArray asks = jsonObject.getAsJsonArray("asks");
+        for (int i = 0; i < asks.size(); i++) {
+            depth.asks.add(PriceVolumePair.create(
+                    asks.get(i).getAsJsonArray().get(0).getAsBigDecimal().stripTrailingZeros(),
+                    asks.get(i).getAsJsonArray().get(1).getAsBigDecimal().stripTrailingZeros()));
         }
         depth.bids = new ArrayList<>();
-        JSONArray bids = jsonObject.getJSONArray("bids");
-        for (int i = 0; i < bids.length(); i++) {
-            depth.bids.add(PriceVolumePair.create(bids.getJSONArray(i).getDouble(0),
-                    bids.getJSONArray(i).getDouble(1)));
+        JsonArray bids = jsonObject.getAsJsonArray("bids");
+        for (int i = 0; i < bids.size(); i++) {
+            depth.bids.add(PriceVolumePair.create(
+                    bids.get(i).getAsJsonArray().get(0).getAsBigDecimal().stripTrailingZeros(),
+                    bids.get(i).getAsJsonArray().get(1).getAsBigDecimal().stripTrailingZeros()));
         }
         return depth;
     }

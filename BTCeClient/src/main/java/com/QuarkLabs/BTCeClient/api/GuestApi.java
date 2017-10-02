@@ -21,8 +21,9 @@ package com.QuarkLabs.BTCeClient.api;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -34,20 +35,21 @@ import java.util.concurrent.TimeUnit;
 
 class GuestApi {
 
+    private static final JsonParser JSON_PARSER = new JsonParser();
     private static final String TAG = GuestApi.class.getSimpleName();
 
     /**
      * Makes simple non-authenticated request
      *
-     * @param urlString URL of Trade API
-     * @return Response of type JSONObject
-     * @throws JSONException Thrown in case of unexpected payload
+     * @param urlString URL of Public API
+     * @return Response of type {@link JsonObject}
      */
     @Nullable
-    JSONObject call(String urlString) throws JSONException {
+    JsonObject call(String urlString) {
 
         HttpURLConnection connection = null;
         BufferedReader rd = null;
+        //noinspection TryWithIdenticalCatches
         try {
             URL url = new URL(urlString);
             connection = (HttpURLConnection) url.openConnection();
@@ -61,10 +63,12 @@ class GuestApi {
                 while ((line = rd.readLine()) != null) {
                     sb.append(line);
                 }
-                return new JSONObject(sb.toString());
+                return JSON_PARSER.parse(sb.toString()).getAsJsonObject();
             }
         } catch (IOException e) {
             logException(e);
+        } catch (JsonParseException jpe) {
+            logException(jpe);
         } finally {
             if (connection != null) {
                 connection.disconnect();

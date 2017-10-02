@@ -56,10 +56,12 @@ import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
 
+import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 
-public class MainActivity extends AppCompatActivity implements ActivityCallbacks {
+public class MainActivity extends AppCompatActivity
+        implements ActivityCallbacks, MainNavigator {
 
     private boolean isAlarmSet;
 
@@ -297,6 +299,12 @@ public class MainActivity extends AppCompatActivity implements ActivityCallbacks
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.notify(id, mBuilder.build());
+    }
+
+    @Override
+    public void openTradingSection(@NonNull String pair, @NonNull BigDecimal price) {
+        homeFragment.addShowTradingTask(pair, price);
+        displayItem(0, false);
     }
 
     private final class PreferencesListener extends AppPreferences.Listener {

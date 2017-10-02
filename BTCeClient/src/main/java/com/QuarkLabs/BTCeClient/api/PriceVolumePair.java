@@ -1,21 +1,25 @@
 package com.QuarkLabs.BTCeClient.api;
 
+import android.support.annotation.NonNull;
+
+import java.math.BigDecimal;
 
 public class PriceVolumePair {
-    private double price;
-    private double volume;
+    private BigDecimal price;
+    private BigDecimal volume;
 
     private PriceVolumePair() { }
 
-    public double getPrice() {
+    public BigDecimal getPrice() {
         return price;
     }
 
-    public double getVolume() {
+    public BigDecimal getVolume() {
         return volume;
     }
 
-    public static PriceVolumePair create(double price, double volume) {
+    @NonNull
+    public static PriceVolumePair create(BigDecimal price, BigDecimal volume) {
         PriceVolumePair priceVolumePair = new PriceVolumePair();
         priceVolumePair.price = price;
         priceVolumePair.volume = volume;

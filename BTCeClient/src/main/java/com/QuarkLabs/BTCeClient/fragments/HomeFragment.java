@@ -37,7 +37,6 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -63,9 +62,9 @@ import android.widget.Toast;
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.api.AccountInfo;
@@ -76,13 +75,16 @@ import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 public class HomeFragment extends Fragment implements
@@ -107,7 +109,10 @@ public class HomeFragment extends Fragment implements
     private AlertDialog pairsDialog;
 
     private AppPreferences appPreferences;
-    private TickersStorage tickersStorage;
+    private InMemoryStorage inMemoryStorage;
+
+    @NonNull
+    private Queue<Runnable> pendingTasks = new LinkedList<>();
 
     @Override
     public void onAttach(Activity activity) {
@@ -137,7 +142,7 @@ public class HomeFragment extends Fragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
-        tickersStorage = BtcEApplication.get(getActivity()).getTickersStorage();
+        inMemoryStorage = BtcEApplication.get(getActivity()).getInMemoryStorage();
 
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
@@ -255,6 +260,10 @@ public class HomeFragment extends Fragment implements
 
         //start service to get new data once Dashboard is opened
         getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
+
+        if (inMemoryStorage.getFunds() != null) {
+            refreshFundsView(inMemoryStorage.getFunds());
+        }
     }
 
     @Override
@@ -273,31 +282,32 @@ public class HomeFragment extends Fragment implements
                 // not interested
             }
         });
+        while (!pendingTasks.isEmpty()) {
+            pendingTasks.poll().run();
+        }
     }
 
     private void refreshOperationCostView() {
         String tradeAmount = tradeAmountView.getText().toString();
         String tradePrice = tradePriceView.getText().toString();
-        try {
-            Float.parseFloat(tradeAmount);
-            Float.parseFloat(tradePrice);
-        } catch (NumberFormatException nfe) {
-            return;
-        }
-        if (!tradeAmount.isEmpty()
-                && !tradePrice.isEmpty()) {
-            operationCostView.setText(
-                    Html.fromHtml(
-                            getString(
-                                    R.string.trade_operation_cost,
-                                    String.valueOf(Float.parseFloat(tradeAmount)
-                                            * Float.parseFloat(tradePrice)),
-                                    tradePriceCurrencyView.getSelectedItem()
-                            )
-                    )
-            );
-        } else {
+        if (tradeAmount.isEmpty() || tradePrice.isEmpty()) {
             operationCostView.setText("");
+        } else {
+            try {
+                operationCostView.setText(
+                        Html.fromHtml(
+                                getString(
+                                        R.string.trade_operation_cost,
+                                        new BigDecimal(tradeAmount)
+                                                .multiply(new BigDecimal(tradePrice))
+                                                .toPlainString(),
+                                        tradePriceCurrencyView.getSelectedItem()
+                                )
+                        )
+                );
+            } catch (NumberFormatException nfe) {
+                operationCostView.setText("");
+            }
         }
     }
 
@@ -316,15 +326,17 @@ public class HomeFragment extends Fragment implements
         } else {
             confirmationRes = R.string.sell_confirmation;
         }
-        float total = Float.parseFloat(request.tradeAmount)
-                * Float.parseFloat(request.tradePrice);
-        float fee = 0.002f * total;
+        BigDecimal total = new BigDecimal(request.tradeAmount)
+                .multiply(new BigDecimal(request.tradePrice));
+        BigDecimal fee = total.multiply(new BigDecimal("0.002"));
         new AlertDialog.Builder(getActivity())
                 .setMessage(Html.fromHtml(getString(confirmationRes,
                         request.tradeAmount, request.tradeCurrency,
                         request.tradePrice, request.tradePriceCurrency,
                         request.tradeCurrency,
-                        String.valueOf(total), String.valueOf(total - fee), String.valueOf(fee),
+                        total.toPlainString(),
+                        total.subtract(fee).toPlainString(),
+                        fee.toPlainString(),
                         request.tradePriceCurrency)))
                 .setCancelable(false)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
@@ -351,20 +363,20 @@ public class HomeFragment extends Fragment implements
         List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
-            tickersStorage.getLatestData().clear();
-            tickersStorage.getPreviousData().clear();
+            inMemoryStorage.getLatestData().clear();
+            inMemoryStorage.getPreviousData().clear();
             return;
         }
         //checking for added tickers
         for (String pair : pairs) {
-            if (!tickersStorage.getLatestData()
+            if (!inMemoryStorage.getLatestData()
                     .containsKey(PairUtils.localToServer(pair))) {
                 Ticker ticker = new Ticker(pair);
-                tickersStorage.addNewTicker(ticker);
+                inMemoryStorage.addNewTicker(ticker);
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = tickersStorage.getLatestData().keySet().<String>iterator();
+        for (Iterator<String> iterator = inMemoryStorage.getLatestData().keySet().<String>iterator();
              iterator.hasNext();) {
             String key = iterator.next();
             if (!pairs.contains(key)) {
@@ -420,7 +432,7 @@ public class HomeFragment extends Fragment implements
     }
 
     private void refreshDashboardAdapter() {
-        Map<String, Ticker> latestTickers = tickersStorage.getLatestData();
+        Map<String, Ticker> latestTickers = inMemoryStorage.getLatestData();
         Set<String> dashboardPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {
@@ -449,7 +461,7 @@ public class HomeFragment extends Fragment implements
         super.onDestroyView();
     }
 
-    private void refreshFundsView(@NonNull Map<String, Double> funds) {
+    private void refreshFundsView(@NonNull Map<String, BigDecimal> funds) {
 
         View.OnClickListener fillAmount = new View.OnClickListener() {
             @Override
@@ -481,7 +493,7 @@ public class HomeFragment extends Fragment implements
             TextView currencyView = new TextView(getActivity());
             TextView amountView = new TextView(getActivity());
             currencyView.setText(currency);
-            amountView.setText(String.valueOf(funds.get(currency)));
+            amountView.setText(funds.get(currency).toPlainString());
             currencyView.setLayoutParams(layoutParams);
             currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
             currencyView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
@@ -497,28 +509,56 @@ public class HomeFragment extends Fragment implements
 
     @Override
     @SuppressWarnings("unchecked")
-    public void onPriceClicked(String pair, double price) {
-        try {
-            ScrollView scrollView = (ScrollView) getView();
-            if (scrollView != null) {
-                scrollView.smoothScrollTo(
-                        0, scrollView.findViewById(R.id.tradingSection).getBottom());
-                String[] currencies = pair.split("/");
-                EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
-                tradePrice.setText(String.valueOf(price));
-                Spinner tradeCurrency = (Spinner) scrollView.findViewById(R.id.TradeCurrency);
-                Spinner tradePriceCurrency
-                        = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
-                tradeCurrency.setSelection(
-                        ((ArrayAdapter<String>) tradeCurrency.getAdapter())
-                                .getPosition(currencies[0]));
-                tradePriceCurrency.setSelection(
-                        ((ArrayAdapter<String>) tradePriceCurrency.getAdapter())
-                                .getPosition(currencies[1]));
+    public void onPriceClicked(@NonNull String pair, @NonNull BigDecimal price) {
+        final ScrollView scrollView = (ScrollView) getView();
+        if (scrollView != null) {
+            String[] currencies = pair.split("/");
+            EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
+            tradePrice.setText(price.toPlainString());
+            Spinner tradeCurrency = (Spinner) scrollView.findViewById(R.id.TradeCurrency);
+            Spinner tradePriceCurrency
+                    = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
+            tradeCurrency.setSelection(
+                    ((ArrayAdapter<String>) tradeCurrency.getAdapter())
+                            .getPosition(currencies[0]));
+            tradePriceCurrency.setSelection(
+                    ((ArrayAdapter<String>) tradePriceCurrency.getAdapter())
+                            .getPosition(currencies[1]));
+
+            int y = scrollView.findViewById(R.id.tradingSection).getBottom();
+            if (y != 0) {
+                scrollView.smoothScrollTo(0, y);
+            } else {
+                getView().getViewTreeObserver()
+                        .addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                            @Override
+                            public boolean onPreDraw() {
+                                View view = getView();
+                                if (view != null) {
+                                    view.getViewTreeObserver().removeOnPreDrawListener(this);
+                                }
+                                scrollView.smoothScrollTo(0,
+                                        scrollView.findViewById(R.id.tradingSection).getBottom());
+                                return true;
+                            }
+                        });
             }
-        } catch (ClassCastException | NullPointerException e) {
-            Log.e(HomeFragment.class.getSimpleName(), "Failure on setting trading price", e);
         }
+    }
+
+    /**
+     * Will be run on the next {@link #onResume()}
+     *
+     * @param pair  Pair to put in Trading section
+     * @param price Price
+     */
+    public void addShowTradingTask(@NonNull final String pair, @NonNull final BigDecimal price) {
+        pendingTasks.add(new Runnable() {
+            @Override
+            public void run() {
+                onPriceClicked(pair, price);
+            }
+        });
     }
 
     /**
@@ -543,7 +583,9 @@ public class HomeFragment extends Fragment implements
             if (callResult.isSuccess()) {
                 message = getString(R.string.order_successfully_added);
                 if (isVisible()) {
-                    refreshFundsView(callResult.getPayload().getFunds());
+                    Map<String, BigDecimal> funds = callResult.getPayload().getFunds();
+                    inMemoryStorage.setFunds(funds);
+                    refreshFundsView(funds);
                 }
             } else {
                 message = callResult.getError();
@@ -581,7 +623,9 @@ public class HomeFragment extends Fragment implements
             }
             if (result.isSuccess()) {
                 notificationText = getString(R.string.FundsInfoUpdatedtext);
-                refreshFundsView(result.getPayload().getFunds());
+                Map<String, BigDecimal> funds = result.getPayload().getFunds();
+                inMemoryStorage.setFunds(funds);
+                refreshFundsView(funds);
             } else {
                 notificationText = result.getError();
             }
