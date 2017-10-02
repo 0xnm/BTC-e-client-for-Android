@@ -68,7 +68,8 @@ public class ChatFragment extends Fragment
         chatsView.setLayoutManager(layoutManager);
         chatsView.setAdapter(chatAdapter);
 
-        List<ChatMessage> oldMessages = BtcEApplication.get(getActivity()).getChatMessages();
+        List<ChatMessage> oldMessages = BtcEApplication.get(getActivity())
+                .getInMemoryStorage().getChatMessages();
         if (oldMessages == null) {
             showLoading();
         } else {
@@ -179,7 +180,7 @@ public class ChatFragment extends Fragment
         }
         //noinspection ConstantConditions
         if (!selectedItem.equals(currentChatLocale)) {
-            BtcEApplication.get(getActivity())
+            BtcEApplication.get(getActivity()).getInMemoryStorage()
                     .setChatMessages(Collections.<ChatMessage>emptyList());
             appPreferences.setChatLocale(selectedItem);
             showLoading();
@@ -234,7 +235,7 @@ public class ChatFragment extends Fragment
         if (messages.isEmpty()) {
             showError();
         } else {
-            BtcEApplication.get(getActivity()).setChatMessages(messages);
+            BtcEApplication.get(getActivity()).getInMemoryStorage().setChatMessages(messages);
             showContent(messages);
         }
         getActivity().invalidateOptionsMenu();

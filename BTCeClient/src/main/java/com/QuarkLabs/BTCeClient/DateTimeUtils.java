@@ -14,7 +14,7 @@ public final class DateTimeUtils {
     /**
      * Creates date/time format object for "EEE, MMM d, yyyy HH:mm:ss"
      *
-     * @return Date format object
+     * @return {@link DateFormat} object
      */
     @NonNull
     public static DateFormat createLongDateTimeFormat() {

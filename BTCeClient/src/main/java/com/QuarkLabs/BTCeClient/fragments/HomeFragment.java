@@ -62,9 +62,9 @@ import android.widget.Toast;
 import com.QuarkLabs.BTCeClient.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.api.AccountInfo;
@@ -109,7 +109,7 @@ public class HomeFragment extends Fragment implements
     private AlertDialog pairsDialog;
 
     private AppPreferences appPreferences;
-    private TickersStorage tickersStorage;
+    private InMemoryStorage inMemoryStorage;
 
     @NonNull
     private Queue<Runnable> pendingTasks = new LinkedList<>();
@@ -142,7 +142,7 @@ public class HomeFragment extends Fragment implements
     public void onViewCreated(View view, Bundle savedInstanceState) {
 
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
-        tickersStorage = BtcEApplication.get(getActivity()).getTickersStorage();
+        inMemoryStorage = BtcEApplication.get(getActivity()).getInMemoryStorage();
 
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
@@ -260,6 +260,10 @@ public class HomeFragment extends Fragment implements
 
         //start service to get new data once Dashboard is opened
         getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
+
+        if (inMemoryStorage.getFunds() != null) {
+            refreshFundsView(inMemoryStorage.getFunds());
+        }
     }
 
     @Override
@@ -359,20 +363,20 @@ public class HomeFragment extends Fragment implements
         List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
-            tickersStorage.getLatestData().clear();
-            tickersStorage.getPreviousData().clear();
+            inMemoryStorage.getLatestData().clear();
+            inMemoryStorage.getPreviousData().clear();
             return;
         }
         //checking for added tickers
         for (String pair : pairs) {
-            if (!tickersStorage.getLatestData()
+            if (!inMemoryStorage.getLatestData()
                     .containsKey(PairUtils.localToServer(pair))) {
                 Ticker ticker = new Ticker(pair);
-                tickersStorage.addNewTicker(ticker);
+                inMemoryStorage.addNewTicker(ticker);
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = tickersStorage.getLatestData().keySet().<String>iterator();
+        for (Iterator<String> iterator = inMemoryStorage.getLatestData().keySet().<String>iterator();
              iterator.hasNext();) {
             String key = iterator.next();
             if (!pairs.contains(key)) {
@@ -428,7 +432,7 @@ public class HomeFragment extends Fragment implements
     }
 
     private void refreshDashboardAdapter() {
-        Map<String, Ticker> latestTickers = tickersStorage.getLatestData();
+        Map<String, Ticker> latestTickers = inMemoryStorage.getLatestData();
         Set<String> dashboardPairs = new HashSet<>(appPreferences.getPairsToDisplay());
         List<Ticker> dashboardTickers = new ArrayList<>();
         for (String pair : latestTickers.keySet()) {
@@ -579,7 +583,9 @@ public class HomeFragment extends Fragment implements
             if (callResult.isSuccess()) {
                 message = getString(R.string.order_successfully_added);
                 if (isVisible()) {
-                    refreshFundsView(callResult.getPayload().getFunds());
+                    Map<String, BigDecimal> funds = callResult.getPayload().getFunds();
+                    inMemoryStorage.setFunds(funds);
+                    refreshFundsView(funds);
                 }
             } else {
                 message = callResult.getError();
@@ -617,7 +623,9 @@ public class HomeFragment extends Fragment implements
             }
             if (result.isSuccess()) {
                 notificationText = getString(R.string.FundsInfoUpdatedtext);
-                refreshFundsView(result.getPayload().getFunds());
+                Map<String, BigDecimal> funds = result.getPayload().getFunds();
+                inMemoryStorage.setFunds(funds);
+                refreshFundsView(funds);
             } else {
                 notificationText = result.getError();
             }

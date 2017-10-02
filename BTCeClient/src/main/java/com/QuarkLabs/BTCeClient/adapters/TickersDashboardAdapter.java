@@ -13,9 +13,9 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
-import com.QuarkLabs.BTCeClient.TickersStorage;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;
 
@@ -53,7 +53,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet leftInAnimation;
     private final AnimatorSet rightOutAnimation;
     private final AnimatorSet rightInAnimation;
-    private final TickersStorage tickersStorage;
+    private final InMemoryStorage inMemoryStorage;
     private List<Ticker> tickers = new ArrayList<>();
 
     private TickersDashboardAdapterCallbackInterface callback;
@@ -72,7 +72,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
                 context, R.animator.card_flip_right_out);
         rightInAnimation = (AnimatorSet) AnimatorInflater.loadAnimator(
                 context, R.animator.card_flip_right_in);
-        tickersStorage = BtcEApplication.get(context).getTickersStorage();
+        inMemoryStorage = BtcEApplication.get(context).getInMemoryStorage();
     }
 
     public int getNumColumns() {
@@ -112,7 +112,7 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
             view = (FlippingView) convertView;
         }
         Ticker ticker = tickers.get(position);
-        Ticker oldTicker = tickersStorage.getPreviousData().get(ticker.getPair());
+        Ticker oldTicker = inMemoryStorage.getPreviousData().get(ticker.getPair());
 
         bindFrontSide(view, ticker, oldTicker);
         bindBackSide(view, ticker, oldTicker);
