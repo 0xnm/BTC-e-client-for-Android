@@ -204,8 +204,8 @@ public class ChatFragment extends Fragment
         chatsView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                if (isVisible()
-                        && chatsView != null && chatAdapter != null) {
+                if (isVisible() && chatsView != null
+                        && chatAdapter != null && chatAdapter.getItemCount() != 0) {
                     chatsView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
                 }
             }
