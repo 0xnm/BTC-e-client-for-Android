@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:tools="http://schemas.android.com/tools">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -45,6 +43,7 @@
             android:layout_marginTop="20dp"
             android:gravity="center_horizontal"
             android:text="@string/AccountInfo"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:textSize="@dimen/title_font_size"
             android:textStyle="bold" />
 
@@ -64,8 +63,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="4dp"
                     android:gravity="center"
+                    android:padding="4dp"
                     android:text="@string/UpdateAccountInfo" />
             </TableLayout>
         </android.support.v7.widget.CardView>
@@ -75,8 +74,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginBottom="5dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginBottom="4dp"
+            android:layout_marginTop="4dp"
             android:text="@string/UpdateButton" />
 
         <TextView
@@ -84,157 +83,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="@string/TradeTitle"
+            android:textAppearance="@android:style/TextAppearance.Medium"
             android:textSize="@dimen/title_font_size"
             android:textStyle="bold" />
 
-        <TableLayout
-            android:id="@+id/tradingSection"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:shrinkColumns="*"
-            android:stretchColumns="*">
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/Amount"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/Currency"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <EditText
-                    android:id="@+id/TradeAmount"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:inputType="number|numberDecimal"
-                    android:maxLines="1" />
-
-                <Spinner
-                    android:id="@+id/TradeCurrency"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:spinnerStyle="@android:style/Widget.Spinner.DropDown" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/Price"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:gravity="center"
-                    android:text="@string/Currency"
-                    android:textSize="16sp"
-                    android:textStyle="bold" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1">
-
-                <EditText
-                    android:id="@+id/TradePrice"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="0"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:inputType="number|numberDecimal"
-                    android:maxLines="1" />
-
-                <Spinner
-                    android:id="@+id/TradePriceCurrency"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_column="1"
-                    android:layout_gravity="center"
-                    android:layout_weight="1"
-                    android:focusable="false"
-                    android:spinnerStyle="@android:style/Widget.Spinner.DropDown" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center">
-                <TextView
-                    android:id="@+id/operation_cost"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center"
-                    android:minLines="1"
-                    android:maxLines="1"
-                    tools:text="Total to spend: 812 BTC" />
-            </TableRow>
-
-            <TableRow
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/BuyButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:text="@string/BuyButton"
-                    app:backgroundTint="@drawable/buy_button_custom" />
-
-                <android.support.v7.widget.AppCompatButton
-                    android:id="@+id/SellButton"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="5dp"
-                    android:layout_weight="1"
-                    android:text="@string/SellButton"
-                    app:backgroundTint="@drawable/sell_button_custom" />
-            </TableRow>
-        </TableLayout>
+        <include layout="@layout/layout_trading_section" />
     </LinearLayout>
 </ScrollView>
