@@ -174,4 +174,6 @@
     <string name="settings_linkify_chat">Показывать ссылки в чате</string>
     <string name="setting_api_key_secret_location_hint">Находится в Профиле на вебсайте</string>
     <string name="trade_button_label">Торговать</string>
+    <string name="charts_price_label">Цена</string>
+    <string name="charts_volume_label">Объём</string>
 </resources>

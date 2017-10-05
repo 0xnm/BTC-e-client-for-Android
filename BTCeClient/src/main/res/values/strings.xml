@@ -217,6 +217,8 @@
     <string name="chat_loading_error">Failed to load chat</string>
     <string name="settings_linkify_chat">Show links in chat</string>
     <string name="setting_api_key_secret_location_hint">Can be found in Profile on the website</string>
+    <string name="charts_price_label">Price</string>
+    <string name="charts_volume_label">Volume</string>
 
     <!-- Settings keys -->
     <string name="settings_key_api_key" translatable="false">API_Key</string>
