@@ -308,12 +308,14 @@ public class ChartsFragment extends Fragment {
 
     private class BtceChartsDelegate implements ChartsDelegate {
 
+        //CHECKSTYLE:OFF
         private final DecimalFormat PRICE_DECIMAL_FORMAT = new DecimalFormat("#.#####");
 
         private final int VOLUME_BAR_COLOR = Color.parseColor("#ebebeb");
         private final int RISING_FILL_COLOR = Color.parseColor("#0ab92b");
         private final int FALLING_FILL_COLOR = Color.parseColor("#f01717");
         private final int STICK_COLOR = Color.parseColor("#515151");
+        //CHECKSTYLE:ON
 
         private static final String PRICE_SERIES_NAME = "price";
         private static final String VOLUME_SERIES_NAME = "volume";
@@ -481,7 +483,7 @@ public class ChartsFragment extends Fragment {
                     .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
                             resources.getDisplayMetrics()));
             area.getRightAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42,
                             resources.getDisplayMetrics()));
             area.getBottomAxis()
                     .getAppearance()
@@ -550,53 +552,9 @@ public class ChartsFragment extends Fragment {
                     SeriesBase priceSeries = stockChartView.findSeriesByName(PRICE_SERIES_NAME);
                     if (priceSeries != null) {
                         if (isChecked) {
-                            //if switch turned on and chart has data
-                            switch (buttonView.getId()) {
-                                case R.id.enableEMAIndicator:
-                                    iManager.addEma(priceSeries, 0);
-                                    break;
-                                case R.id.enableMACDIndicator:
-                                    iManager.addMacd(priceSeries, 0);
-                                    break;
-                                case R.id.enableRSIIndicator:
-                                    iManager.addRsi(priceSeries, 0);
-                                    break;
-                                case R.id.enableSMAIndicator:
-                                    iManager.addSma(priceSeries, 0);
-                                    break;
-                                default:
-                                    break;
-                            }
+                            onIndicatorEnabled(stockChartView, buttonView, priceSeries);
                         } else {
-                            //if switch turned off and chart has no data
-                            Iterator<AbstractIndicator> iterator = stockChartView
-                                    .getIndicatorManager()
-                                    .getIndicators()
-                                    .iterator();
-                            while (iterator.hasNext()) {
-                                AbstractIndicator x = iterator.next();
-                                boolean shouldRemoveCurrent = false;
-                                switch (buttonView.getId()) {
-                                    case R.id.enableEMAIndicator:
-                                        shouldRemoveCurrent = x instanceof EmaIndicator;
-                                        break;
-                                    case R.id.enableMACDIndicator:
-                                        shouldRemoveCurrent = x instanceof MacdIndicator;
-                                        break;
-                                    case R.id.enableRSIIndicator:
-                                        shouldRemoveCurrent = x instanceof RsiIndicator;
-                                        break;
-                                    case R.id.enableSMAIndicator:
-                                        shouldRemoveCurrent = x instanceof SmaIndicator;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                if (shouldRemoveCurrent) {
-                                    iterator.remove();
-                                    stockChartView.getIndicatorManager().removeIndicator(x);
-                                }
-                            }
+                            onIndicatorDisabled(stockChartView, buttonView);
                         }
                         stockChartView.recalcIndicators();
                         stockChartView.recalc();
@@ -620,6 +578,62 @@ public class ChartsFragment extends Fragment {
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
                 ((SwitchCompat) chartView.findViewById(R.id.enableMACDIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
+            }
+        }
+
+        private void onIndicatorEnabled(@NonNull StockChartView chartView,
+                                        @NonNull View switchView,
+                                        @NonNull SeriesBase priceSeries) {
+            IndicatorManager indicatorManager = chartView.getIndicatorManager();
+            //if switch turned on and chart has data
+            switch (switchView.getId()) {
+                case R.id.enableEMAIndicator:
+                    indicatorManager.addEma(priceSeries, 0);
+                    break;
+                case R.id.enableMACDIndicator:
+                    indicatorManager.addMacd(priceSeries, 0);
+                    break;
+                case R.id.enableRSIIndicator:
+                    indicatorManager.addRsi(priceSeries, 0);
+                    break;
+                case R.id.enableSMAIndicator:
+                    indicatorManager.addSma(priceSeries, 0);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void onIndicatorDisabled(@NonNull StockChartView chartView,
+                                         @NonNull View switchView) {
+            //if switch turned off and chart has no data
+            Iterator<AbstractIndicator> iterator = chartView
+                    .getIndicatorManager()
+                    .getIndicators()
+                    .iterator();
+            while (iterator.hasNext()) {
+                AbstractIndicator x = iterator.next();
+                boolean shouldRemoveCurrent = false;
+                switch (switchView.getId()) {
+                    case R.id.enableEMAIndicator:
+                        shouldRemoveCurrent = x instanceof EmaIndicator;
+                        break;
+                    case R.id.enableMACDIndicator:
+                        shouldRemoveCurrent = x instanceof MacdIndicator;
+                        break;
+                    case R.id.enableRSIIndicator:
+                        shouldRemoveCurrent = x instanceof RsiIndicator;
+                        break;
+                    case R.id.enableSMAIndicator:
+                        shouldRemoveCurrent = x instanceof SmaIndicator;
+                        break;
+                    default:
+                        break;
+                }
+                if (shouldRemoveCurrent) {
+                    iterator.remove();
+                    chartView.getIndicatorManager().removeIndicator(x);
+                }
             }
         }
 
@@ -651,7 +665,7 @@ public class ChartsFragment extends Fragment {
     private interface Listener<T> {
         void onChartDownloaded(@NonNull View token,
                                @NonNull String pair,
-                               @NonNull final ChartData data);
+                               @NonNull ChartData data);
     }
 
     private class ChartsUpdater extends HandlerThread {

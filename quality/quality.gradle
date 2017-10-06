@@ -42,7 +42,7 @@ task findbugs(type: FindBugs) {
 plugins.apply('checkstyle')
 
 checkstyle {
-    toolVersion = '6.16.1'
+    toolVersion = '8.1'
 }
 
 task checkstyle(type: Checkstyle) {
