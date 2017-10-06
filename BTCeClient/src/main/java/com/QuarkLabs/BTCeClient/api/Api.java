@@ -82,13 +82,6 @@ public class Api {
         authApi.setHostUrl(hostUrl);
     }
 
-    private <T> CallResult<T> generateFailureResult() {
-        CallResult<T> result = new CallResult<>();
-        result.isSuccess = false;
-        result.error = generalErrorText;
-        return result;
-    }
-
     /**
      * Gets info for provided pairs
      *
@@ -302,7 +295,7 @@ public class Api {
      */
     @NonNull
     @WorkerThread
-    public CallResult<TradeResponse> trade(@NonNull String pair, @NonNull String type,
+    public CallResult<TradeResponse> trade(@NonNull String pair, @TradeType @NonNull String type,
                                            @NonNull String rate, @NonNull String amount) {
 
         HashMap<String, String> parameters = new HashMap<>();

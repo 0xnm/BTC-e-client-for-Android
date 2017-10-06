@@ -23,6 +23,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -76,6 +77,8 @@ import org.stockchart.indicators.EmaIndicator;
 import org.stockchart.indicators.MacdIndicator;
 import org.stockchart.indicators.RsiIndicator;
 import org.stockchart.indicators.SmaIndicator;
+import org.stockchart.series.BarSeries;
+import org.stockchart.series.SeriesBase;
 import org.stockchart.series.StockSeries;
 
 import java.math.BigDecimal;
@@ -305,9 +308,24 @@ public class ChartsFragment extends Fragment {
 
     private class BtceChartsDelegate implements ChartsDelegate {
 
+        //CHECKSTYLE:OFF
+        private final DecimalFormat PRICE_DECIMAL_FORMAT = new DecimalFormat("#.#####");
+
+        private final int VOLUME_BAR_COLOR = Color.parseColor("#ebebeb");
+        private final int RISING_FILL_COLOR = Color.parseColor("#0ab92b");
+        private final int FALLING_FILL_COLOR = Color.parseColor("#f01717");
+        private final int STICK_COLOR = Color.parseColor("#515151");
+        //CHECKSTYLE:ON
+
+        private static final String PRICE_SERIES_NAME = "price";
+        private static final String VOLUME_SERIES_NAME = "volume";
+
         private Map<String, View> chartsMap;
         private ChartsUpdater chartsUpdater;
         private Handler responseHandler;
+
+        private String priceText;
+        private String volumeText;
 
         @Override
         public void onViewCreated() {
@@ -324,6 +342,9 @@ public class ChartsFragment extends Fragment {
 
             chartsUpdater.start();
             chartsUpdater.createHandler();
+
+            priceText = getString(R.string.charts_price_label);
+            volumeText = getString(R.string.charts_volume_label);
         }
 
         @Override
@@ -336,6 +357,7 @@ public class ChartsFragment extends Fragment {
                                  @NonNull final ChartData data) {
             StockChartView stockChartView =
                     (StockChartView) chartView.findViewById(R.id.stockChartView);
+
 
             View tradeButton = chartView.findViewById(R.id.chart_trade_button);
             TextView namePriceView = (TextView) chartView.findViewById(R.id.chart_name_price);
@@ -354,34 +376,62 @@ public class ChartsFragment extends Fragment {
                 namePriceView.setText(String.format("%s: %s", pair, "–"));
             }
 
-            final StockSeries fPriceSeries = new StockSeries();
-            fPriceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
-            fPriceSeries.setName("price");
+
             stockChartView.reset();
             stockChartView.getCrosshair().setAuto(true);
-            Area area = stockChartView.addArea();
-            area.getLegend().getAppearance().getFont().setSize(16);
 
-            for (String items : data.history) {
-                String[] values = items.split(", ");
-                fPriceSeries.addPoint(Double.parseDouble(values[2]),
-                        Double.parseDouble(values[4]),
-                        Double.parseDouble(values[1]),
-                        Double.parseDouble(values[3]));
+            final StockSeries priceSeries = new StockSeries();
+            priceSeries.setViewType(StockSeries.ViewType.CANDLESTICK);
+            priceSeries.setName(PRICE_SERIES_NAME);
+            // by some reason in the lib these appearances are messed, rise <-> fall
+            Appearance riseAppearance = priceSeries.getFallAppearance();
+            riseAppearance.setFillColors(RISING_FILL_COLOR);
+            riseAppearance.setOutlineColor(STICK_COLOR);
+
+            Appearance fallAppearance = priceSeries.getRiseAppearance();
+            fallAppearance.setFillColors(FALLING_FILL_COLOR);
+            fallAppearance.setOutlineColor(STICK_COLOR);
+
+            final BarSeries volumeSeries = new BarSeries();
+            volumeSeries.setName(VOLUME_SERIES_NAME);
+            volumeSeries.setYAxisSide(Axis.Side.LEFT);
+            volumeSeries.getAppearance().setAllColors(VOLUME_BAR_COLOR);
+
+            Area area = stockChartView.addArea();
+            area.getAppearance().setOutlineColor(Color.TRANSPARENT);
+            TypedValue a = new TypedValue();
+            getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+            if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT
+                    && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                // windowBackground is a color
+                int color = a.data;
+                area.getAppearance().setPrimaryFillColor(color);
             }
-            area.getSeries().add(fPriceSeries);
+
+            for (HistoryItem historyItem : data.history) {
+                priceSeries.addPoint(historyItem.open,
+                        historyItem.high,
+                        historyItem.low,
+                        historyItem.close);
+
+                volumeSeries.addPoint(0, historyItem.volume);
+            }
+
+            area.getSeries().add(volumeSeries);
+            area.getSeries().add(priceSeries);
+
             //provider for bottom axis (time)
             Axis.ILabelFormatProvider bottomLfp = new Axis.ILabelFormatProvider() {
                 @Override
                 public String getAxisLabel(Axis axis, double v) {
-                    int index = fPriceSeries.convertToArrayIndex(v);
+                    int index = priceSeries.convertToArrayIndex(v);
                     if (index < 0)
                         index = 0;
                     if (index >= 0) {
-                        if (index >= fPriceSeries.getPointCount())
-                            index = fPriceSeries.getPointCount() - 1;
+                        if (index >= priceSeries.getPointCount())
+                            index = priceSeries.getPointCount() - 1;
 
-                        return data.history[index].split(", ")[0].replace("\"", "");
+                        return data.history.get(index).time.replace("\"", "");
                     }
                     return null;
                 }
@@ -390,88 +440,69 @@ public class ChartsFragment extends Fragment {
             Crosshair.ILabelFormatProvider dp = new Crosshair.ILabelFormatProvider() {
                 @Override
                 public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
-                    int index = fPriceSeries.convertToArrayIndex(v);
+                    int index = priceSeries.convertToArrayIndex(v);
                     if (index < 0)
                         index = 0;
                     if (index >= 0) {
-                        if (index >= fPriceSeries.getPointCount())
-                            index = fPriceSeries.getPointCount() - 1;
+                        if (index >= priceSeries.getPointCount())
+                            index = priceSeries.getPointCount() - 1;
 
-                        return data.history[index].split(", ")[0].replace("\"", "")
-                                + " - "
-                                + (new DecimalFormat("#.#####")
-                                .format(v2));
+                        return data.history.get(index).time.replace("\"", "")
+                                + String.format(": %s ", priceText)
+                                + PRICE_DECIMAL_FORMAT.format(v2)
+                                + String.format(", %s ", volumeText)
+                                + String.valueOf((int) (data.history.get(index).volume + 0.5f));
                     }
                     return null;
                 }
             };
 
             stockChartView.getCrosshair().setLabelFormatProvider(dp);
-            //provider for right axis (value)
-            Axis.ILabelFormatProvider rightLfp = new Axis.ILabelFormatProvider() {
+
+            area.getRightAxis().setLabelFormatProvider(new Axis.ILabelFormatProvider() {
                 @Override
                 public String getAxisLabel(Axis axis, double v) {
-                    DecimalFormat decimalFormat = new DecimalFormat("#.#######");
-                    return decimalFormat.format(v);
+                    return PRICE_DECIMAL_FORMAT.format(v);
                 }
-            };
-
-            area.getRightAxis().setLabelFormatProvider(rightLfp);
+            });
             area.getBottomAxis().setLabelFormatProvider(bottomLfp);
-
-            //by some reason rise and fall appearance should be switched
-            Appearance riseAppearance = fPriceSeries.getRiseAppearance();
-            Appearance tmpAppearance = new Appearance();
-            tmpAppearance.fill(riseAppearance);
-            Appearance fallAppearance = fPriceSeries.getFallAppearance();
-            riseAppearance.fill(fallAppearance);
-            fallAppearance.fill(tmpAppearance);
+            area.getLeftAxis().setVisible(false);
 
             Activity activity = getActivity();
             if (activity == null) {
                 return;
             }
 
-            final Resources resources = activity.getResources();
+            Resources resources = getResources();
+            float axisFontSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 13,
+                    resources.getDisplayMetrics());
 
             //styling: setting fonts
-            area.getPlot()
-                    .getAppearance()
-                    .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 16,
-                            resources.getDisplayMetrics()));
-            area.getLeftAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                            resources.getDisplayMetrics()));
-            area.getTopAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5,
-                            resources.getDisplayMetrics()));
+
             area.getBottomAxis()
                     .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 15,
                             resources.getDisplayMetrics()));
             area.getRightAxis()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 40,
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 42,
                             resources.getDisplayMetrics()));
             area.getBottomAxis()
                     .getAppearance()
                     .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
+                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 12,
                             resources.getDisplayMetrics()));
             area.getRightAxis()
                     .getAppearance()
                     .getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 9,
-                            resources.getDisplayMetrics()));
+                    .setSize(axisFontSize);
             stockChartView.getCrosshair().getAppearance().getFont()
-                    .setSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 11,
-                            resources.getDisplayMetrics()));
+                    .setSize(axisFontSize);
             stockChartView.invalidate();
         }
 
         @Override
         public void createChartViews(@NonNull View rootView) {
-            LinearLayout chartsContainer = (LinearLayout) getView()
-                    .findViewById(R.id.ChartsContainer);
+            LinearLayout chartsContainer = (LinearLayout)
+                    rootView.findViewById(R.id.ChartsContainer);
             chartsContainer.removeAllViews();
 
             chartsMap = new HashMap<>();
@@ -518,61 +549,16 @@ public class ChartsFragment extends Fragment {
                     StockChartView stockChartView
                             = (StockChartView) viewGroup.findViewById(R.id.stockChartView);
                     IndicatorManager iManager = stockChartView.getIndicatorManager();
-                    if (stockChartView.findSeriesByName("price") != null) {
+                    SeriesBase priceSeries = stockChartView.findSeriesByName(PRICE_SERIES_NAME);
+                    if (priceSeries != null) {
                         if (isChecked) {
-                            //if switch turned on and chart has data
-                            switch (buttonView.getId()) {
-                                case R.id.enableEMAIndicator:
-                                    iManager.addEma(stockChartView.findSeriesByName("price"), 0);
-                                    break;
-                                case R.id.enableMACDIndicator:
-                                    iManager.addMacd(stockChartView.findSeriesByName("price"), 0);
-                                    break;
-                                case R.id.enableRSIIndicator:
-                                    iManager.addRsi(stockChartView.findSeriesByName("price"), 0);
-                                    break;
-                                case R.id.enableSMAIndicator:
-                                    iManager.addSma(stockChartView.findSeriesByName("price"), 0);
-                                    break;
-                                default:
-                                    break;
-                            }
-                            stockChartView.recalcIndicators();
-                            stockChartView.recalc();
-                            stockChartView.invalidate();
+                            onIndicatorEnabled(stockChartView, buttonView, priceSeries);
                         } else {
-                            //if switch turned off and chart has no data
-                            Iterator<AbstractIndicator> iterator = stockChartView
-                                    .getIndicatorManager()
-                                    .getIndicators()
-                                    .iterator();
-                            while (iterator.hasNext()) {
-                                AbstractIndicator x = iterator.next();
-                                boolean shouldRemoveCurrent = false;
-                                switch (buttonView.getId()) {
-                                    case R.id.enableEMAIndicator:
-                                        shouldRemoveCurrent = x instanceof EmaIndicator;
-                                        break;
-                                    case R.id.enableMACDIndicator:
-                                        shouldRemoveCurrent = x instanceof MacdIndicator;
-                                        break;
-                                    case R.id.enableRSIIndicator:
-                                        shouldRemoveCurrent = x instanceof RsiIndicator;
-                                        break;
-                                    case R.id.enableSMAIndicator:
-                                        shouldRemoveCurrent = x instanceof SmaIndicator;
-                                        break;
-                                    default:
-                                        break;
-                                }
-                                if (shouldRemoveCurrent) {
-                                    iterator.remove();
-                                    stockChartView.getIndicatorManager().removeIndicator(x);
-                                }
-                            }
-                            stockChartView.recalc();
-                            stockChartView.invalidate();
+                            onIndicatorDisabled(stockChartView, buttonView);
                         }
+                        stockChartView.recalcIndicators();
+                        stockChartView.recalc();
+                        stockChartView.invalidate();
                     } else {
                         //if chart has no data, ignore switch
                         SwitchCompat sw = (SwitchCompat) buttonView;
@@ -592,6 +578,62 @@ public class ChartsFragment extends Fragment {
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
                 ((SwitchCompat) chartView.findViewById(R.id.enableMACDIndicator))
                         .setOnCheckedChangeListener(indicatorChangeStateListener);
+            }
+        }
+
+        private void onIndicatorEnabled(@NonNull StockChartView chartView,
+                                        @NonNull View switchView,
+                                        @NonNull SeriesBase priceSeries) {
+            IndicatorManager indicatorManager = chartView.getIndicatorManager();
+            //if switch turned on and chart has data
+            switch (switchView.getId()) {
+                case R.id.enableEMAIndicator:
+                    indicatorManager.addEma(priceSeries, 0);
+                    break;
+                case R.id.enableMACDIndicator:
+                    indicatorManager.addMacd(priceSeries, 0);
+                    break;
+                case R.id.enableRSIIndicator:
+                    indicatorManager.addRsi(priceSeries, 0);
+                    break;
+                case R.id.enableSMAIndicator:
+                    indicatorManager.addSma(priceSeries, 0);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        private void onIndicatorDisabled(@NonNull StockChartView chartView,
+                                         @NonNull View switchView) {
+            //if switch turned off and chart has no data
+            Iterator<AbstractIndicator> iterator = chartView
+                    .getIndicatorManager()
+                    .getIndicators()
+                    .iterator();
+            while (iterator.hasNext()) {
+                AbstractIndicator x = iterator.next();
+                boolean shouldRemoveCurrent = false;
+                switch (switchView.getId()) {
+                    case R.id.enableEMAIndicator:
+                        shouldRemoveCurrent = x instanceof EmaIndicator;
+                        break;
+                    case R.id.enableMACDIndicator:
+                        shouldRemoveCurrent = x instanceof MacdIndicator;
+                        break;
+                    case R.id.enableRSIIndicator:
+                        shouldRemoveCurrent = x instanceof RsiIndicator;
+                        break;
+                    case R.id.enableSMAIndicator:
+                        shouldRemoveCurrent = x instanceof SmaIndicator;
+                        break;
+                    default:
+                        break;
+                }
+                if (shouldRemoveCurrent) {
+                    iterator.remove();
+                    chartView.getIndicatorManager().removeIndicator(x);
+                }
             }
         }
 
@@ -623,7 +665,7 @@ public class ChartsFragment extends Fragment {
     private interface Listener<T> {
         void onChartDownloaded(@NonNull View token,
                                @NonNull String pair,
-                               @NonNull final ChartData data);
+                               @NonNull ChartData data);
     }
 
     private class ChartsUpdater extends HandlerThread {
@@ -718,7 +760,18 @@ public class ChartsFragment extends Fragment {
                 return null;
             }
             ChartData chartData = new ChartData();
-            chartData.history = matcher.group(1).split("\\],\\[");
+            chartData.history = new ArrayList<>();
+            for (String item : matcher.group(1).split("\\],\\[")) {
+                String[] itemParts = item.split(",");
+                HistoryItem historyItem = new HistoryItem();
+                historyItem.time = itemParts[0];
+                historyItem.low = Double.parseDouble(itemParts[1]);
+                historyItem.open = Double.parseDouble(itemParts[2]);
+                historyItem.close = Double.parseDouble(itemParts[3]);
+                historyItem.high = Double.parseDouble(itemParts[4]);
+                historyItem.volume = Double.parseDouble(itemParts[5]);
+                chartData.history.add(historyItem);
+            }
 
             Document document = Jsoup.parse(content);
             Elements pairsHostElements = document.getElementsByClass("pairs-selected");
@@ -749,8 +802,17 @@ public class ChartsFragment extends Fragment {
     }
 
     private class ChartData {
-        String[] history;
+        List<HistoryItem> history;
         String last;
+    }
+
+    private class HistoryItem {
+        String time;
+        double open;
+        double high;
+        double low;
+        double close;
+        double volume;
     }
 
 }

@@ -191,10 +191,10 @@
     <string name="use_old_charts">Use BTC-e old charts</string>
     <string name="use_btce_charts_description">Less features, but faster</string>
     <string name="order_successfully_added">Order was successfully added</string>
-    <string name="buy_confirmation">Buy &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? Total cost is: &lt;b>%6$s (Effective: %7$s, Fee: %8$s)  %9$s&lt;/b></string>
-    <string name="sell_confirmation">Sell &lt;b>%1$s %2$s&lt;/b> for &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? Total cost is: &lt;b>%6$s (Effective: %7$s, Fee: %8$s) %9$s&lt;/b></string>
+    <string name="buy_confirmation">Buy &lt;b>%1$s %2$s&lt;/b> (you\'ll get &lt;b>%3$s %4$s&lt;/b>, fee = &lt;b>%5$s %6$s&lt;/b>) with price &lt;b>%7$s %8$s&lt;/b> per 1 &lt;b>%9$s&lt;/b>? Total cost is: &lt;b>%10$s  %11$s&lt;/b></string>
+    <string name="sell_confirmation">Sell &lt;b>%1$s %2$s&lt;/b> with price &lt;b>%3$s %4$s&lt;/b> per 1 &lt;b>%5$s&lt;/b>? You\'ll get &lt;b>%6$s %7$s&lt;/b> (after excluding fee = &lt;b>%8$s %9$s&lt;/b>)</string>
     <string name="missing_mandatory_fields_error">Missing mandatory fields</string>
-    <string name="trade_operation_cost">Total to spend: &lt;b>%1$s %2$s&lt;/b></string>
+    <string name="trade_operation_cost">Total to spend (if buy)/to get (if sell): &lt;b>%1$s %2$s&lt;/b></string>
     <string name="tokens">Tokens</string>
     <string name="exchange_sync_failed">Failed to sync with exchange</string>
     <string name="msg_syncing_with_exchange">Syncing with exchange</string>
@@ -217,6 +217,8 @@
     <string name="chat_loading_error">Failed to load chat</string>
     <string name="settings_linkify_chat">Show links in chat</string>
     <string name="setting_api_key_secret_location_hint">Can be found in Profile on the website</string>
+    <string name="charts_price_label">Price</string>
+    <string name="charts_volume_label">Volume</string>
 
     <!-- Settings keys -->
     <string name="settings_key_api_key" translatable="false">API_Key</string>

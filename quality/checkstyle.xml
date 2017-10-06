@@ -4,6 +4,7 @@
 <module name="Checker">
     <module name="FileTabCharacter" />
     <module name="TreeWalker">
+        <module name="SuppressionCommentFilter"/>
         <module name="ConstantName" />
         <module name="LocalFinalVariableName" />
         <module name="LocalVariableName" />

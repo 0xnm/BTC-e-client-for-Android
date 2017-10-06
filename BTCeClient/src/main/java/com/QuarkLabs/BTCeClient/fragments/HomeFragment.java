@@ -31,11 +31,13 @@ import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
-import android.support.annotation.StringRes;
+import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -54,7 +56,6 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
-import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -70,6 +71,7 @@ import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
 import com.QuarkLabs.BTCeClient.api.AccountInfo;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.TradeResponse;
+import com.QuarkLabs.BTCeClient.api.TradeType;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
@@ -111,6 +113,9 @@ public class HomeFragment extends Fragment implements
     private AppPreferences appPreferences;
     private InMemoryStorage inMemoryStorage;
 
+    private ViewGroup fundsContainer;
+    private ViewGroup tradingContainer;
+
     @NonNull
     private Queue<Runnable> pendingTasks = new LinkedList<>();
 
@@ -143,6 +148,9 @@ public class HomeFragment extends Fragment implements
 
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         inMemoryStorage = BtcEApplication.get(getActivity()).getInMemoryStorage();
+
+        fundsContainer = (ViewGroup) view.findViewById(R.id.FundsContainer);
+        tradingContainer = (ViewGroup) view.findViewById(R.id.tradingSection);
 
         tickersContainer = (FixedGridView) view.findViewById(R.id.tickersContainer);
         tickersContainer.setExpanded(true);
@@ -233,7 +241,7 @@ public class HomeFragment extends Fragment implements
                 }
 
                 tradeRequest = new TradeRequest(
-                        (v.getId() == R.id.BuyButton) ? "buy" : "sell",
+                        (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
                         tradeAmount, tradeCurrency,
                         tradePrice, tradePriceCurrency);
                 showTradeRequestDialog(tradeRequest);
@@ -320,24 +328,8 @@ public class HomeFragment extends Fragment implements
     }
 
     private void showTradeRequestDialog(@NonNull TradeRequest request) {
-        @StringRes int confirmationRes;
-        if ("buy".equals(request.type)) {
-            confirmationRes = R.string.buy_confirmation;
-        } else {
-            confirmationRes = R.string.sell_confirmation;
-        }
-        BigDecimal total = new BigDecimal(request.tradeAmount)
-                .multiply(new BigDecimal(request.tradePrice));
-        BigDecimal fee = total.multiply(new BigDecimal("0.002"));
         new AlertDialog.Builder(getActivity())
-                .setMessage(Html.fromHtml(getString(confirmationRes,
-                        request.tradeAmount, request.tradeCurrency,
-                        request.tradePrice, request.tradePriceCurrency,
-                        request.tradeCurrency,
-                        total.toPlainString(),
-                        total.subtract(fee).toPlainString(),
-                        fee.toPlainString(),
-                        request.tradePriceCurrency)))
+                .setMessage(createTradeRequestDialogMessage(request))
                 .setCancelable(false)
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
@@ -354,6 +346,51 @@ public class HomeFragment extends Fragment implements
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .show();
+    }
+
+    @NonNull
+    private Spanned createTradeRequestDialogMessage(@NonNull TradeRequest request) {
+        String message = null;
+        final BigDecimal effectivePart = new BigDecimal("0.998");
+        final BigDecimal feePart = new BigDecimal("0.002");
+        if (TradeType.BUY.equals(request.type)) {
+            message = getString(R.string.buy_confirmation,
+                    request.tradeAmount,
+                    request.tradeCurrency,
+                    new BigDecimal(request.tradeAmount)
+                            .multiply(effectivePart)
+                            .stripTrailingZeros().toPlainString(),
+                    request.tradeCurrency,
+                    new BigDecimal(request.tradeAmount)
+                            .multiply(feePart)
+                            .stripTrailingZeros().toPlainString(),
+                    request.tradeCurrency,
+                    request.tradePrice,
+                    request.tradePriceCurrency,
+                    request.tradeCurrency,
+                    new BigDecimal(request.tradeAmount)
+                            .multiply(new BigDecimal(request.tradePrice))
+                            .stripTrailingZeros().toPlainString(),
+                    request.tradePriceCurrency);
+        } else {
+            BigDecimal totalToGet = new BigDecimal(request.tradeAmount)
+                    .multiply(new BigDecimal(request.tradePrice));
+            message = getString(R.string.sell_confirmation,
+                    request.tradeAmount,
+                    request.tradeCurrency,
+                    request.tradePrice,
+                    request.tradePriceCurrency,
+                    request.tradeCurrency,
+                    totalToGet
+                            .multiply(effectivePart)
+                            .stripTrailingZeros().toPlainString(),
+                    request.tradePriceCurrency,
+                    totalToGet
+                            .multiply(feePart)
+                            .stripTrailingZeros().toPlainString(),
+                    request.tradePriceCurrency);
+        }
+        return Html.fromHtml(message);
     }
 
     /**
@@ -463,44 +500,37 @@ public class HomeFragment extends Fragment implements
 
     private void refreshFundsView(@NonNull Map<String, BigDecimal> funds) {
 
-        View.OnClickListener fillAmount = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ScrollView scrollView = (ScrollView) getView();
-                if (scrollView != null) {
-                    EditText tradeAmount
-                            = (EditText) scrollView.findViewById(R.id.TradeAmount);
-                    tradeAmount.setText(((TextView) v).getText());
-                    scrollView.smoothScrollTo(
-                            0, scrollView.findViewById(R.id.tradingSection).getBottom());
-                }
-            }
-        };
-
-        TableLayout fundsContainer
-                = (TableLayout) getView().findViewById(R.id.FundsContainer);
         fundsContainer.removeAllViews();
 
         List<String> currencies = new ArrayList<>(funds.keySet());
         Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
 
         TableRow.LayoutParams layoutParams = new TableRow
-                .LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1);
+                .LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT);
 
-        for (String currency : currencies) {
+        for (final String currency : currencies) {
 
             TableRow row = new TableRow(getActivity());
+
             TextView currencyView = new TextView(getActivity());
-            TextView amountView = new TextView(getActivity());
             currencyView.setText(currency);
-            amountView.setText(funds.get(currency).toPlainString());
             currencyView.setLayoutParams(layoutParams);
             currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
             currencyView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
             currencyView.setGravity(Gravity.CENTER);
+
+            TextView amountView = new TextView(getActivity());
+            final String amount = funds.get(currency).toPlainString();
+            amountView.setText(amount);
             amountView.setLayoutParams(layoutParams);
             amountView.setGravity(Gravity.CENTER);
-            amountView.setOnClickListener(fillAmount);
+            amountView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    goToTrading(amount, currency, null, null);
+                }
+            });
+
             row.addView(currencyView);
             row.addView(amountView);
             fundsContainer.addView(row);
@@ -510,39 +540,65 @@ public class HomeFragment extends Fragment implements
     @Override
     @SuppressWarnings("unchecked")
     public void onPriceClicked(@NonNull String pair, @NonNull BigDecimal price) {
-        final ScrollView scrollView = (ScrollView) getView();
-        if (scrollView != null) {
-            String[] currencies = pair.split("/");
-            EditText tradePrice = (EditText) scrollView.findViewById(R.id.TradePrice);
-            tradePrice.setText(price.toPlainString());
-            Spinner tradeCurrency = (Spinner) scrollView.findViewById(R.id.TradeCurrency);
-            Spinner tradePriceCurrency
-                    = (Spinner) scrollView.findViewById(R.id.TradePriceCurrency);
-            tradeCurrency.setSelection(
-                    ((ArrayAdapter<String>) tradeCurrency.getAdapter())
-                            .getPosition(currencies[0]));
-            tradePriceCurrency.setSelection(
-                    ((ArrayAdapter<String>) tradePriceCurrency.getAdapter())
-                            .getPosition(currencies[1]));
+        String[] currencies = pair.split("/");
+        goToTrading(null, currencies[0], price.toPlainString(), currencies[1]);
+    }
 
-            int y = scrollView.findViewById(R.id.tradingSection).getBottom();
-            if (y != 0) {
-                scrollView.smoothScrollTo(0, y);
-            } else {
-                getView().getViewTreeObserver()
-                        .addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                            @Override
-                            public boolean onPreDraw() {
-                                View view = getView();
-                                if (view != null) {
-                                    view.getViewTreeObserver().removeOnPreDrawListener(this);
-                                }
-                                scrollView.smoothScrollTo(0,
-                                        scrollView.findViewById(R.id.tradingSection).getBottom());
-                                return true;
+    /**
+     * Shows Trading section with given parameters
+     *
+     * @param tradeAmount        Amount to sell/buy
+     * @param tradeCurrency      Currency to sell/buy
+     * @param tradePrice         Buying/Selling price
+     * @param tradePriceCurrency Currency to buy/sell in
+     */
+    private void goToTrading(@Nullable String tradeAmount, @Nullable String tradeCurrency,
+                             @Nullable String tradePrice, @Nullable String tradePriceCurrency) {
+        final ScrollView scrollView = (ScrollView) getView();
+        if (scrollView == null) {
+            return;
+        }
+
+        if (!TextUtils.isEmpty(tradeAmount)) {
+            EditText tradeAmountView = (EditText) tradingContainer.findViewById(R.id.TradeAmount);
+            tradeAmountView.setText(tradeAmount);
+        }
+
+        if (!TextUtils.isEmpty(tradePrice)) {
+            EditText tradePriceView = (EditText) tradingContainer.findViewById(R.id.TradePrice);
+            tradePriceView.setText(tradePrice);
+        }
+        if (!TextUtils.isEmpty(tradeCurrency)) {
+            Spinner tradeCurrencySpinner = (Spinner) tradingContainer
+                    .findViewById(R.id.TradeCurrency);
+            tradeCurrencySpinner.setSelection(
+                    ((ArrayAdapter<String>) tradeCurrencySpinner.getAdapter())
+                            .getPosition(tradeCurrency));
+        }
+        if (!TextUtils.isEmpty(tradePriceCurrency)) {
+            Spinner tradePriceCurrencySpinner
+                    = (Spinner) tradingContainer.findViewById(R.id.TradePriceCurrency);
+            tradePriceCurrencySpinner.setSelection(
+                    ((ArrayAdapter<String>) tradePriceCurrencySpinner.getAdapter())
+                            .getPosition(tradePriceCurrency));
+        }
+
+        int y = scrollView.findViewById(R.id.tradingSection).getBottom();
+        if (y != 0) {
+            scrollView.smoothScrollTo(0, y);
+        } else {
+            getView().getViewTreeObserver()
+                    .addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                        @Override
+                        public boolean onPreDraw() {
+                            View view = getView();
+                            if (view != null) {
+                                view.getViewTreeObserver().removeOnPreDrawListener(this);
                             }
-                        });
-            }
+                            scrollView.smoothScrollTo(0, tradingContainer.getBottom());
+                            return true;
+                        }
+                    });
         }
     }
 
@@ -583,6 +639,7 @@ public class HomeFragment extends Fragment implements
             if (callResult.isSuccess()) {
                 message = getString(R.string.order_successfully_added);
                 if (isVisible()) {
+                    //noinspection ConstantConditions
                     Map<String, BigDecimal> funds = callResult.getPayload().getFunds();
                     inMemoryStorage.setFunds(funds);
                     refreshFundsView(funds);
@@ -623,6 +680,7 @@ public class HomeFragment extends Fragment implements
             }
             if (result.isSuccess()) {
                 notificationText = getString(R.string.FundsInfoUpdatedtext);
+                //noinspection ConstantConditions
                 Map<String, BigDecimal> funds = result.getPayload().getFunds();
                 inMemoryStorage.setFunds(funds);
                 refreshFundsView(funds);
@@ -656,6 +714,7 @@ public class HomeFragment extends Fragment implements
 
     private static final class TradeRequest implements Parcelable {
         @NonNull
+        @TradeType
         final String type;
         @NonNull
         final String tradeAmount;
@@ -666,7 +725,7 @@ public class HomeFragment extends Fragment implements
         @NonNull
         final String tradePriceCurrency;
 
-        TradeRequest(@NonNull String type,
+        TradeRequest(@NonNull @TradeType String type,
                      @NonNull String tradeAmount, @NonNull String tradeCurrency,
                      @NonNull String tradePrice, @NonNull String tradePriceCurrency) {
             this.type = type;
@@ -677,6 +736,7 @@ public class HomeFragment extends Fragment implements
         }
 
         protected TradeRequest(Parcel in) {
+            //noinspection WrongConstant
             type = in.readString();
             tradeAmount = in.readString();
             tradeCurrency = in.readString();
