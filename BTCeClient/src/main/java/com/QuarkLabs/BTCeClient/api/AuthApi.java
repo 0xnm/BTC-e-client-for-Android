@@ -24,6 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringDef;
 import android.util.Log;
 
+import com.QuarkLabs.BTCeClient.BuildConfig;
 import com.QuarkLabs.BTCeClient.R;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
@@ -124,6 +125,11 @@ class AuthApi {
     @Nullable
     JsonObject makeRequest(@TradeMethod @NonNull String method,
                            @Nullable Map<String, String> parameters) {
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Sending request to " + method
+                    + (parameters != null ? ", with parameters: " + parameters.toString() : ""));
+        }
 
         if (key.length() == 0 || secret.length() == 0) {
             return JSON_PARSER.parse("{success:0,error:'"
