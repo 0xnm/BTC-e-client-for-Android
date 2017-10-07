@@ -18,9 +18,12 @@
 
 package com.QuarkLabs.BTCeClient.api;
 
+import android.os.Build;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import com.QuarkLabs.BTCeClient.BuildConfig;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
@@ -45,10 +48,13 @@ class GuestApi {
      * @return Response of type {@link JsonObject}
      */
     @Nullable
-    JsonObject call(String urlString) {
+    JsonObject call(@NonNull String urlString) {
 
         HttpURLConnection connection = null;
         BufferedReader rd = null;
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "Sending request to " + urlString);
+        }
         //noinspection TryWithIdenticalCatches
         try {
             URL url = new URL(urlString);
