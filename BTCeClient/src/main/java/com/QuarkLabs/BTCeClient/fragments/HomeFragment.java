@@ -81,7 +81,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -400,24 +399,21 @@ public class HomeFragment extends Fragment implements
         List<String> pairs = appPreferences.getPairsToDisplay();
         if (pairs.isEmpty()) {
             //cleanup storage
-            inMemoryStorage.getLatestData().clear();
-            inMemoryStorage.getPreviousData().clear();
+            inMemoryStorage.clearTickers();
             return;
         }
         //checking for added tickers
         for (String pair : pairs) {
-            if (!inMemoryStorage.getLatestData()
-                    .containsKey(PairUtils.localToServer(pair))) {
+            if (!inMemoryStorage.getLatestData().containsKey(pair)) {
                 Ticker ticker = new Ticker(pair);
                 inMemoryStorage.addNewTicker(ticker);
             }
         }
         //checking for deleted tickers
-        for (Iterator<String> iterator = inMemoryStorage.getLatestData().keySet().<String>iterator();
-             iterator.hasNext();) {
-            String key = iterator.next();
-            if (!pairs.contains(key)) {
-                iterator.remove();
+        for (Map.Entry<String, Ticker> entry : inMemoryStorage.getLatestData().entrySet()) {
+            String pair = entry.getKey();
+            if (!pairs.contains(pair)) {
+                inMemoryStorage.removeTicker(entry.getValue());
             }
         }
     }
