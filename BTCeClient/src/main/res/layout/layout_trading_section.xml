@@ -126,9 +126,11 @@
                 android:id="@+id/operation_cost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_span="2"
                 android:gravity="center"
                 android:maxLines="1"
                 android:minLines="1"
+                android:padding="4dp"
                 tools:text="Total to spend: 812 BTC" />
         </TableRow>
 

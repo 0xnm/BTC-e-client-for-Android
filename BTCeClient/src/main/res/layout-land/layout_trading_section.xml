@@ -115,9 +115,11 @@
                 android:id="@+id/operation_cost"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_span="4"
                 android:gravity="center"
                 android:maxLines="1"
                 android:minLines="1"
+                android:padding="4dp"
                 tools:text="Total to spend: 812 BTC" />
         </TableRow>
 
@@ -127,21 +129,19 @@
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/BuyButton"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_column="0"
                 android:layout_margin="5dp"
-                android:layout_weight="1"
+                android:layout_span="2"
                 android:text="@string/BuyButton"
                 app:backgroundTint="@drawable/buy_button_custom" />
 
             <android.support.v7.widget.AppCompatButton
                 android:id="@+id/SellButton"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_column="1"
                 android:layout_margin="5dp"
-                android:layout_weight="1"
+                android:layout_span="2"
                 android:text="@string/SellButton"
                 app:backgroundTint="@drawable/sell_button_custom" />
         </TableRow>
