@@ -7,9 +7,9 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ExchangeInfo {
+public final class ExchangeInfo {
     private long serverTime;
-    private List<ExchangePairInfo> pairs = new ArrayList<>();
+    private final List<ExchangePairInfo> pairs = new ArrayList<>();
 
     private ExchangeInfo() { }
 

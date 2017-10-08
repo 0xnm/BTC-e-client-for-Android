@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 
-public class ExchangePairInfo {
+public final class ExchangePairInfo {
     private String pair;
     private int decimalPlaces;
     private BigDecimal minPrice;

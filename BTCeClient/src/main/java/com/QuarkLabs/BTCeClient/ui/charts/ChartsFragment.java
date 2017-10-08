@@ -282,7 +282,8 @@ public class ChartsFragment extends Fragment {
         private String getChartHtml(@NonNull String tradingViewSymbol) {
             return String.format("<html>\n" +
                     "<body>\n" +
-                    "<script type='text/javascript' src='https://d33t3vvu2t2yu5.cloudfront.net/tv.js'></script>\n" +
+                    "<script type='text/javascript'" +
+                    " src='https://d33t3vvu2t2yu5.cloudfront.net/tv.js'></script>\n" +
                     "<script type='text/javascript'>\n" +
                     "\tnew TradingView.widget({\n" +
                     "\t  'autosize': true,\n" +
@@ -425,11 +426,13 @@ public class ChartsFragment extends Fragment {
                 @Override
                 public String getAxisLabel(Axis axis, double v) {
                     int index = priceSeries.convertToArrayIndex(v);
-                    if (index < 0)
+                    if (index < 0) {
                         index = 0;
+                    }
                     if (index >= 0) {
-                        if (index >= priceSeries.getPointCount())
+                        if (index >= priceSeries.getPointCount()) {
                             index = priceSeries.getPointCount() - 1;
+                        }
 
                         return data.history.get(index).time.replace("\"", "");
                     }
@@ -441,11 +444,13 @@ public class ChartsFragment extends Fragment {
                 @Override
                 public String getLabel(Crosshair crosshair, Plot plot, double v, double v2) {
                     int index = priceSeries.convertToArrayIndex(v);
-                    if (index < 0)
+                    if (index < 0) {
                         index = 0;
+                    }
                     if (index >= 0) {
-                        if (index >= priceSeries.getPointCount())
+                        if (index >= priceSeries.getPointCount()) {
                             index = priceSeries.getPointCount() - 1;
+                        }
 
                         return data.history.get(index).time.replace("\"", "")
                                 + String.format(": %s ", priceText)
@@ -548,7 +553,6 @@ public class ChartsFragment extends Fragment {
                     }
                     StockChartView stockChartView
                             = (StockChartView) viewGroup.findViewById(R.id.stockChartView);
-                    IndicatorManager iManager = stockChartView.getIndicatorManager();
                     SeriesBase priceSeries = stockChartView.findSeriesByName(PRICE_SERIES_NAME);
                     if (priceSeries != null) {
                         if (isChecked) {
@@ -648,7 +652,7 @@ public class ChartsFragment extends Fragment {
                         .show();
                 return;
             }
-            if (chartsMap.size() > 0) {
+            if (!chartsMap.isEmpty()) {
                 List<String> chartNames = new ArrayList<>(chartsMap.keySet());
                 Collections.sort(chartNames, PairUtils.CURRENCY_COMPARATOR);
                 if (getActivity() != null) {
@@ -673,8 +677,8 @@ public class ChartsFragment extends Fragment {
         private static final int MESSAGE_DOWNLOAD = 0;
         private static final String TAG = "ChartsUpdaterThread";
         private Handler workerHandler;
-        private Handler responseHandler;
-        private Map<View, String> requestMap
+        private final Handler responseHandler;
+        private final Map<View, String> requestMap
                 = Collections.synchronizedMap(new HashMap<View, String>());
         private Listener<View> mListener;
 

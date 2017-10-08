@@ -146,8 +146,8 @@ public class Api {
     @NonNull
     @WorkerThread
     public CallResult<Depth> depth(@NonNull String pair) {
-        pair = PairUtils.localToServer(pair);
-        final String url = hostUrl + "/api/3/depth/" + pair;
+        final String serverPair = PairUtils.localToServer(pair);
+        final String url = hostUrl + "/api/3/depth/" + serverPair;
         JsonObject response = guestApi.call(url);
         CallResult<Depth> result = new CallResult<>();
         if (response == null || response.has(SUCCESS_KEY)) {
@@ -158,7 +158,7 @@ public class Api {
         }
 
         result.isSuccess = true;
-        result.payload = Depth.create(pair, response.getAsJsonObject(pair));
+        result.payload = Depth.create(pair, response.getAsJsonObject(serverPair));
         return result;
     }
 

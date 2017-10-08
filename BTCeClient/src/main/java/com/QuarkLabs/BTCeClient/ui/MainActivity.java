@@ -86,7 +86,7 @@ public class MainActivity extends AppCompatActivity
     private Runnable displayTask;
 
     private AppPreferences appPreferences;
-    private PreferencesListener preferencesListener = new PreferencesListener();
+    private final PreferencesListener preferencesListener = new PreferencesListener();
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -227,7 +227,8 @@ public class MainActivity extends AppCompatActivity
                             .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
                             .replace(R.id.content_frame, fr);
                     if (position != 0) {
-                        transaction.addToBackStack(String.valueOf(position)); //name of fragment = position
+                        //name of fragment = position
+                        transaction.addToBackStack(String.valueOf(position));
                     }
                     transaction.commit();
                     setTitle(drawerListItems[position]);

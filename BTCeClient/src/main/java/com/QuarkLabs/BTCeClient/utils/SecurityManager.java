@@ -26,6 +26,8 @@ public final class SecurityManager {
     private static SecurityManager sInstance;
     private SecretKey mKey;
 
+    private static final Object LOCK = new Object();
+
     private SecurityManager(Context context) {
         String androidId = Settings.Secure
                 .getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
@@ -41,7 +43,11 @@ public final class SecurityManager {
 
     public static SecurityManager getInstance(@NonNull Context context) {
         if (sInstance == null) {
-            sInstance = new SecurityManager(context);
+            synchronized (LOCK) {
+                if (sInstance == null) {
+                    sInstance = new SecurityManager(context);
+                }
+            }
         }
         return sInstance;
     }

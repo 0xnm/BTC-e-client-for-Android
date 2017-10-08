@@ -23,8 +23,6 @@ import java.util.List;
 
 class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
-    private static final String DEFAULT_AUTHOR_COLOR = "#8da0b9";
-
     private List<ChatMessage> messages = new ArrayList<>();
 
     private boolean isLinkify;
@@ -106,7 +104,7 @@ class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
     static final class ChatViewHolder extends RecyclerView.ViewHolder {
 
-        private TextView messageView;
+        private final TextView messageView;
 
         ChatViewHolder(View itemView) {
             super(itemView);

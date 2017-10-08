@@ -23,7 +23,9 @@ import android.widget.GridView;
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//Solution was taken from here http://stackoverflow.com/questions/4523609/grid-of-images-inside-scrollview
+/* Solution was taken from here:
+ http://stackoverflow.com/questions/4523609/grid-of-images-inside-scrollview
+ */
 public class FixedGridView extends GridView {
 
     private boolean mExpanded = false;

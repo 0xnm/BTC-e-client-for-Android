@@ -54,7 +54,7 @@ public class SettingsFragment extends PreferenceFragment
     @Nullable
     private ProgressDialog exchangeSyncProgressDialog;
 
-    private AppPreferences.Listener appPrefListener = new AppPreferences.Listener() {
+    private final AppPreferences.Listener appPrefListener = new AppPreferences.Listener() {
         @Override
         public void onCheckStatus(boolean isEnabled, @Nullable String periodMillis) {
             String currentPeriodText = findCheckPeriodText();
@@ -81,7 +81,8 @@ public class SettingsFragment extends PreferenceFragment
         Preference checkEnabled = findPreference(getString(R.string.settings_key_check_enabled));
         if (checkEnabled.isEnabled()) {
             findPreference(getString(R.string.settings_key_check_period)).setSummary(
-                    mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle), findCheckPeriodText()));
+                    mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle),
+                            findCheckPeriodText()));
         }
         findPreference(getString(R.string.settings_key_sync_exchange_pairs))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

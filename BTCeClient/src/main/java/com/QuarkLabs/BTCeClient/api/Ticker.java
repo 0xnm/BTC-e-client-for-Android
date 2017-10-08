@@ -25,9 +25,9 @@ import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 
-public class Ticker {
+public final class Ticker {
 
-    private String pair;
+    private final String pair;
     private BigDecimal high = BigDecimal.ZERO;
     private BigDecimal low = BigDecimal.ZERO;
     private BigDecimal avg = BigDecimal.ZERO;

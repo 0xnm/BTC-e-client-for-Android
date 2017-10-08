@@ -68,8 +68,8 @@ public class HistoryFragment extends Fragment {
 
     private DateFormat dateFormat;
 
-    private TransactionsAdapter transactionsAdapter = new TransactionsAdapter();
-    private TradesAdapter tradesAdapter = new TradesAdapter();
+    private final TransactionsAdapter transactionsAdapter = new TransactionsAdapter();
+    private final TradesAdapter tradesAdapter = new TradesAdapter();
 
     private LoaderManager.LoaderCallbacks loaderCallbacks;
 

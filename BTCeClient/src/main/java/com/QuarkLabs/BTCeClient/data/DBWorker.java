@@ -23,6 +23,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.support.annotation.NonNull;
 
 /**
  * Helper on top of SQLite storage
@@ -57,7 +58,7 @@ public final class DBWorker extends SQLiteOpenHelper {
         super(context, DB_NAME, null, DATABASE_VERSION);
     }
 
-    public static DBWorker getInstance(Context context) {
+    public static DBWorker getInstance(@NonNull Context context) {
         DBWorker localInstance = sInstance;
         if (localInstance == null) {
             synchronized (DBWorker.class) {

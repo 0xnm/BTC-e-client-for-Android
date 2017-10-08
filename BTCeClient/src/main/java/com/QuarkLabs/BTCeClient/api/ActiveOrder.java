@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 
-public class ActiveOrder {
+public final class ActiveOrder {
     private long id;
     @NonNull
     private String pair;

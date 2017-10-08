@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class TradeResponse {
+public final class TradeResponse {
     private BigDecimal received;
     private BigDecimal remains;
     private long orderId;
@@ -44,7 +44,8 @@ public class TradeResponse {
         Set<String> currencies = jsonObject.getAsJsonObject("funds").keySet();
         for (String currency : currencies) {
             funds.put(currency.toUpperCase(Locale.US),
-                    jsonObject.getAsJsonObject("funds").get(currency).getAsBigDecimal().stripTrailingZeros());
+                    jsonObject.getAsJsonObject("funds").get(currency)
+                            .getAsBigDecimal().stripTrailingZeros());
         }
         tradeResponse.funds = funds;
         return tradeResponse;

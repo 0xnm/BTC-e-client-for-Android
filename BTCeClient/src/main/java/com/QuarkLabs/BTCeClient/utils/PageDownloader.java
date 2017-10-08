@@ -49,7 +49,7 @@ public class PageDownloader {
                 return null;
             }
             reader = new BufferedReader(
-                    new InputStreamReader(connection.getInputStream()));
+                    new InputStreamReader(connection.getInputStream(), "UTF-8"));
             String line;
             while ((line = reader.readLine()) != null) {
                 content.append(line);

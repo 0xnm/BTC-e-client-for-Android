@@ -9,6 +9,9 @@ public class CallResult<T> {
     @Nullable
     T payload;
 
+    /**
+     * Creates new instance
+     */
     CallResult() { }
 
     public boolean isSuccess() {

@@ -9,7 +9,7 @@ import com.google.gson.JsonObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Depth {
+public final class Depth {
     private String pair;
     private List<PriceVolumePair> asks;
     private List<PriceVolumePair> bids;

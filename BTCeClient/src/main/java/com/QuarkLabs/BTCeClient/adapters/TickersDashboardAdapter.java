@@ -54,9 +54,10 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet rightOutAnimation;
     private final AnimatorSet rightInAnimation;
     private final InMemoryStorage inMemoryStorage;
-    private List<Ticker> tickers = new ArrayList<>();
+    private final List<Ticker> tickers = new ArrayList<>();
 
-    private TickersDashboardAdapterCallbackInterface callback;
+    private final TickersDashboardAdapterCallbackInterface callback;
+
     private int mNumColumns = 0;
     private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());

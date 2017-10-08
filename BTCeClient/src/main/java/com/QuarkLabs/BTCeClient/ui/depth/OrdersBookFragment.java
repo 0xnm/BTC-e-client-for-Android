@@ -128,7 +128,7 @@ public class OrdersBookFragment extends Fragment
 
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-
+                // not interested
             }
         });
 

@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import java.math.BigDecimal;
 import java.util.Locale;
 
-public class Transaction {
+public final class Transaction {
     private long id;
     private int type;
     private BigDecimal amount;
@@ -18,7 +18,6 @@ public class Transaction {
 
     private Transaction() { }
 
-    @NonNull
     public long getId() {
         return id;
     }

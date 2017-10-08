@@ -63,8 +63,8 @@ class AuthApi {
     private static final JsonParser JSON_PARSER = new JsonParser();
     private static final String TAG = AuthApi.class.getSimpleName();
 
-    private String key;
-    private String secret;
+    private final String key;
+    private final String secret;
     @NonNull
     private final Context appContext;
     private long nonce;
@@ -104,8 +104,9 @@ class AuthApi {
         StringBuilder hexString = new StringBuilder();
         for (byte b : array) {
             int intVal = b & 0xff;
-            if (intVal < 0x10)
-                hexString.append("0");
+            if (intVal < 0x10) {
+                hexString.append('0');
+            }
             hexString.append(Integer.toHexString(intVal));
         }
         return hexString.toString();
@@ -195,7 +196,7 @@ class AuthApi {
             StringBuilder sb = new StringBuilder();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 String line;
-                bufferedReader = new BufferedReader(new InputStreamReader(response));
+                bufferedReader = new BufferedReader(new InputStreamReader(response, "UTF-8"));
                 while ((line = bufferedReader.readLine()) != null) {
                     sb.append(line);
                 }

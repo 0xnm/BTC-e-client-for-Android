@@ -25,8 +25,6 @@ public class InMemoryStorage {
     @Nullable
     private Map<String, BigDecimal> funds;
 
-    public InMemoryStorage() { }
-
     public void saveTickers(@NonNull Map<String, Ticker> newTickers) {
         previousTickers.clear();
         previousTickers.putAll(latestTickers);

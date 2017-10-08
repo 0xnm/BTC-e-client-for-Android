@@ -116,7 +116,7 @@ public class HomeFragment extends Fragment implements
     private ViewGroup tradingContainer;
 
     @NonNull
-    private Queue<Runnable> pendingTasks = new LinkedList<>();
+    private final Queue<Runnable> pendingTasks = new LinkedList<>();
 
     @Override
     public void onAttach(Activity activity) {

@@ -149,6 +149,8 @@ public class PairsCheckboxAdapter extends BaseAdapter {
                             .inflate(R.layout.view_pair_separator, parent, false);
                 }
                 break;
+            default:
+                break;
         }
         return convertView;
     }
