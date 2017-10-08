@@ -32,10 +32,10 @@ import android.support.v7.app.AlertDialog;
 import java.util.concurrent.TimeUnit;
 
 /*
-Code was taken and adapted from here:
- http://www.androidsnippets.com/prompt-engaged-users-to-rate-your-app-in-the-android-market-appirater
+ Code was taken and adapted from here:
+ www.androidsnippets.com/prompt-engaged-users-to-rate-your-app-in-the-android-market-appirater
  */
-final class AppRater {
+public final class AppRater {
     private final static int DAYS_UNTIL_PROMPT = 3;
     private final static int LAUNCHES_UNTIL_PROMPT = 5;
 
@@ -44,9 +44,10 @@ final class AppRater {
     private static final String LAUNCH_COUNT_KEY = "launch_count";
     private static final String FIRST_LAUNCH_TIMESTAMP = "date_firstlaunch";
 
-    private AppRater() { }
+    private AppRater() {
+    }
 
-    static void trackAppLaunch(Context context) {
+    public static void trackAppLaunch(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(APPRATER_LOG_FILENAME,
                 Context.MODE_PRIVATE);
         if (prefs.getBoolean(DONT_SHOW_AGAIN_KEY, false)) {
@@ -67,11 +68,9 @@ final class AppRater {
         }
 
         // Wait at least n days before opening
-        if (launchCount >= LAUNCHES_UNTIL_PROMPT) {
-            if (System.currentTimeMillis() >= firstLaunchTimestamp +
-                    TimeUnit.DAYS.toMillis(DAYS_UNTIL_PROMPT)) {
-                showRateDialog(context, editor);
-            }
+        if (launchCount >= LAUNCHES_UNTIL_PROMPT && (System.currentTimeMillis()
+                >= firstLaunchTimestamp + TimeUnit.DAYS.toMillis(DAYS_UNTIL_PROMPT))) {
+            showRateDialog(context, editor);
         }
 
         editor.apply();

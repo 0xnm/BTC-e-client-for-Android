@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.watchers;
 
 import android.annotation.SuppressLint;
 import android.app.Fragment;
@@ -41,16 +41,16 @@ import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.data.DBWorker;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.Watcher;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class NotifiersFragment extends Fragment {
+public class WatchersFragment extends Fragment {
 
     private Cursor mCursor;
     private CursorAdapter mCursorAdapter;

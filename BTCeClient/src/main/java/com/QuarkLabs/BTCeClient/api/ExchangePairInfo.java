@@ -2,12 +2,12 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 
-public class ExchangePairInfo {
+public final class ExchangePairInfo {
     private String pair;
     private int decimalPlaces;
     private BigDecimal minPrice;

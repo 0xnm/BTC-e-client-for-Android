@@ -13,8 +13,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.InMemoryStorage;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;
@@ -54,9 +54,10 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     private final AnimatorSet rightOutAnimation;
     private final AnimatorSet rightInAnimation;
     private final InMemoryStorage inMemoryStorage;
-    private List<Ticker> tickers = new ArrayList<>();
+    private final List<Ticker> tickers = new ArrayList<>();
 
-    private TickersDashboardAdapterCallbackInterface callback;
+    private final TickersDashboardAdapterCallbackInterface callback;
+
     private int mNumColumns = 0;
     private final DateFormat dateFormat = DateFormat.getDateTimeInstance(DateFormat.SHORT,
             DateFormat.SHORT, Locale.getDefault());

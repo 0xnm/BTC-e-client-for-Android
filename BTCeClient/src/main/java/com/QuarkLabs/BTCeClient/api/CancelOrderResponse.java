@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-public class CancelOrderResponse {
+public final class CancelOrderResponse {
 
     @NonNull
     private long orderId;

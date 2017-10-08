@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.terminal;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -60,11 +60,11 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.InMemoryStorage;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
@@ -116,7 +116,7 @@ public class HomeFragment extends Fragment implements
     private ViewGroup tradingContainer;
 
     @NonNull
-    private Queue<Runnable> pendingTasks = new LinkedList<>();
+    private final Queue<Runnable> pendingTasks = new LinkedList<>();
 
     @Override
     public void onAttach(Activity activity) {

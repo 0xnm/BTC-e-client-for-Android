@@ -34,7 +34,7 @@ import java.util.List;
 public class OrdersBookAdapter extends BaseAdapter {
 
     private List<PriceVolumePair> data;
-    private BigDecimal maxVolume = new BigDecimal(0);
+    private BigDecimal maxVolume = BigDecimal.ZERO;
 
     @Override
     public int getCount() {

@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.settings;
 
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
@@ -32,13 +32,12 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
-import com.QuarkLabs.BTCeClient.loaders.ExchangeInfoLoader;
 
 public class SettingsFragment extends PreferenceFragment
         implements LoaderManager.LoaderCallbacks<CallResult<ExchangeInfo>> {
@@ -55,7 +54,7 @@ public class SettingsFragment extends PreferenceFragment
     @Nullable
     private ProgressDialog exchangeSyncProgressDialog;
 
-    private AppPreferences.Listener appPrefListener = new AppPreferences.Listener() {
+    private final AppPreferences.Listener appPrefListener = new AppPreferences.Listener() {
         @Override
         public void onCheckStatus(boolean isEnabled, @Nullable String periodMillis) {
             String currentPeriodText = findCheckPeriodText();
@@ -82,7 +81,8 @@ public class SettingsFragment extends PreferenceFragment
         Preference checkEnabled = findPreference(getString(R.string.settings_key_check_enabled));
         if (checkEnabled.isEnabled()) {
             findPreference(getString(R.string.settings_key_check_period)).setSummary(
-                    mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle), findCheckPeriodText()));
+                    mDefaultCheckPeriodSummaryText.replace(getString(R.string.NATitle),
+                            findCheckPeriodText()));
         }
         findPreference(getString(R.string.settings_key_sync_exchange_pairs))
                 .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {

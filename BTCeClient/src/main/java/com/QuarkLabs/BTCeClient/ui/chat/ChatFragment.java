@@ -17,7 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WexLocale;
@@ -114,6 +114,8 @@ public class ChatFragment extends Fragment
                 consumed = true;
                 refreshChat(false);
                 break;
+            default:
+                break;
         }
         return consumed || super.onOptionsItemSelected(item);
     }
@@ -184,7 +186,7 @@ public class ChatFragment extends Fragment
                     .setChatMessages(Collections.<ChatMessage>emptyList());
             appPreferences.setChatLocale(selectedItem);
             showLoading();
-            getLoaderManager().restartLoader(0, null, ChatFragment.this);
+            getLoaderManager().restartLoader(0, null, this);
         }
 
         if (languageDialog != null) {

@@ -4,7 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.math.BigDecimal;
 
-public class PriceVolumePair {
+public final class PriceVolumePair {
     private BigDecimal price;
     private BigDecimal volume;
 

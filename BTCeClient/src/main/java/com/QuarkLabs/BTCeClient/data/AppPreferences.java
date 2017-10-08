@@ -1,10 +1,14 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.WexLocale;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,7 +42,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     @NonNull
     private final SharedPreferences preferences;
 
-    AppPreferences(@NonNull Context context) {
+    public AppPreferences(@NonNull Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         preferences.registerOnSharedPreferenceChangeListener(this);
         keyApiKey = context.getString(R.string.settings_key_api_key);

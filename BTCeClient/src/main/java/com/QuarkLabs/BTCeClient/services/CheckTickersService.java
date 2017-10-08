@@ -32,13 +32,13 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
-import com.QuarkLabs.BTCeClient.DBWorker;
-import com.QuarkLabs.BTCeClient.InMemoryStorage;
-import com.QuarkLabs.BTCeClient.MainActivity;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.data.DBWorker;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.ui.MainActivity;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.Watcher;
 import com.QuarkLabs.BTCeClient.api.Api;

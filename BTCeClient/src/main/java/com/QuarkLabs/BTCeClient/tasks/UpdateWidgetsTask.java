@@ -31,7 +31,7 @@ import android.os.Bundle;
 import android.widget.RemoteViews;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.DBWorker;
+import com.QuarkLabs.BTCeClient.data.DBWorker;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WidgetProvider;
 import com.QuarkLabs.BTCeClient.api.Api;

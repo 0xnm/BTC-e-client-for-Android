@@ -2,14 +2,14 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Depth {
+public final class Depth {
     private String pair;
     private List<PriceVolumePair> asks;
     private List<PriceVolumePair> bids;

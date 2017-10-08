@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.data;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -24,8 +24,6 @@ public class InMemoryStorage {
     private List<ChatMessage> chatMessages;
     @Nullable
     private Map<String, BigDecimal> funds;
-
-    InMemoryStorage() { }
 
     public void saveTickers(@NonNull Map<String, Ticker> newTickers) {
         previousTickers.clear();

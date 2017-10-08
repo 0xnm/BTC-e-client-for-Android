@@ -27,7 +27,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 
@@ -148,6 +148,8 @@ public class PairsCheckboxAdapter extends BaseAdapter {
                     convertView = LayoutInflater.from(context)
                             .inflate(R.layout.view_pair_separator, parent, false);
                 }
+                break;
+            default:
                 break;
         }
         return convertView;

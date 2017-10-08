@@ -63,7 +63,7 @@ class GuestApi {
             InputStream response = connection.getInputStream();
             StringBuilder sb = new StringBuilder();
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
-                rd = new BufferedReader(new InputStreamReader(response));
+                rd = new BufferedReader(new InputStreamReader(response, "UTF-8"));
                 String line;
                 while ((line = rd.readLine()) != null) {
                     sb.append(line);

@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient.loaders;
+package com.QuarkLabs.BTCeClient.ui.activeorders;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;

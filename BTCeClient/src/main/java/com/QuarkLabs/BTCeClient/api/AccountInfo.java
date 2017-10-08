@@ -9,7 +9,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-public class AccountInfo {
+public final class AccountInfo {
     private Map<String, BigDecimal> funds;
     // here can be rights, but not used in the app
     private long transactionCount;

@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.history;
 
 import android.app.DatePickerDialog;
 import android.app.Fragment;
@@ -21,15 +21,12 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.QuarkLabs.BTCeClient.ListType;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.TradesAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TransactionsAdapter;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.TradeHistoryEntry;
 import com.QuarkLabs.BTCeClient.api.Transaction;
-import com.QuarkLabs.BTCeClient.loaders.TradesLoader;
-import com.QuarkLabs.BTCeClient.loaders.TransactionsLoader;
 
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -71,8 +68,8 @@ public class HistoryFragment extends Fragment {
 
     private DateFormat dateFormat;
 
-    private TransactionsAdapter transactionsAdapter = new TransactionsAdapter();
-    private TradesAdapter tradesAdapter = new TradesAdapter();
+    private final TransactionsAdapter transactionsAdapter = new TransactionsAdapter();
+    private final TradesAdapter tradesAdapter = new TradesAdapter();
 
     private LoaderManager.LoaderCallbacks loaderCallbacks;
 

@@ -2,12 +2,12 @@ package com.QuarkLabs.BTCeClient.api;
 
 import android.support.annotation.NonNull;
 
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.google.gson.JsonObject;
 
 import java.math.BigDecimal;
 
-public class TradeHistoryEntry {
+public final class TradeHistoryEntry {
     private long id;
     private String pair;
     private String type;
