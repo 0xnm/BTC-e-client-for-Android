@@ -714,12 +714,14 @@ public class ChartsFragment extends Fragment {
                 @Override
                 public void run() {
                     Activity activity = getActivity();
-                    if (requestMap.isEmpty() && activity != null) {
-                        isUpdating = false;
-                        activity.invalidateOptionsMenu();
-                    }
-                    if (data != null) {
-                        mListener.onChartDownloaded(token, pair, data);
+                    if (activity != null) {
+                        if (requestMap.isEmpty()) {
+                            isUpdating = false;
+                            activity.invalidateOptionsMenu();
+                        }
+                        if (data != null) {
+                            mListener.onChartDownloaded(token, pair, data);
+                        }
                     }
                 }
             });
