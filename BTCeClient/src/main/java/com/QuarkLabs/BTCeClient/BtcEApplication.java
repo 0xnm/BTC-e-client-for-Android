@@ -8,8 +8,12 @@ import android.util.Log;
 
 import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.tasks.ApiResultListener;
 import com.QuarkLabs.BTCeClient.tasks.GetExchangeInfoTask;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.SecurityManager;
 
 import java.util.Collections;
 import java.util.HashSet;

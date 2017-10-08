@@ -13,8 +13,8 @@ import android.widget.BaseAdapter;
 import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.InMemoryStorage;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.views.FlippingView;

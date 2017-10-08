@@ -10,7 +10,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.QuarkLabs.BTCeClient.DateTimeUtils;
+import com.QuarkLabs.BTCeClient.utils.DateTimeUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.ActiveOrder;
 

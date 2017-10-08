@@ -24,7 +24,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.annotation.WorkerThread;
 
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.google.gson.JsonObject;
 

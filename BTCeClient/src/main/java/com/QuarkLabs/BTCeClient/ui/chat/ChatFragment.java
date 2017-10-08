@@ -17,7 +17,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WexLocale;

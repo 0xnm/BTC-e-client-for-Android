@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient.loaders;
+package com.QuarkLabs.BTCeClient.ui.history;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;
@@ -6,34 +6,34 @@ import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.api.CallResult;
-import com.QuarkLabs.BTCeClient.api.TradeHistoryEntry;
+import com.QuarkLabs.BTCeClient.api.Transaction;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TradesLoader extends AsyncTaskLoader<CallResult<List<TradeHistoryEntry>>> {
 
-    private CallResult<List<TradeHistoryEntry>> callResult;
+public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transaction>>> {
+
+    private CallResult<List<Transaction>> callResult;
     @NonNull
     private final String fromDate;
     @NonNull
     private final String toDate;
 
-    public TradesLoader(@NonNull Context context, @NonNull String fromDate,
-                        @NonNull String toDate) {
+    public TransactionsLoader(@NonNull Context context, @NonNull String fromDate,
+                              @NonNull String toDate) {
         super(context);
         this.fromDate = fromDate;
         this.toDate = toDate;
     }
 
     @Override
-    public CallResult<List<TradeHistoryEntry>> loadInBackground() {
+    public CallResult<List<Transaction>> loadInBackground() {
         Map<String, String> parameters = new HashMap<>();
-        //TODO should be fixed
-        parameters.put("since", "0");
+        parameters.put("since", fromDate);
         parameters.put("end", toDate);
-        callResult = BtcEApplication.get(getContext()).getApi().getTradeHistory(parameters);
+        callResult = BtcEApplication.get(getContext()).getApi().getTransactionsHistory(parameters);
         return callResult;
     }
 

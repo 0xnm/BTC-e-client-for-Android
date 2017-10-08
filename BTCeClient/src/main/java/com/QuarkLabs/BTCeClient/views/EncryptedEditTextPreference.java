@@ -1,10 +1,12 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.preference.EditTextPreference;
 import android.util.AttributeSet;
+
+import com.QuarkLabs.BTCeClient.utils.SecurityManager;
 
 public class EncryptedEditTextPreference extends EditTextPreference {
     public EncryptedEditTextPreference(Context context) {

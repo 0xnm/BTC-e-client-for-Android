@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.activeorders;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -38,13 +38,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.ActiveOrdersAdapter;
 import com.QuarkLabs.BTCeClient.api.ActiveOrder;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.CancelOrderResponse;
-import com.QuarkLabs.BTCeClient.loaders.ActiveOrdersLoader;
 import com.QuarkLabs.BTCeClient.tasks.ApiResultListener;
 import com.QuarkLabs.BTCeClient.tasks.CancelActiveOrderTask;
 

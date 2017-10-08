@@ -1,8 +1,10 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.utils;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+
+import com.QuarkLabs.BTCeClient.WexLocale;
 
 import java.io.BufferedReader;
 import java.io.IOException;

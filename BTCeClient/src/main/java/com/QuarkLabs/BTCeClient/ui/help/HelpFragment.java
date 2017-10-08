@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.help;
 
 import android.app.Fragment;
 import android.content.ActivityNotFoundException;

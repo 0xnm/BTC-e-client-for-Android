@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.utils;
 
 
 import android.support.annotation.NonNull;

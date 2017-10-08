@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.depth;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
@@ -45,14 +45,13 @@ import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.OrdersBookAdapter;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.Depth;
 import com.QuarkLabs.BTCeClient.api.PriceVolumePair;
-import com.QuarkLabs.BTCeClient.loaders.OrderBookLoader;
 
 import org.stockchart.StockChartView;
 import org.stockchart.core.Axis;

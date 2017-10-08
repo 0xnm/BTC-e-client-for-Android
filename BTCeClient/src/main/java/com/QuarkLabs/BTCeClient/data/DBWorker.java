@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.data;
 
 import android.content.ContentValues;
 import android.content.Context;

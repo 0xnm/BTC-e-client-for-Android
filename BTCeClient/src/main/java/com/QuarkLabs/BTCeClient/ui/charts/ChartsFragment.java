@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.fragments;
+package com.QuarkLabs.BTCeClient.ui.charts;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -51,11 +51,11 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.MainNavigator;
-import com.QuarkLabs.BTCeClient.PageDownloader;
-import com.QuarkLabs.BTCeClient.PairUtils;
+import com.QuarkLabs.BTCeClient.utils.PageDownloader;
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.api.Api;

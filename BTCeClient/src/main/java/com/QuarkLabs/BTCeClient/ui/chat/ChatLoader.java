@@ -7,9 +7,9 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.QuarkLabs.BTCeClient.AppPreferences;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.PageDownloader;
+import com.QuarkLabs.BTCeClient.utils.PageDownloader;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;

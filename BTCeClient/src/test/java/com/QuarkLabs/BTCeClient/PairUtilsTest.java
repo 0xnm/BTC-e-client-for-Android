@@ -1,5 +1,7 @@
 package com.QuarkLabs.BTCeClient;
 
+import com.QuarkLabs.BTCeClient.utils.PairUtils;
+
 import org.junit.Test;
 
 import java.util.Arrays;

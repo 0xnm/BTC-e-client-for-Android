@@ -1,8 +1,9 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.utils;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
 import com.QuarkLabs.BTCeClient.api.ExchangePairInfo;
 

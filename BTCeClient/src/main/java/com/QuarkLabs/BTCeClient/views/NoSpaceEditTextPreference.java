@@ -1,4 +1,4 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.views;
 
 import android.annotation.TargetApi;
 import android.content.Context;

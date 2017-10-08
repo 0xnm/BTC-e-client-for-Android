@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <PreferenceCategory android:title="API Key">
-        <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
+        <com.QuarkLabs.BTCeClient.views.EncryptedEditTextPreference
             android:hint="@string/APIKeyDefaultText"
             android:key="@string/settings_key_api_key"
             android:singleLine="true"
             android:summary="@string/setting_api_key_secret_location_hint"
             android:title="@string/KeyTitle" />
 
-        <com.QuarkLabs.BTCeClient.EncryptedEditTextPreference
+        <com.QuarkLabs.BTCeClient.views.EncryptedEditTextPreference
             android:hint="@string/APISecretDefaultText"
             android:key="@string/settings_key_api_secret"
             android:singleLine="true"
@@ -36,7 +36,7 @@
             android:key="@string/settings_key_sync_exchange_pairs"
             android:summary="@string/settings_sync_exchange_summary"
             android:title="@string/settings_sync_exchange_title" />
-        <com.QuarkLabs.BTCeClient.NoSpaceEditTextPreference
+        <com.QuarkLabs.BTCeClient.views.NoSpaceEditTextPreference
             android:defaultValue="@string/settings_exchange_url_default"
             android:key="@string/settings_key_exchange_url"
             android:singleLine="true"

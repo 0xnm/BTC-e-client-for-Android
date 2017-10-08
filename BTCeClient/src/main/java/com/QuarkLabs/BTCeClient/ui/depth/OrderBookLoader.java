@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient.loaders;
+package com.QuarkLabs.BTCeClient.ui.depth;
 
 import android.content.AsyncTaskLoader;
 import android.content.Context;

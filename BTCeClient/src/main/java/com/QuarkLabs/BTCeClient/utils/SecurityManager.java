@@ -1,7 +1,8 @@
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.utils;
 
 import android.content.Context;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.util.Base64;
 import android.util.Log;
 
@@ -18,7 +19,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 
-final class SecurityManager {
+public final class SecurityManager {
 
     private static final String TAG = SecurityManager.class.getSimpleName();
 
@@ -38,14 +39,14 @@ final class SecurityManager {
         }
     }
 
-    public static SecurityManager getInstance(Context context) {
+    public static SecurityManager getInstance(@NonNull Context context) {
         if (sInstance == null) {
             sInstance = new SecurityManager(context);
         }
         return sInstance;
     }
 
-    String encryptString(String stringToEncrypt) {
+    public String encryptString(String stringToEncrypt) {
         String output = stringToEncrypt;
         try {
             byte[] clearText = stringToEncrypt.getBytes("UTF8");
@@ -59,7 +60,7 @@ final class SecurityManager {
         return output;
     }
 
-    String decryptString(String stringToDecrypt) {
+    public String decryptString(String stringToDecrypt) {
         String output = stringToDecrypt;
         try {
             byte[] encryptedPwdBytes = Base64.decode(stringToDecrypt, Base64.DEFAULT);

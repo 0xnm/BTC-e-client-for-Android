@@ -16,7 +16,7 @@
  *     along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.QuarkLabs.BTCeClient;
+package com.QuarkLabs.BTCeClient.ui;
 
 import android.app.AlarmManager;
 import android.app.Fragment;
@@ -44,14 +44,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-import com.QuarkLabs.BTCeClient.fragments.ActiveOrdersFragment;
-import com.QuarkLabs.BTCeClient.fragments.ChartsFragment;
-import com.QuarkLabs.BTCeClient.fragments.HelpFragment;
-import com.QuarkLabs.BTCeClient.fragments.HistoryFragment;
-import com.QuarkLabs.BTCeClient.fragments.HomeFragment;
-import com.QuarkLabs.BTCeClient.fragments.NotifiersFragment;
-import com.QuarkLabs.BTCeClient.fragments.OrdersBookFragment;
-import com.QuarkLabs.BTCeClient.fragments.SettingsFragment;
+import com.QuarkLabs.BTCeClient.data.AppPreferences;
+import com.QuarkLabs.BTCeClient.AppRater;
+import com.QuarkLabs.BTCeClient.BtcEApplication;
+import com.QuarkLabs.BTCeClient.ui.history.ListType;
+import com.QuarkLabs.BTCeClient.MainNavigator;
+import com.QuarkLabs.BTCeClient.R;
+import com.QuarkLabs.BTCeClient.ui.activeorders.ActiveOrdersFragment;
+import com.QuarkLabs.BTCeClient.ui.charts.ChartsFragment;
+import com.QuarkLabs.BTCeClient.ui.help.HelpFragment;
+import com.QuarkLabs.BTCeClient.ui.history.HistoryFragment;
+import com.QuarkLabs.BTCeClient.ui.terminal.HomeFragment;
+import com.QuarkLabs.BTCeClient.ui.watchers.WatchersFragment;
+import com.QuarkLabs.BTCeClient.ui.depth.OrdersBookFragment;
+import com.QuarkLabs.BTCeClient.ui.settings.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
@@ -204,7 +210,7 @@ public class MainActivity extends AppCompatActivity
                 fragment = new SettingsFragment();
                 break;
             case 8:
-                fragment = new NotifiersFragment();
+                fragment = new WatchersFragment();
                 break;
             case 9:
                 fragment = new HelpFragment();
