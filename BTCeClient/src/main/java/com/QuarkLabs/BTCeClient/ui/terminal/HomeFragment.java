@@ -56,6 +56,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Spinner;
+import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -80,6 +81,7 @@ import com.QuarkLabs.BTCeClient.views.FixedGridView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -498,39 +500,70 @@ public class HomeFragment extends Fragment implements
 
         fundsContainer.removeAllViews();
 
-        List<String> currencies = new ArrayList<>(funds.keySet());
-        Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
-
-        TableRow.LayoutParams layoutParams = new TableRow
-                .LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT);
-
-        for (final String currency : currencies) {
-
-            TableRow row = new TableRow(getActivity());
-
-            TextView currencyView = new TextView(getActivity());
-            currencyView.setText(currency);
-            currencyView.setLayoutParams(layoutParams);
-            currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
-            currencyView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-            currencyView.setGravity(Gravity.CENTER);
-
-            TextView amountView = new TextView(getActivity());
-            final String amount = funds.get(currency).toPlainString();
-            amountView.setText(amount);
-            amountView.setLayoutParams(layoutParams);
-            amountView.setGravity(Gravity.CENTER);
-            amountView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    goToTrading(amount, currency, null, null);
-                }
-            });
-
-            row.addView(currencyView);
-            row.addView(amountView);
-            fundsContainer.addView(row);
+        if (appPreferences.isDontShowZeroFunds()) {
+            funds = filterForNonZero(funds);
         }
+
+        if (funds.isEmpty()) {
+            TextView zeroBalanceView = new TextView(getActivity());
+            TableLayout.LayoutParams lps = new TableLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            zeroBalanceView.setGravity(Gravity.CENTER);
+            int fourDp = getResources().getDimensionPixelSize(R.dimen.four_dp);
+            zeroBalanceView.setLayoutParams(lps);
+            zeroBalanceView.setPadding(fourDp, fourDp, fourDp, fourDp);
+            zeroBalanceView.setText(R.string.zero_balance);
+            zeroBalanceView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+            fundsContainer.addView(zeroBalanceView);
+
+        } else {
+            List<String> currencies = new ArrayList<>(funds.keySet());
+            Collections.sort(currencies, PairUtils.CURRENCY_COMPARATOR);
+
+            TableRow.LayoutParams layoutParams = new TableRow
+                    .LayoutParams(TableRow.LayoutParams.MATCH_PARENT,
+                    TableRow.LayoutParams.WRAP_CONTENT);
+
+            for (final String currency : currencies) {
+
+                TableRow row = new TableRow(getActivity());
+
+                TextView currencyView = new TextView(getActivity());
+                currencyView.setText(currency);
+                currencyView.setLayoutParams(layoutParams);
+                currencyView.setTypeface(Typeface.DEFAULT, Typeface.BOLD);
+                currencyView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                currencyView.setGravity(Gravity.CENTER);
+
+                TextView amountView = new TextView(getActivity());
+                final String amount = funds.get(currency).toPlainString();
+                amountView.setText(amount);
+                amountView.setLayoutParams(layoutParams);
+                amountView.setGravity(Gravity.CENTER);
+                amountView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        goToTrading(amount, currency, null, null);
+                    }
+                });
+
+                row.addView(currencyView);
+                row.addView(amountView);
+                fundsContainer.addView(row);
+            }
+        }
+    }
+
+    @NonNull
+    private Map<String, BigDecimal> filterForNonZero(@NonNull Map<String, BigDecimal> funds) {
+        Map<String, BigDecimal> output = new HashMap<>();
+        for (Map.Entry<String, BigDecimal> entry : funds.entrySet()) {
+            if (entry.getValue().intValue() != 0) {
+                output.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return output;
     }
 
     @Override

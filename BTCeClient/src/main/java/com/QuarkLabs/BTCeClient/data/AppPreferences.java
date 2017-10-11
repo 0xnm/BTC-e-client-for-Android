@@ -26,6 +26,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private final String keyCheckPeriod;
     private final String keyExchangeUrl;
     private final String keyLinkifyChat;
+    private final String keyDontShowZeroFunds;
 
     private final String defaultExchangeUrl;
 
@@ -51,6 +52,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         keyCheckPeriod = context.getString(R.string.settings_key_check_period);
         keyExchangeUrl = context.getString(R.string.settings_key_exchange_url);
         keyLinkifyChat = context.getString(R.string.settings_key_linkify_chat);
+        keyDontShowZeroFunds = context.getString(R.string.settings_key_dont_show_zero_funds);
 
         defaultExchangeUrl = context.getString(R.string.settings_exchange_url_default);
     }
@@ -227,10 +229,8 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         return preferences.getBoolean(keyLinkifyChat, false);
     }
 
-    public void setLinkifyChat(boolean linkify) {
-        preferences.edit()
-                .putBoolean(keyLinkifyChat, linkify)
-                .apply();
+    public boolean isDontShowZeroFunds() {
+        return preferences.getBoolean(keyDontShowZeroFunds, false);
     }
 
     public static abstract class Listener {

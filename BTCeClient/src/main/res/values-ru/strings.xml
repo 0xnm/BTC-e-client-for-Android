@@ -160,6 +160,11 @@
     <string name="settings_sync_exchange_title">Синхронизировать пары с биржей</string>
     <string name="settings_exchange_url_title">Адрес биржи</string>
     <string name="settings_exchange_category_title">Биржа</string>
+
+    <string name="settings_other_section">Прочее</string>
+    <string name="settings_dont_show_zero_funds_title">Не показывать нулевой баланс</string>
+    <string name="settings_dont_show_zero_funds_summary">Не показывать нулевой баланс в разделе Мои средства</string>
+
     <string name="exchange_url_no_https_warning">Новое значение не имеет протокола "https://". Вы хотите продолжить?</string>
     <string name="chat_loading_error">Не удалось загрузить чат</string>
     <string name="language">Язык</string>
@@ -176,4 +181,5 @@
     <string name="trade_button_label">Торговать</string>
     <string name="charts_price_label">Цена</string>
     <string name="charts_volume_label">Объём</string>
+    <string name="zero_balance">Нулевой баланс</string>
 </resources>
