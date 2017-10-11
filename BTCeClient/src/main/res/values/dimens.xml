@@ -13,4 +13,6 @@
     <dimen name="indeterminate_progress_size">32dp</dimen>
     <dimen name="action_bar_height">56dp</dimen>
 
+    <dimen name="four_dp">4dp</dimen>
+
 </resources>
