@@ -798,10 +798,13 @@ public class ChartsFragment extends Fragment {
         @Nullable
         @WorkerThread
         private String tryGetPriceFromApi(@NonNull String pair) {
-            Api api = BtcEApplication.get(getActivity()).getApi();
-            CallResult<List<Ticker>> callResult = api.getPairInfo(Collections.singleton(pair));
-            if (callResult.isSuccess()) {
-                return callResult.getPayload().get(0).getLast().toPlainString();
+            Context context = getActivity();
+            if (context != null) {
+                Api api = BtcEApplication.get(context).getApi();
+                CallResult<List<Ticker>> callResult = api.getPairInfo(Collections.singleton(pair));
+                if (callResult.isSuccess()) {
+                    return callResult.getPayload().get(0).getLast().toPlainString();
+                }
             }
             return null;
         }
