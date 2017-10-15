@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class InMemoryStorage {
     @NonNull
@@ -39,7 +40,7 @@ public class InMemoryStorage {
      */
     @NonNull
     public Map<String, Ticker> getPreviousData() {
-        return new HashMap<>(previousTickers);
+        return new ConcurrentHashMap<>(previousTickers);
     }
 
     /**
@@ -49,7 +50,7 @@ public class InMemoryStorage {
      */
     @NonNull
     public Map<String, Ticker> getLatestData() {
-        return new HashMap<>(latestTickers);
+        return new ConcurrentHashMap<>(latestTickers);
     }
 
     public void addNewTicker(@NonNull Ticker ticker) {
