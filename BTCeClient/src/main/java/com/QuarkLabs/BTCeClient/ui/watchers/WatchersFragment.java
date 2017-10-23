@@ -26,6 +26,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -241,13 +242,18 @@ public class WatchersFragment extends Fragment {
             throw new RuntimeException("Unknown watcher type = " + typeName);
         }
 
-        String pair = ((Spinner) watcherDialog.findViewById(R.id.PairSpinner))
-                .getSelectedItem().toString();
-        float value = Float.parseFloat(((EditText) watcherDialog.findViewById(R.id.NotifValue))
-                .getText().toString());
+        //noinspection ConstantConditions
+        String valueText = ((EditText) watcherDialog.findViewById(R.id.NotifValue))
+                .getText().toString();
 
-        //noinspection WrongConstant
-        saveWatcher(type, pair, value);
+        if (!TextUtils.isEmpty(valueText)) {
+            String pair = ((Spinner) watcherDialog.findViewById(R.id.PairSpinner))
+                    .getSelectedItem().toString();
+            float value = Float.parseFloat(valueText);
+
+            //noinspection WrongConstant
+            saveWatcher(type, pair, value);
+        }
     }
 
     private void saveWatcher(@Watcher int watcherType, @NonNull String pair, float value) {
