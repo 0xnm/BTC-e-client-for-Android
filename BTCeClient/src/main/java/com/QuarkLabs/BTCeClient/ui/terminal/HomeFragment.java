@@ -81,7 +81,6 @@ import com.QuarkLabs.BTCeClient.views.FixedGridView;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -501,7 +500,7 @@ public class HomeFragment extends Fragment implements
         fundsContainer.removeAllViews();
 
         if (appPreferences.isDontShowZeroFunds()) {
-            funds = filterForNonZero(funds);
+            funds = PairUtils.filterForNonZero(funds);
         }
 
         if (funds.isEmpty()) {
@@ -553,17 +552,6 @@ public class HomeFragment extends Fragment implements
                 fundsContainer.addView(row);
             }
         }
-    }
-
-    @NonNull
-    private Map<String, BigDecimal> filterForNonZero(@NonNull Map<String, BigDecimal> funds) {
-        Map<String, BigDecimal> output = new HashMap<>();
-        for (Map.Entry<String, BigDecimal> entry : funds.entrySet()) {
-            if (entry.getValue().intValue() != 0) {
-                output.put(entry.getKey(), entry.getValue());
-            }
-        }
-        return output;
     }
 
     @Override

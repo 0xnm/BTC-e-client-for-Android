@@ -163,67 +163,84 @@ public class CheckTickersService extends IntentService {
     private List<NotificationMessage> createNotificationMessages(
             @NonNull List<Ticker> tickers, @NonNull Map<String, Ticker> oldData) {
 
-        Cursor notifiers = DBWorker.getInstance(this).getNotifiers();
+        Map<String, List<WatcherDescriptor>> watchersByPair = watchersByPair();
 
         List<NotificationMessage> messages = new ArrayList<>();
 
         for (Ticker ticker : tickers) {
-            notifiers.moveToFirst();
             String pair = ticker.getPair();
 
-            if (!oldData.containsKey(pair)) {
+            if (!watchersByPair.containsKey(pair)) {
                 continue;
             }
-
-            double oldValue = oldData.get(pair).getLast().doubleValue();
             double newValue = ticker.getLast().doubleValue();
 
-            while (!notifiers.isAfterLast()) {
-
-                boolean isPairMatched = pair
-                        .equals(notifiers.getString(
-                                notifiers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN)));
-                if (isPairMatched) {
-
-                    float percent;
-                    @Watcher int watcherType = notifiers.getInt(
-                            notifiers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
-                    switch (watcherType) {
-                        case Watcher.PANIC_BUY:
-                            percent = watcherValue(notifiers);
-                            if (newValue > ((1 + (percent/100)) * oldValue)) {
+            for (WatcherDescriptor watcher : watchersByPair.get(pair)) {
+                @Watcher int watcherType = watcher.type;
+                switch (watcherType) {
+                    case Watcher.PANIC_BUY:
+                        if (oldData.containsKey(pair)) {
+                            double oldValue = oldData.get(pair).getLast().doubleValue();
+                            float percent = watcher.value;
+                            if (oldValue != 0 && newValue > ((1 + (percent / 100)) * oldValue)) {
                                 messages.add(createPanicBuyMessage(pair, percent));
                             }
-                            break;
-                        case Watcher.PANIC_SELL:
-                            percent = watcherValue(notifiers);
-                            if (newValue < ((1 - (percent / 100)) * oldValue)) {
+                        }
+                        break;
+                    case Watcher.PANIC_SELL:
+                        if (oldData.containsKey(pair)) {
+                            double oldValue = oldData.get(pair).getLast().doubleValue();
+                            float percent = watcher.value;
+                            if (oldValue != 0 && newValue < ((1 - (percent / 100)) * oldValue)) {
                                 messages.add(createPanicSellMessage(pair, percent));
                             }
-                            break;
-                        case Watcher.STOP_LOSS:
-                            if (newValue < watcherValue(notifiers)) {
-                                messages.add(createStopLossMessage(pair,
-                                        watcherValue(notifiers)));
-                            }
-                            break;
-                        case Watcher.TAKE_PROFIT:
-                            if (newValue > watcherValue(notifiers)) {
-                                messages.add(createTakeProfitMessage(pair,
-                                        watcherValue(notifiers)));
-                            }
-                            break;
-                        default:
-                            break;
-                    }
+                        }
+                        break;
+                    case Watcher.STOP_LOSS:
+                        if (newValue != 0 && newValue < watcher.value) {
+                            messages.add(createStopLossMessage(pair, watcher.value));
+                        }
+                        break;
+                    case Watcher.TAKE_PROFIT:
+                        if (newValue != 0 && newValue > watcher.value) {
+                            messages.add(createTakeProfitMessage(pair, watcher.value));
+                        }
+                        break;
+                    default:
+                        break;
                 }
-
-                notifiers.moveToNext();
             }
         }
-
-        notifiers.close();
         return messages;
+    }
+
+    @NonNull
+    private Map<String, List<WatcherDescriptor>> watchersByPair() {
+        Cursor watchers = DBWorker.getInstance(this).getNotifiers();
+        watchers.moveToFirst();
+        Map<String, List<WatcherDescriptor>> watchersByPair = new HashMap<>();
+        while (!watchers.isAfterLast()) {
+            String pair = watchers.getString(
+                    watchers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN));
+            if (!watchersByPair.containsKey(pair)) {
+                watchersByPair.put(pair, new ArrayList<WatcherDescriptor>());
+            }
+
+            List<WatcherDescriptor> watchersForPair = watchersByPair.get(pair);
+            WatcherDescriptor watcherDescriptor = new WatcherDescriptor();
+
+            //noinspection WrongConstant
+            watcherDescriptor.type = watchers.getInt(
+                    watchers.getColumnIndex(DBWorker.NOTIFIERS_TYPE_COLUMN));
+            watcherDescriptor.value = watchers.getFloat(
+                    watchers.getColumnIndex(DBWorker.NOTIFIERS_VALUE_COLUMN));
+            watchersForPair.add(watcherDescriptor);
+
+            watchers.moveToNext();
+        }
+
+        watchers.close();
+        return watchersByPair;
     }
 
     private NotificationMessage createStopLossMessage(String pair, float value) {
@@ -267,7 +284,9 @@ public class CheckTickersService extends IntentService {
         String details;
     }
 
-    private float watcherValue(Cursor cursor) {
-        return cursor.getFloat(cursor.getColumnIndex(DBWorker.NOTIFIERS_VALUE_COLUMN));
+    private static final class WatcherDescriptor {
+        @Watcher
+        int type;
+        float value;
     }
 }
