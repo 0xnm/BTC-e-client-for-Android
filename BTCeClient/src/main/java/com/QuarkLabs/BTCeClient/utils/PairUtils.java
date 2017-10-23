@@ -7,10 +7,13 @@ import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
 import com.QuarkLabs.BTCeClient.api.ExchangePairInfo;
 
+import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public final class PairUtils {
@@ -93,5 +96,23 @@ public final class PairUtils {
             pairs.add(pairInfo.getPair());
         }
         return pairs;
+    }
+
+    /**
+     * Filters out zero values in the input funds
+     *
+     * @param funds Funds to filter
+     * @return Funds without zero values
+     */
+    @NonNull
+    public static Map<String, BigDecimal> filterForNonZero(
+            @NonNull Map<String, BigDecimal> funds) {
+        Map<String, BigDecimal> output = new HashMap<>();
+        for (Map.Entry<String, BigDecimal> entry : funds.entrySet()) {
+            if (entry.getValue().doubleValue() != 0) {
+                output.put(entry.getKey(), entry.getValue());
+            }
+        }
+        return output;
     }
 }
