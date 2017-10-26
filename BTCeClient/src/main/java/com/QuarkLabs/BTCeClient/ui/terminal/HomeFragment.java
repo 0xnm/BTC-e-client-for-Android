@@ -22,7 +22,6 @@ import android.app.Activity;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
@@ -159,17 +158,14 @@ public class HomeFragment extends Fragment implements
         final int dashboardItemSize = getResources()
                 .getDimensionPixelSize(R.dimen.dashboard_item_size);
         tickersContainer.getViewTreeObserver().addOnGlobalLayoutListener(
-                new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @Override
-                    public void onGlobalLayout() {
-                        if (tickersAdapter.getNumColumns() == 0) {
-                            final int numColumns =
-                                    (int) Math.floor(tickersContainer.getWidth() /
-                                            (dashboardSpacing + dashboardItemSize));
-                            if (numColumns > 0) {
-                                tickersAdapter.setNumColumns(numColumns);
-                                tickersContainer.setNumColumns(numColumns);
-                            }
+                () -> {
+                    if (tickersAdapter.getNumColumns() == 0) {
+                        final int numColumns =
+                                (int) Math.floor(tickersContainer.getWidth() /
+                                        (dashboardSpacing + dashboardItemSize));
+                        if (numColumns > 0) {
+                            tickersAdapter.setNumColumns(numColumns);
+                            tickersContainer.setNumColumns(numColumns);
                         }
                     }
                 });
@@ -179,12 +175,8 @@ public class HomeFragment extends Fragment implements
         tickersContainer.setAdapter(tickersAdapter);
         TextView emptyView = (TextView) view.findViewById(R.id.emptyView);
         tickersContainer.setEmptyView(emptyView);
-        tickersContainer.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return event.getAction() == MotionEvent.ACTION_MOVE;
-            }
-        });
+        tickersContainer.setOnTouchListener((v, event) ->
+                event.getAction() == MotionEvent.ACTION_MOVE);
 
         //Broadcast receiver initialization
         statsReceiver = new BroadcastReceiver() {
@@ -223,29 +215,26 @@ public class HomeFragment extends Fragment implements
         operationCostView = (TextView) view.findViewById(R.id.operation_cost);
 
         //Trade listener, once "Buy" or "Sell" clicked, send the order to server
-        View.OnClickListener tradeListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String tradeAmount = tradeAmountView.getText().toString();
-                String tradeCurrency = tradeCurrencyView.getSelectedItem().toString();
-                String tradePrice = tradePriceView.getText().toString();
-                String tradePriceCurrency = tradePriceCurrencyView.getSelectedItem().toString();
+        View.OnClickListener tradeListener = v -> {
+            String tradeAmount = tradeAmountView.getText().toString();
+            String tradeCurrency = tradeCurrencyView.getSelectedItem().toString();
+            String tradePrice = tradePriceView.getText().toString();
+            String tradePriceCurrency = tradePriceCurrencyView.getSelectedItem().toString();
 
-                if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
-                        || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
-                    new AlertDialog.Builder(getActivity())
-                            .setMessage(getString(R.string.missing_mandatory_fields_error))
-                            .setPositiveButton(android.R.string.ok, null)
-                            .show();
-                    return;
-                }
-
-                tradeRequest = new TradeRequest(
-                        (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
-                        tradeAmount, tradeCurrency,
-                        tradePrice, tradePriceCurrency);
-                showTradeRequestDialog(tradeRequest);
+            if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
+                    || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
+                new AlertDialog.Builder(getActivity())
+                        .setMessage(getString(R.string.missing_mandatory_fields_error))
+                        .setPositiveButton(android.R.string.ok, null)
+                        .show();
+                return;
             }
+
+            tradeRequest = new TradeRequest(
+                    (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
+                    tradeAmount, tradeCurrency,
+                    tradePrice, tradePriceCurrency);
+            showTradeRequestDialog(tradeRequest);
         };
 
         view.findViewById(R.id.SellButton).setOnClickListener(tradeListener);
@@ -253,12 +242,7 @@ public class HomeFragment extends Fragment implements
 
         Button updateAccountInfoButton = (Button) view.findViewById(R.id.UpdateAccountInfoButton);
 
-        updateAccountInfoButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new UpdateFundsTask().execute();
-            }
-        });
+        updateAccountInfoButton.setOnClickListener(v -> new UpdateFundsTask().execute());
 
         if (savedInstanceState != null && savedInstanceState.containsKey(TRADE_REQUEST_KEY)) {
             tradeRequest = savedInstanceState.getParcelable(TRADE_REQUEST_KEY);
@@ -331,19 +315,9 @@ public class HomeFragment extends Fragment implements
         new AlertDialog.Builder(getActivity())
                 .setMessage(createTradeRequestDialogMessage(request))
                 .setCancelable(false)
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialog) {
-                        tradeRequest = null;
-                    }
-                })
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        new RegisterTradeRequestTask()
-                                .execute(tradeRequest);
-                    }
-                })
+                .setOnDismissListener(dialog -> tradeRequest = null)
+                .setPositiveButton(android.R.string.yes,
+                        (dialog, which) -> new RegisterTradeRequestTask().execute(tradeRequest))
                 .setNegativeButton(android.R.string.no, null)
                 .show();
     }
@@ -439,15 +413,12 @@ public class HomeFragment extends Fragment implements
                         .setTitle(this.getString(R.string.SelectPairsPromptTitle))
                         .setView(listView)
                         .setNeutralButton(R.string.DialogSaveButton,
-                                new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        pairsCheckboxAdapter.saveValuesToPreferences();
-                                        updateStorageWithTickers();
-                                        refreshDashboardAdapter();
-                                        getActivity().startService(new Intent(getActivity(),
-                                                CheckTickersService.class));
-                                    }
+                                (dialog, which) -> {
+                                    pairsCheckboxAdapter.saveValuesToPreferences();
+                                    updateStorageWithTickers();
+                                    refreshDashboardAdapter();
+                                    getActivity().startService(new Intent(getActivity(),
+                                            CheckTickersService.class));
                                 }
                         )
                         .show();
@@ -540,12 +511,7 @@ public class HomeFragment extends Fragment implements
                 amountView.setText(amount);
                 amountView.setLayoutParams(layoutParams);
                 amountView.setGravity(Gravity.CENTER);
-                amountView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        goToTrading(amount, currency, null, null);
-                    }
-                });
+                amountView.setOnClickListener(v -> goToTrading(amount, currency, null, null));
 
                 row.addView(currencyView);
                 row.addView(amountView);
@@ -626,12 +592,7 @@ public class HomeFragment extends Fragment implements
      * @param price Price
      */
     public void addShowTradingTask(@NonNull final String pair, @NonNull final BigDecimal price) {
-        pendingTasks.add(new Runnable() {
-            @Override
-            public void run() {
-                onPriceClicked(pair, price);
-            }
-        });
+        pendingTasks.add(() -> onPriceClicked(pair, price));
     }
 
     /**

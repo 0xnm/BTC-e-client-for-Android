@@ -20,7 +20,6 @@ package com.QuarkLabs.BTCeClient.ui.settings;
 
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -85,15 +84,12 @@ public class SettingsFragment extends PreferenceFragment
                             findCheckPeriodText()));
         }
         findPreference(getString(R.string.settings_key_sync_exchange_pairs))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        isExchangeSyncOngoing = true;
-                        showExchangeOngoingProgressDialog();
-                        getLoaderManager().restartLoader(
-                                EXCHANGE_INFO_LOADER_ID, null, SettingsFragment.this);
-                        return true;
-                    }
+                .setOnPreferenceClickListener(preference -> {
+                    isExchangeSyncOngoing = true;
+                    showExchangeOngoingProgressDialog();
+                    getLoaderManager().restartLoader(
+                            EXCHANGE_INFO_LOADER_ID, null, SettingsFragment.this);
+                    return true;
                 });
 
         final EditTextPreference exchangeUrlPreference = (EditTextPreference) findPreference(
@@ -101,17 +97,14 @@ public class SettingsFragment extends PreferenceFragment
         exchangeUrlPreference.setSummary(appPreferences.getExchangeUrl());
 
         exchangeUrlPreference.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        final String newUrl = (String) newValue;
-                        if (!newUrl.startsWith("https://")) {
-                            showNonHttpsWarning(exchangeUrlPreference, newUrl);
-                            return false;
-                        }
-                        exchangeUrlPreference.setSummary(newUrl);
-                        return true;
+                (preference, newValue) -> {
+                    final String newUrl = (String) newValue;
+                    if (!newUrl.startsWith("https://")) {
+                        showNonHttpsWarning(exchangeUrlPreference, newUrl);
+                        return false;
                     }
+                    exchangeUrlPreference.setSummary(newUrl);
+                    return true;
                 });
     }
 
@@ -120,12 +113,9 @@ public class SettingsFragment extends PreferenceFragment
         new AlertDialog.Builder(getActivity())
                 .setMessage(R.string.exchange_url_no_https_warning)
                 .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                preference.setText(newValue);
-                                preference.setSummary(newValue);
-                            }
+                        (dialog, which) -> {
+                            preference.setText(newValue);
+                            preference.setSummary(newValue);
                         })
                 .setNegativeButton(android.R.string.no, null)
                 .show();

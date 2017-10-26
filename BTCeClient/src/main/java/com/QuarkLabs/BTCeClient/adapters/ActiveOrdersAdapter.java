@@ -1,5 +1,6 @@
 package com.QuarkLabs.BTCeClient.adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,7 +18,6 @@ import com.QuarkLabs.BTCeClient.api.ActiveOrder;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -46,6 +46,7 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         return position;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         Context context = parent.getContext();
@@ -66,14 +67,11 @@ public class ActiveOrdersAdapter extends BaseAdapter {
         TextView orderIdView = (TextView) view.findViewById(R.id.ActiveOrderID);
         ImageView removeButton = (ImageView) view.findViewById(R.id.removeOrder);
         removeButton.setTag(order.getId());
-        removeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                final long orderId = (long) v.getTag();
-                if (onCancelOrderClickListener != null) {
-                    onCancelOrderClickListener
-                            .onCancelOrderClicked(orderId);
-                }
+        removeButton.setOnClickListener(v -> {
+            final long orderId = (long) v.getTag();
+            if (onCancelOrderClickListener != null) {
+                onCancelOrderClickListener
+                        .onCancelOrderClicked(orderId);
             }
         });
 
@@ -98,12 +96,8 @@ public class ActiveOrdersAdapter extends BaseAdapter {
     }
 
     public void setActiveOrders(@NonNull List<ActiveOrder> activeOrders) {
-        Collections.sort(activeOrders, new Comparator<ActiveOrder>() {
-            @Override
-            public int compare(ActiveOrder lhs, ActiveOrder rhs) {
-                return (int) (rhs.getCreatedAt() - lhs.getCreatedAt());
-            }
-        });
+        Collections.sort(activeOrders,
+                (lhs, rhs) -> (int) (rhs.getCreatedAt() - lhs.getCreatedAt()));
         this.activeOrders = activeOrders;
         notifyDataSetChanged();
     }

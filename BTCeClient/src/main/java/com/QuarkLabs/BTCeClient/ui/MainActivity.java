@@ -39,8 +39,6 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -64,7 +62,6 @@ import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
-
 
 public class MainActivity extends AppCompatActivity
         implements ActivityCallbacks, MainNavigator {
@@ -127,12 +124,8 @@ public class MainActivity extends AppCompatActivity
         drawerList = (ListView) findViewById(R.id.left_drawer);
         drawerList.setAdapter(new ArrayAdapter<>(this,
                 R.layout.drawer_list_item, drawerListItems));
-        drawerList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                displayItem(position, true);
-            }
-        });
+        drawerList.setOnItemClickListener((parent, view, position, id) ->
+                displayItem(position, true));
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawerLayout != null) {
             drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
@@ -220,21 +213,18 @@ public class MainActivity extends AppCompatActivity
         }
         final Fragment fr = fragment;
         if (fr != null) {
-            displayTask = new Runnable() {
-                @Override
-                public void run() {
-                    FragmentTransaction transaction = fragmentManager.beginTransaction()
-                            .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
-                            .replace(R.id.content_frame, fr);
-                    if (position != 0) {
-                        //name of fragment = position
-                        transaction.addToBackStack(String.valueOf(position));
-                    }
-                    transaction.commit();
-                    setTitle(drawerListItems[position]);
-                    drawerList.setItemChecked(position, true);
-                    drawerList.setSelection(position);
+            displayTask = () -> {
+                FragmentTransaction transaction = fragmentManager.beginTransaction()
+                        .setCustomAnimations(R.animator.fade_in, R.animator.fade_out)
+                        .replace(R.id.content_frame, fr);
+                if (position != 0) {
+                    //name of fragment = position
+                    transaction.addToBackStack(String.valueOf(position));
                 }
+                transaction.commit();
+                setTitle(drawerListItems[position]);
+                drawerList.setItemChecked(position, true);
+                drawerList.setSelection(position);
             };
             if (fromDrawer) {
                 //delay in msecs
@@ -269,6 +259,7 @@ public class MainActivity extends AppCompatActivity
     public void setRecurringAlarm(long msecs) {
         PendingIntent pendingIntent = pendingIntentForRecurringCheck();
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        //noinspection ConstantConditions
         alarmManager.cancel(pendingIntent);
         alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP,
                 System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(5), msecs, pendingIntent);
@@ -305,6 +296,7 @@ public class MainActivity extends AppCompatActivity
         mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
         NotificationManager mNotificationManager =
                 (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        //noinspection ConstantConditions
         mNotificationManager.notify(id, mBuilder.build());
     }
 
@@ -322,6 +314,7 @@ public class MainActivity extends AppCompatActivity
                 setRecurringAlarm(Integer.parseInt(periodMillis));
             } else {
                 AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+                //noinspection ConstantConditions
                 alarmManager.cancel(pendingIntentForRecurringCheck());
             }
         }

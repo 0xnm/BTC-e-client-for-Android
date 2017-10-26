@@ -80,14 +80,12 @@ public class OrdersBookFragment extends Fragment
     private boolean isFragmentOpenedFirstTime = true;
     private int spinnerPosition = -1;
 
-    private AppPreferences appPreferences;
-
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         AppCompatActivity hostActivity = (AppCompatActivity) getActivity();
 
-        appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
+        AppPreferences appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         Context themedContext = hostActivity.getSupportActionBar()
                 .getThemedContext();
         pairsSpinner = (Spinner) LayoutInflater.from(themedContext)
@@ -213,32 +211,29 @@ public class OrdersBookFragment extends Fragment
             chartView.addArea().getSeries().add(asksSeries);
             chartView.getAreas().get(0).getSeries().add(bidsSeries);
 
-            Axis.ILabelFormatProvider provider = new Axis.ILabelFormatProvider() {
-                @Override
-                public String getAxisLabel(Axis axis, double v) {
-                    int index = bidsSeries.convertToArrayIndex(v);
-                    if (index < 0) {
-                        index = 0;
-                    }
-                    if (index >= 0) {
-                        if (index >= bidsSeries.getPointCount()) {
-                            index = asksSeries.convertToArrayIndex(v);
-                            if (index < 0) {
-                                index = 0;
-                            }
-                            if (index >= 0) {
-                                if (index >= asksSeries.getPointCount()) {
-                                    index = asksSeries.getPointCount() - 1;
-                                }
-                            }
-                            return asks.get(index).getPrice().toPlainString();
-                        }
-                        return bids.get(bidsSeries.getPointCount() - 1 - index)
-                                .getPrice().toPlainString();
-                    }
-                    return null;
-
+            Axis.ILabelFormatProvider provider = (axis, v) -> {
+                int index = bidsSeries.convertToArrayIndex(v);
+                if (index < 0) {
+                    index = 0;
                 }
+                if (index >= 0) {
+                    if (index >= bidsSeries.getPointCount()) {
+                        index = asksSeries.convertToArrayIndex(v);
+                        if (index < 0) {
+                            index = 0;
+                        }
+                        if (index >= 0) {
+                            if (index >= asksSeries.getPointCount()) {
+                                index = asksSeries.getPointCount() - 1;
+                            }
+                        }
+                        return asks.get(index).getPrice().toPlainString();
+                    }
+                    return bids.get(bidsSeries.getPointCount() - 1 - index)
+                            .getPrice().toPlainString();
+                }
+                return null;
+
             };
             chartView.getAreas().get(0).getBottomAxis().setLabelFormatProvider(provider);
 

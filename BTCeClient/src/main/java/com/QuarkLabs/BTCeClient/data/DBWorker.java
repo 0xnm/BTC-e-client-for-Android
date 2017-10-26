@@ -107,7 +107,6 @@ public final class DBWorker extends SQLiteOpenHelper {
         }
     }
 
-
     public long insertToWidgetData(ContentValues contentValues) {
         synchronized (this) {
             SQLiteDatabase db = getWritableDatabase();

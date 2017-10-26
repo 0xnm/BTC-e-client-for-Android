@@ -25,22 +25,19 @@ public final class PairUtils {
      * Sorts in the following order: first pairs/currencies with normal tickers in alphabetical
      * order, then pairs/currencies with tokens
      */
-    public static final Comparator<String> CURRENCY_COMPARATOR = new Comparator<String>() {
-        @Override
-        public int compare(String lhs, String rhs) {
-            int result;
-            if (lhs == null) {
-                result = -1;
-            } else if (rhs == null) {
-                result = 1;
-            } else if (lhs.length() == rhs.length()) {
-                result = lhs.compareTo(rhs);
-            } else {
-                result = lhs.length() - rhs.length();
-            }
-
-            return result;
+    public static final Comparator<String> CURRENCY_COMPARATOR = (lhs, rhs) -> {
+        int result;
+        if (lhs == null) {
+            result = -1;
+        } else if (rhs == null) {
+            result = 1;
+        } else if (lhs.length() == rhs.length()) {
+            result = lhs.compareTo(rhs);
+        } else {
+            result = lhs.length() - rhs.length();
         }
+
+        return result;
     };
 
     private PairUtils() {

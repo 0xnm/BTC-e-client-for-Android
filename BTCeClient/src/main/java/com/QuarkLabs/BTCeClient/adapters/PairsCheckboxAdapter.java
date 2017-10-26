@@ -106,7 +106,7 @@ public class PairsCheckboxAdapter extends BaseAdapter {
         }
     }
 
-    public static boolean isToken(@NonNull String pair) {
+    private static boolean isToken(@NonNull String pair) {
         // yep, so dumb
         return pair.split("/")[0].length() == 5;
     }
@@ -162,15 +162,12 @@ public class PairsCheckboxAdapter extends BaseAdapter {
                     .inflate(R.layout.view_pair_checkbox, parent, false);
             viewHolder = new ViewHolder();
             viewHolder.checkBox = (CheckBox) convertView;
-            viewHolder.checkBox.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    CheckBox checkBox = (CheckBox) v;
-                    if (checkBox.isChecked()) {
-                        selectedPairs.add(checkBox.getText().toString());
-                    } else {
-                        selectedPairs.remove(checkBox.getText().toString());
-                    }
+            viewHolder.checkBox.setOnClickListener(v -> {
+                CheckBox checkBox = (CheckBox) v;
+                if (checkBox.isChecked()) {
+                    selectedPairs.add(checkBox.getText().toString());
+                } else {
+                    selectedPairs.remove(checkBox.getText().toString());
                 }
             });
             convertView.setTag(viewHolder);

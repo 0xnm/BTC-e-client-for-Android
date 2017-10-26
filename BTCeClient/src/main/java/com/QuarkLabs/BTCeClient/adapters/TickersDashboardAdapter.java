@@ -24,7 +24,6 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -188,12 +187,8 @@ public class TickersDashboardAdapter extends BaseAdapter implements View.OnClick
     public void update(@NonNull Collection<Ticker> newTickers) {
         tickers.clear();
         tickers.addAll(newTickers);
-        Collections.sort(tickers, new Comparator<Ticker>() {
-            @Override
-            public int compare(Ticker lhs, Ticker rhs) {
-                return PairUtils.CURRENCY_COMPARATOR.compare(lhs.getPair(), rhs.getPair());
-            }
-        });
+        Collections.sort(tickers,
+                (lhs, rhs) -> PairUtils.CURRENCY_COMPARATOR.compare(lhs.getPair(), rhs.getPair()));
         notifyDataSetChanged();
     }
 

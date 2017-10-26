@@ -85,7 +85,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     public List<String> getChartsToDisplay() {
         Set<String> supportedPairs = getExchangePairsInternal();
         Set<String> chartsToDisplay = preferences
-                .getStringSet(KEY_CHARTS_TO_DISPLAY, new HashSet<String>());
+                .getStringSet(KEY_CHARTS_TO_DISPLAY, new HashSet<>());
 
         List<String> supportedChartsToDisplay = new ArrayList<>();
 
@@ -116,7 +116,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     public List<String> getPairsToDisplay() {
         Set<String> supportedPairs = getExchangePairsInternal();
         Set<String> pairsToDisplay = preferences
-                .getStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<String>());
+                .getStringSet(KEY_PAIRS_TO_DISPLAY, new HashSet<>());
 
         List<String> supportedPairsToDisplay = new ArrayList<>();
 
@@ -165,7 +165,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
 
     @NonNull
     private Set<String> getExchangePairsInternal() {
-        return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<String>());
+        return preferences.getStringSet(KEY_EXCHANGE_PAIRS, new HashSet<>());
     }
 
     @NonNull
