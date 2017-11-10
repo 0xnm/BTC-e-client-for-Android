@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.WexLocale;
+import com.QuarkLabs.BTCeClient.utils.SecurityManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +28,7 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private final String keyExchangeUrl;
     private final String keyLinkifyChat;
     private final String keyDontShowZeroFunds;
+    private final String keyPinProtection;
 
     private final String defaultExchangeUrl;
 
@@ -38,10 +40,15 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
     private static final String KEY_EXCHANGE_PAIRS = "EXCHANGE_PAIRS";
     private static final String KEY_CHAT_LOCALE = "CHAT_LOCALE";
 
+    private static final String PIN = "PIN";
+    private static final String PIN_ATTEMPTS = "PIN_ATTEMPTS";
+
     private final Set<Listener> listeners = Collections.synchronizedSet(new HashSet<Listener>());
 
     @NonNull
     private final SharedPreferences preferences;
+    @NonNull
+    private final SecurityManager securityManager;
 
     public AppPreferences(@NonNull Context context) {
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -53,6 +60,9 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         keyExchangeUrl = context.getString(R.string.settings_key_exchange_url);
         keyLinkifyChat = context.getString(R.string.settings_key_linkify_chat);
         keyDontShowZeroFunds = context.getString(R.string.settings_key_dont_show_zero_funds);
+        keyPinProtection = context.getString(R.string.settings_key_enable_pin);
+
+        securityManager = SecurityManager.getInstance(context);
 
         defaultExchangeUrl = context.getString(R.string.settings_exchange_url_default);
     }
@@ -231,6 +241,33 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
 
     public boolean isDontShowZeroFunds() {
         return preferences.getBoolean(keyDontShowZeroFunds, false);
+    }
+
+    public boolean isPinProtectionEnabled() {
+        return preferences.getBoolean(keyPinProtection, false);
+    }
+
+    public void setPinProtectionEnabled(boolean isEnabled) {
+        preferences.edit().putBoolean(keyPinProtection, isEnabled).apply();
+    }
+
+    @NonNull
+    public String getPin() {
+        String pin = preferences.getString(PIN, "");
+        return "".equals(pin) ? "" : securityManager.decryptString(pin);
+    }
+
+    public void setPin(@NonNull String pin) {
+        preferences.edit().putString(PIN,
+                "".equals(pin) ? pin : securityManager.encryptString(pin)).apply();
+    }
+
+    public int getPinAttempts() {
+        return preferences.getInt(PIN_ATTEMPTS, 0);
+    }
+
+    public void setPinAttempts(int attempts) {
+        preferences.edit().putInt(PIN_ATTEMPTS, attempts).apply();
     }
 
     public static abstract class Listener {

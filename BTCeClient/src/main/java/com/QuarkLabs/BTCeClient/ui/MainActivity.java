@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -39,14 +40,16 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.AppRater;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ui.history.ListType;
-import com.QuarkLabs.BTCeClient.MainNavigator;
+import com.QuarkLabs.BTCeClient.MainHost;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.ui.activeorders.ActiveOrdersFragment;
 import com.QuarkLabs.BTCeClient.ui.charts.ChartsFragment;
@@ -59,12 +62,18 @@ import com.QuarkLabs.BTCeClient.ui.settings.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
+import com.andrognito.pinlockview.IndicatorDots;
+import com.andrognito.pinlockview.PinLockListener;
+import com.andrognito.pinlockview.PinLockView;
 
 import java.math.BigDecimal;
 import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity
-        implements ActivityCallbacks, MainNavigator {
+        implements ActivityCallbacks, MainHost {
+
+    private static final String SHOULD_SHOW_PIN_VIEW_KEY = "SHOULD_SHOW_PIN_VIEW";
+    private static final int PIN_MAX_ATTEMPTS = 5;
 
     private boolean isAlarmSet;
 
@@ -79,23 +88,18 @@ public class MainActivity extends AppCompatActivity
     private String[] drawerListItems;
     private final Handler uiHandler = new Handler();
 
+    private PinLockView pinLockView;
+    private View pinContainer;
+    private TextView pinTitleView;
+
     @Nullable
     private Runnable displayTask;
 
     private AppPreferences appPreferences;
     private final PreferencesListener preferencesListener = new PreferencesListener();
+    private boolean inPinSetupMode;
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        displayItem(0, false);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        uiHandler.removeCallbacks(displayTask);
-    }
+    private boolean shouldShowPinView;
 
     /**
      * Called when the activity is first created.
@@ -103,7 +107,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main);
+        setContentView(R.layout.activity_main);
 
         appPreferences = BtcEApplication.get(this).getAppPreferences();
         AppRater.trackAppLaunch(this);
@@ -138,8 +142,17 @@ public class MainActivity extends AppCompatActivity
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
+        pinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
+        pinContainer = findViewById(R.id.pin_container);
+        pinTitleView = (TextView) findViewById(R.id.pin_title);
+
+        pinLockView.attachIndicatorDots((IndicatorDots) findViewById(R.id.indicator_dots));
+
         if (savedInstanceState == null) {
             displayItem(0, false);
+            shouldShowPinView = appPreferences.isPinProtectionEnabled();
+        } else {
+            shouldShowPinView = savedInstanceState.getBoolean(SHOULD_SHOW_PIN_VIEW_KEY);
         }
     }
 
@@ -160,8 +173,68 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        displayItem(0, false);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (shouldShowPinView) {
+            int attempts = appPreferences.getPinAttempts();
+            showPinView(attempts == PIN_MAX_ATTEMPTS ? R.string.pin_max_attempts
+                    : R.string.enter_pin, new PinLockListener() {
+                @Override
+                public void onComplete(String pin) {
+                    if (pin.equals(appPreferences.getPin())
+                            && appPreferences.getPinAttempts() != PIN_MAX_ATTEMPTS) {
+                        appPreferences.setPinAttempts(0);
+                        hidePinView();
+                    } else {
+                        pinLockView.resetPinLockView();
+                        if (appPreferences.getPinAttempts() == PIN_MAX_ATTEMPTS) {
+                            pinTitleView.setText(R.string.pin_max_attempts);
+                        } else {
+                            appPreferences.setPinAttempts(appPreferences.getPinAttempts() + 1);
+                        }
+                    }
+                }
+
+                @Override
+                public void onEmpty() {
+                    // not interested
+                }
+
+                @Override
+                public void onPinChange(int pinLength, String intermediatePin) {
+                    // not interested
+                }
+            });
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        uiHandler.removeCallbacks(displayTask);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (isChangingConfigurations()) {
+            shouldShowPinView = pinContainer.getVisibility()
+                    == View.VISIBLE && appPreferences.isPinProtectionEnabled();
+        } else {
+            shouldShowPinView = appPreferences.isPinProtectionEnabled();
+        }
+        outState.putBoolean(SHOULD_SHOW_PIN_VIEW_KEY, shouldShowPinView);
+    }
+
+    @Override
     protected void onDestroy() {
-        appPreferences.addListener(preferencesListener);
+        appPreferences.removeListener(preferencesListener);
         super.onDestroy();
     }
 
@@ -241,6 +314,26 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
+    public void setupPinView(@NonNull PinLockListener listener) {
+        inPinSetupMode = true;
+        showPinView(R.string.enter_pin, listener);
+    }
+
+    @Override
+    public void hidePinView() {
+        inPinSetupMode = false;
+        pinContainer.setVisibility(View.GONE);
+        pinLockView.setPinLockListener(null);
+        pinLockView.resetPinLockView();
+    }
+
+    public void showPinView(@StringRes int titleId, @Nullable PinLockListener listener) {
+        pinTitleView.setText(titleId);
+        pinContainer.setVisibility(View.VISIBLE);
+        pinLockView.setPinLockListener(listener);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Pass the event to ActionBarDrawerToggle, if it returns
         // true, then it has handled the app icon touch event
@@ -256,7 +349,7 @@ public class MainActivity extends AppCompatActivity
      *
      * @param msecs Checking period
      */
-    public void setRecurringAlarm(long msecs) {
+    private void setRecurringAlarm(long msecs) {
         PendingIntent pendingIntent = pendingIntentForRecurringCheck();
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         //noinspection ConstantConditions
@@ -273,16 +366,27 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        int switchToPosition = 0;
         FragmentManager fm = getFragmentManager();
-        if (fm.getBackStackEntryCount() != 0) {
-            String stackName = fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1).getName();
-            switchToPosition = Integer.parseInt(stackName);
+        if (inPinSetupMode) {
+            hidePinView();
+            Fragment currentFragment = fm.findFragmentById(R.id.content_frame);
+            if (currentFragment instanceof SettingsFragment) {
+                ((SettingsFragment) currentFragment).disablePinSetupMode();
+            }
+        } else if (pinContainer.getVisibility() == View.VISIBLE) {
+            finish();
+        } else {
+            super.onBackPressed();
+            int switchToPosition = 0;
+            if (fm.getBackStackEntryCount() != 0) {
+                String stackName = fm.getBackStackEntryAt(fm.getBackStackEntryCount() - 1)
+                        .getName();
+                switchToPosition = Integer.parseInt(stackName);
+            }
+            drawerList.setItemChecked(switchToPosition, true);
+            drawerList.setSelection(switchToPosition);
+            setTitle(drawerListItems[switchToPosition]);
         }
-        drawerList.setItemChecked(switchToPosition, true);
-        drawerList.setSelection(switchToPosition);
-        setTitle(drawerListItems[switchToPosition]);
     }
 
     @Override

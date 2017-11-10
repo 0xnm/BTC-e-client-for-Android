@@ -51,7 +51,7 @@ import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
-import com.QuarkLabs.BTCeClient.MainNavigator;
+import com.QuarkLabs.BTCeClient.MainHost;
 import com.QuarkLabs.BTCeClient.utils.PageDownloader;
 import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
@@ -98,7 +98,7 @@ public class ChartsFragment extends Fragment {
     private AlertDialog chartsDialog;
     private AppPreferences appPreferences;
 
-    private MainNavigator mainNavigator;
+    private MainHost mainHost;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -111,7 +111,7 @@ public class ChartsFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
-        mainNavigator = (MainNavigator) getActivity();
+        mainHost = (MainHost) getActivity();
         setHasOptionsMenu(true);
         appPreferences = BtcEApplication.get(getActivity()).getAppPreferences();
         boolean useOldCharts = BtcEApplication.get(getActivity())
@@ -167,7 +167,7 @@ public class ChartsFragment extends Fragment {
         }
         chartsDelegate.onDestroyView();
         chartsDelegate = null;
-        mainNavigator = null;
+        mainHost = null;
     }
 
     /**
@@ -347,7 +347,7 @@ public class ChartsFragment extends Fragment {
             if (data.last != null) {
                 tradeButton.setEnabled(true);
                 tradeButton.setOnClickListener(v ->
-                        mainNavigator.openTradingSection(pair, new BigDecimal(data.last)));
+                        mainHost.openTradingSection(pair, new BigDecimal(data.last)));
                 namePriceView.setText(String.format("%s: %s", pair, data.last));
             } else {
                 tradeButton.setEnabled(false);

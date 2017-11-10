@@ -53,6 +53,10 @@
             android:key="@string/settings_key_dont_show_zero_funds"
             android:summary="@string/settings_dont_show_zero_funds_summary"
             android:title="@string/settings_dont_show_zero_funds_title" />
+        <CheckBoxPreference
+            android:key="@string/settings_key_enable_pin"
+            android:defaultValue="false"
+            android:title="@string/settings_pin_protection_title" />
     </PreferenceCategory>
     <!--<PreferenceCategory
         android:key="charts"

@@ -164,6 +164,7 @@
     <string name="settings_other_section">Прочее</string>
     <string name="settings_dont_show_zero_funds_title">Не показывать нулевой баланс</string>
     <string name="settings_dont_show_zero_funds_summary">Не показывать нулевой баланс в разделе Мои средства</string>
+    <string name="settings_pin_protection_title">PIN защита</string>
 
     <string name="exchange_url_no_https_warning">Новое значение не имеет протокола "https://". Вы хотите продолжить?</string>
     <string name="chat_loading_error">Не удалось загрузить чат</string>
@@ -182,4 +183,8 @@
     <string name="charts_price_label">Цена</string>
     <string name="charts_volume_label">Объём</string>
     <string name="zero_balance">Нулевой баланс</string>
+
+    <string name="enter_pin">Введите PIN</string>
+    <string name="pin_max_attempts">Достигнуто максимальное количество попыток</string>
+    <string name="pin_setup_warning">Если вы превысите максимальное количество попыток, единственным способом вернуться в приложение будет удалить данные приложения (Настройки > Приложения > WEX client > Данные > Стереть данные)</string>
 </resources>

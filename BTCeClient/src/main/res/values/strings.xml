@@ -207,6 +207,7 @@
     <string name="settings_other_section">Other</string>
     <string name="settings_dont_show_zero_funds_title">Don\'t show zero funds</string>
     <string name="settings_dont_show_zero_funds_summary">Don\'t show zero balances in the My Funds section</string>
+    <string name="settings_pin_protection_title">PIN protection</string>
 
     <string name="exchange_url_no_https_warning">New value doesn\'t have "https://" protocol specified. Do you want to proceed?</string>
     <string name="language">Language</string>
@@ -234,6 +235,11 @@
     <string name="settings_key_exchange_url" translatable="false">exchange_url</string>
     <string name="settings_key_linkify_chat" translatable="false">linkify_chat</string>
     <string name="settings_key_dont_show_zero_funds" translatable="false">dont_show_zero_funds</string>
+    <string name="settings_key_enable_pin" translatable="false">enable_pin</string>
     <string name="trade_button_label">Trade</string>
     <string name="zero_balance">Zero balance</string>
+
+    <string name="enter_pin">Enter PIN</string>
+    <string name="pin_max_attempts">Max attempts reached</string>
+    <string name="pin_setup_warning">If you exceed maximum number of attempts, the only way to go back to the app will be to erase app data (Settings > Apps > WEX client > Storage > Clear app data)</string>
 </resources>
