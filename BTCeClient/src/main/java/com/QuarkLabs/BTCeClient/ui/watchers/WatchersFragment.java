@@ -21,7 +21,6 @@ package com.QuarkLabs.BTCeClient.ui.watchers;
 import android.annotation.SuppressLint;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -91,13 +90,10 @@ public class WatchersFragment extends Fragment {
                 final int id = cursor.getInt(cursor.getColumnIndex("_id"));
 
                 ImageView remove = (ImageView) view.findViewById(R.id.removeNotifier);
-                remove.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        mDbWorker.removeNotifier(id);
-                        mCursor = mDbWorker.getNotifiers();
-                        mCursorAdapter.swapCursor(mCursor);
-                    }
+                remove.setOnClickListener(v -> {
+                    mDbWorker.removeNotifier(id);
+                    mCursor = mDbWorker.getNotifiers();
+                    mCursorAdapter.swapCursor(mCursor);
                 });
 
                 @Watcher int watcherType = cursor.getInt(
@@ -217,12 +213,7 @@ public class WatchersFragment extends Fragment {
                 .setView(dialogContentView)
                 .setNeutralButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.DialogSaveButton,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                saveWatcher((AlertDialog) dialog);
-                            }
-                        }
+                        (dialog, which) -> saveWatcher((AlertDialog) dialog)
                 ).show();
     }
 

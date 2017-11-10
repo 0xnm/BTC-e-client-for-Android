@@ -22,7 +22,6 @@ import android.app.Fragment;
 import android.app.LoaderManager;
 import android.app.NotificationManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.media.RingtoneManager;
 import android.os.Bundle;
@@ -122,14 +121,11 @@ public class ActiveOrdersFragment extends Fragment
     @Override
     public void onCancelOrderClicked(final long orderId) {
         cancelOrderDialog = new AlertDialog.Builder(getActivity())
-                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        //TODO handle cancellation
-                        new CancelActiveOrderTask(
-                                BtcEApplication.get(getActivity()).getApi(),
-                                ActiveOrdersFragment.this).execute(orderId);
-                    }
+                .setPositiveButton(android.R.string.yes, (dialog, which) -> {
+                    //TODO handle cancellation
+                    new CancelActiveOrderTask(
+                            BtcEApplication.get(getActivity()).getApi(),
+                            ActiveOrdersFragment.this).execute(orderId);
                 })
                 .setNegativeButton(android.R.string.no, null)
                 .setMessage(getString(R.string.order_delete_question, orderId))

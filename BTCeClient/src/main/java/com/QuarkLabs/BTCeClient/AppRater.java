@@ -84,38 +84,24 @@ public final class AppRater {
                 .setTitle(context.getString(R.string.apprate_title, appName))
                 .setMessage(context.getString(R.string.apprate_text, appName))
                 .setPositiveButton(R.string.apprate_rate_action,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                openPlayStorePage(context);
-                                dialog.dismiss();
-                            }
+                        (dg, which) -> {
+                            openPlayStorePage(context);
+                            dg.dismiss();
                         })
                 .setNeutralButton(R.string.apprate_remind_later_button,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                editor.clear().commit();
-                                dialog.dismiss();
-                            }
+                        (dg, which) -> {
+                            editor.clear().commit();
+                            dg.dismiss();
                         })
                 .setNegativeButton(R.string.apprate_dont_show_again_button,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                editor.putBoolean(DONT_SHOW_AGAIN_KEY, true);
-                                editor.commit();
-                                dialog.dismiss();
-                            }
+                        (dg, which) -> {
+                            editor.putBoolean(DONT_SHOW_AGAIN_KEY, true);
+                            editor.commit();
+                            dg.dismiss();
                         })
                 .create();
-        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-            @Override
-            public void onShow(DialogInterface dif) {
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE)
-                        .setTextColor(ColorStateList.valueOf(Color.BLUE));
-            }
-        });
+        dialog.setOnShowListener(dif -> dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+                .setTextColor(ColorStateList.valueOf(Color.BLUE)));
         dialog.show();
     }
 

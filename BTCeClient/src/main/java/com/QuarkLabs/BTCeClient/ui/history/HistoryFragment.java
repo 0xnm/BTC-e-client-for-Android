@@ -14,7 +14,6 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ProgressBar;
@@ -141,31 +140,18 @@ public class HistoryFragment extends Fragment {
         endDate.setText(dateFormat.format(endDateValue));
         Button queryButton = (Button) view.findViewById(R.id.MakeQueryButton);
 
-        startDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePicker(startDate);
-            }
-        });
-        endDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showDatePicker(endDate);
-            }
-        });
+        startDate.setOnClickListener(v -> showDatePicker(startDate));
+        endDate.setOnClickListener(v -> showDatePicker(endDate));
 
-        queryButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Bundle bundle = new Bundle();
-                bundle.putString(START_DATE_KEY, String.valueOf(startDateValue.getTime() / 1000));
-                bundle.putString(END_DATE_KEY, String.valueOf(endDateValue.getTime() / 1000));
-                getLoaderManager().restartLoader(mLoaderId, bundle, loaderCallbacks);
-                historyView.setAdapter(null);
-                errorView.setVisibility(View.GONE);
-                historyView.setEmptyView(loadingView);
+        queryButton.setOnClickListener(v -> {
+            Bundle bundle = new Bundle();
+            bundle.putString(START_DATE_KEY, String.valueOf(startDateValue.getTime() / 1000));
+            bundle.putString(END_DATE_KEY, String.valueOf(endDateValue.getTime() / 1000));
+            getLoaderManager().restartLoader(mLoaderId, bundle, loaderCallbacks);
+            historyView.setAdapter(null);
+            errorView.setVisibility(View.GONE);
+            historyView.setEmptyView(loadingView);
 
-            }
         });
 
         loadingView = (ProgressBar) view.findViewById(R.id.Loading);
@@ -192,22 +178,18 @@ public class HistoryFragment extends Fragment {
         }
 
         DatePickerDialog datePickerDialog = new DatePickerDialog(getActivity(),
-                new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                          int dayOfMonth) {
-                        Calendar calendar = Calendar.getInstance();
-                        if (origin.getId() == R.id.StartDateValue) {
-                            calendar.setTime(startDateValue);
-                            calendar.set(year, monthOfYear, dayOfMonth, 0, 0, 0);
-                            startDateValue = calendar.getTime();
-                        } else {
-                            calendar.setTime(endDateValue);
-                            calendar.set(year, monthOfYear, dayOfMonth, 23, 59, 59);
-                            endDateValue = calendar.getTime();
-                        }
-                        origin.setText(dateFormat.format(calendar.getTime()));
+                (view, year1, monthOfYear, dayOfMonth) -> {
+                    Calendar calendar = Calendar.getInstance();
+                    if (origin.getId() == R.id.StartDateValue) {
+                        calendar.setTime(startDateValue);
+                        calendar.set(year1, monthOfYear, dayOfMonth, 0, 0, 0);
+                        startDateValue = calendar.getTime();
+                    } else {
+                        calendar.setTime(endDateValue);
+                        calendar.set(year1, monthOfYear, dayOfMonth, 23, 59, 59);
+                        endDateValue = calendar.getTime();
                     }
+                    origin.setText(dateFormat.format(calendar.getTime()));
                 }, year, month, day
         );
 

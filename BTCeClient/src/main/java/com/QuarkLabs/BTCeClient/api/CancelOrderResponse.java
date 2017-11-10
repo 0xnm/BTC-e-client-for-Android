@@ -12,14 +12,12 @@ import java.util.Set;
 
 public final class CancelOrderResponse {
 
-    @NonNull
     private long orderId;
     @NonNull
     private Map<String, BigDecimal> funds;
 
     private CancelOrderResponse() { }
 
-    @NonNull
     public long getOrderId() {
         return orderId;
     }

@@ -93,6 +93,7 @@ public class CheckTickersService extends IntentService {
 
         List<Ticker> tickers = result.getPayload();
 
+        //noinspection ConstantConditions
         List<NotificationMessage> messages =
                 createNotificationMessages(tickers, inMemoryStorage.getLatestData());
 
@@ -118,6 +119,7 @@ public class CheckTickersService extends IntentService {
                     .setAutoCancel(true)
                     .build();
 
+            //noinspection ConstantConditions
             notificationManager.notify((int) System.currentTimeMillis(), notification);
         }
 
@@ -223,7 +225,7 @@ public class CheckTickersService extends IntentService {
             String pair = watchers.getString(
                     watchers.getColumnIndex(DBWorker.NOTIFIERS_PAIR_COLUMN));
             if (!watchersByPair.containsKey(pair)) {
-                watchersByPair.put(pair, new ArrayList<WatcherDescriptor>());
+                watchersByPair.put(pair, new ArrayList<>());
             }
 
             List<WatcherDescriptor> watchersForPair = watchersByPair.get(pair);

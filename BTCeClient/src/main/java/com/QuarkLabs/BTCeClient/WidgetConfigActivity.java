@@ -24,8 +24,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.RemoteViews;
 
@@ -61,39 +59,36 @@ public class WidgetConfigActivity extends ListActivity {
                 BtcEApplication.get(this).getAppPreferences().getExchangePairs());
         mAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, pairs);
         setListAdapter(mAdapter);
-        getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        getListView().setOnItemClickListener((parent, view, position, id) -> {
 
-                SharedPreferences sharedPreferences = getSharedPreferences("widget" + mAppWidgetId,
-                        Context.MODE_PRIVATE);
-                sharedPreferences.edit()
-                        .putString("pair", mAdapter.getItem(position))
-                        .apply();
-                Map<Integer, String> map = new HashMap<>();
-                map.put(mAppWidgetId, mAdapter.getItem(position));
+            SharedPreferences sharedPreferences = getSharedPreferences("widget" + mAppWidgetId,
+                    Context.MODE_PRIVATE);
+            sharedPreferences.edit()
+                    .putString("pair", mAdapter.getItem(position))
+                    .apply();
+            Map<Integer, String> map = new HashMap<>();
+            map.put(mAppWidgetId, mAdapter.getItem(position));
 
-                AppWidgetManager appWidgetManager
-                        = AppWidgetManager.getInstance(WidgetConfigActivity.this);
-                RemoteViews views = new RemoteViews(getPackageName(), R.layout.appwidget_layout);
-                views.setTextViewText(R.id.widgetPair, mAdapter.getItem(position));
-                SimpleDateFormat df = new SimpleDateFormat(DATE_TIME_PATTERN, Locale.US);
-                Calendar calendar = Calendar.getInstance();
-                views.setTextViewText(R.id.widgetDate, df.format(calendar.getTime()));
+            AppWidgetManager appWidgetManager
+                    = AppWidgetManager.getInstance(WidgetConfigActivity.this);
+            RemoteViews views = new RemoteViews(getPackageName(), R.layout.appwidget_layout);
+            views.setTextViewText(R.id.widgetPair, mAdapter.getItem(position));
+            SimpleDateFormat df = new SimpleDateFormat(DATE_TIME_PATTERN, Locale.US);
+            Calendar calendar = Calendar.getInstance();
+            views.setTextViewText(R.id.widgetDate, df.format(calendar.getTime()));
 
-                appWidgetManager.updateAppWidget(mAppWidgetId, views);
+            appWidgetManager.updateAppWidget(mAppWidgetId, views);
 
-                UpdateWidgetsTask updateWidgetsTask
-                        = new UpdateWidgetsTask(WidgetConfigActivity.this, map);
-                updateWidgetsTask.execute();
+            UpdateWidgetsTask updateWidgetsTask
+                    = new UpdateWidgetsTask(WidgetConfigActivity.this, map);
+            updateWidgetsTask.execute();
 
-                Intent resultValue = new Intent();
-                resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
-                setResult(RESULT_OK, resultValue);
+            Intent resultValue = new Intent();
+            resultValue.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+            setResult(RESULT_OK, resultValue);
 
-                finish();
+            finish();
 
-            }
         });
     }
 }

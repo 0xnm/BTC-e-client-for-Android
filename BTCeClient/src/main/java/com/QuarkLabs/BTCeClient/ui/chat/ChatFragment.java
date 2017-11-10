@@ -2,7 +2,6 @@ package com.QuarkLabs.BTCeClient.ui.chat;
 
 import android.app.Fragment;
 import android.app.LoaderManager;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -155,12 +154,7 @@ public class ChatFragment extends Fragment
         languageDialog = new AlertDialog.Builder(getActivity())
                 .setTitle(R.string.language)
                 .setSingleChoiceItems(choiceItems, checkedItem,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                handleLanguageItemSelection(which);
-                            }
-                        })
+                        (dialog, which) -> handleLanguageItemSelection(which))
                 .show();
     }
 
@@ -183,7 +177,7 @@ public class ChatFragment extends Fragment
         //noinspection ConstantConditions
         if (!selectedItem.equals(currentChatLocale)) {
             BtcEApplication.get(getActivity()).getInMemoryStorage()
-                    .setChatMessages(Collections.<ChatMessage>emptyList());
+                    .setChatMessages(Collections.emptyList());
             appPreferences.setChatLocale(selectedItem);
             showLoading();
             getLoaderManager().restartLoader(0, null, this);
@@ -203,13 +197,10 @@ public class ChatFragment extends Fragment
         errorView.setVisibility(View.GONE);
 
         // yeah, magic number, quick and dirty solution instead of going for data observers
-        chatsView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                if (isVisible() && chatsView != null
-                        && chatAdapter != null && chatAdapter.getItemCount() != 0) {
-                    chatsView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
-                }
+        chatsView.postDelayed(() -> {
+            if (isVisible() && chatsView != null
+                    && chatAdapter != null && chatAdapter.getItemCount() != 0) {
+                chatsView.smoothScrollToPosition(chatAdapter.getItemCount() - 1);
             }
         }, 300);
     }

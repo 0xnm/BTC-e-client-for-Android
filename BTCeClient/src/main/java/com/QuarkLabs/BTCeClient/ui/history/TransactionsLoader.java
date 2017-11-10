@@ -12,7 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transaction>>> {
 
     private CallResult<List<Transaction>> callResult;
@@ -21,7 +20,8 @@ public class TransactionsLoader extends AsyncTaskLoader<CallResult<List<Transact
     @NonNull
     private final String toDate;
 
-    public TransactionsLoader(@NonNull Context context, @NonNull String fromDate,
+    public TransactionsLoader(@NonNull Context context,
+                              @NonNull String fromDate,
                               @NonNull String toDate) {
         super(context);
         this.fromDate = fromDate;

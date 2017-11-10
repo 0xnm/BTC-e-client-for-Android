@@ -1,5 +1,6 @@
 package com.QuarkLabs.BTCeClient.adapters;
 
+import android.annotation.SuppressLint;
 import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +15,6 @@ import com.QuarkLabs.BTCeClient.api.TradeHistoryEntry;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -44,6 +44,7 @@ public class TradesAdapter extends BaseAdapter {
         return position;
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         TradeHistoryEntry trade = (TradeHistoryEntry) getItem(position);
@@ -84,12 +85,7 @@ public class TradesAdapter extends BaseAdapter {
     }
 
     public void setTrades(@NonNull List<TradeHistoryEntry> trades) {
-        Collections.sort(trades, new Comparator<TradeHistoryEntry>() {
-            @Override
-            public int compare(TradeHistoryEntry lhs, TradeHistoryEntry rhs) {
-                return (int) (rhs.getTimestamp() - lhs.getTimestamp());
-            }
-        });
+        Collections.sort(trades, (lhs, rhs) -> (int) (rhs.getTimestamp() - lhs.getTimestamp()));
         this.trades = trades;
         notifyDataSetChanged();
     }

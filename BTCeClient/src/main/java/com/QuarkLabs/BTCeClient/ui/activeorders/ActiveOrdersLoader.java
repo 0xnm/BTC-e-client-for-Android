@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.api.ActiveOrder;
+import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 
 import java.util.List;
@@ -14,16 +15,16 @@ public class ActiveOrdersLoader extends AsyncTaskLoader<CallResult<List<ActiveOr
 
     @Nullable
     private CallResult<List<ActiveOrder>> callResult;
-    private final Context appContext;
+    private final Api api;
 
     public ActiveOrdersLoader(Context context) {
         super(context);
-        appContext = context.getApplicationContext();
+        api = BtcEApplication.get(context).getApi();
     }
 
     @Override
     public CallResult<List<ActiveOrder>> loadInBackground() {
-        callResult = BtcEApplication.get(appContext).getApi().getActiveOrders();
+        callResult = api.getActiveOrders();
         return callResult;
     }
 

@@ -20,9 +20,9 @@ package com.QuarkLabs.BTCeClient.ui.settings;
 
 import android.app.LoaderManager;
 import android.app.ProgressDialog;
-import android.content.DialogInterface;
 import android.content.Loader;
 import android.os.Bundle;
+import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -32,18 +32,21 @@ import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.MainHost;
 import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.ExchangeInfo;
+import com.andrognito.pinlockview.PinLockListener;
 
 public class SettingsFragment extends PreferenceFragment
         implements LoaderManager.LoaderCallbacks<CallResult<ExchangeInfo>> {
 
     private static final int EXCHANGE_INFO_LOADER_ID = 0;
     private static final String IS_EXCHANGE_SYNC_ONGOING_KEY = "IS_EXCHANGE_SYNC_ONGOING";
+    private static final String IS_IN_PIN_SETUP_MODE = "IS_IN_PIN_SETUP_MODE";
 
     private String mDefaultCheckPeriodSummaryText;
     private String[] mCheckPeriodEntries;
@@ -68,6 +71,8 @@ public class SettingsFragment extends PreferenceFragment
             }
         }
     };
+    private MainHost mainHost;
+    private boolean isInPinSetupMode;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -85,34 +90,86 @@ public class SettingsFragment extends PreferenceFragment
                             findCheckPeriodText()));
         }
         findPreference(getString(R.string.settings_key_sync_exchange_pairs))
-                .setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        isExchangeSyncOngoing = true;
-                        showExchangeOngoingProgressDialog();
-                        getLoaderManager().restartLoader(
-                                EXCHANGE_INFO_LOADER_ID, null, SettingsFragment.this);
-                        return true;
-                    }
+                .setOnPreferenceClickListener(preference -> {
+                    isExchangeSyncOngoing = true;
+                    showExchangeOngoingProgressDialog();
+                    getLoaderManager().restartLoader(
+                            EXCHANGE_INFO_LOADER_ID, null, SettingsFragment.this);
+                    return true;
                 });
 
         final EditTextPreference exchangeUrlPreference = (EditTextPreference) findPreference(
                 getString(R.string.settings_key_exchange_url));
         exchangeUrlPreference.setSummary(appPreferences.getExchangeUrl());
 
-        exchangeUrlPreference.setOnPreferenceChangeListener(
-                new Preference.OnPreferenceChangeListener() {
-                    @Override
-                    public boolean onPreferenceChange(Preference preference, Object newValue) {
-                        final String newUrl = (String) newValue;
-                        if (!newUrl.startsWith("https://")) {
-                            showNonHttpsWarning(exchangeUrlPreference, newUrl);
-                            return false;
-                        }
-                        exchangeUrlPreference.setSummary(newUrl);
-                        return true;
-                    }
-                });
+        exchangeUrlPreference.setOnPreferenceChangeListener((preference, newValue) -> {
+            final String newUrl = (String) newValue;
+            if (!newUrl.startsWith("https://")) {
+                showNonHttpsWarning(exchangeUrlPreference, newUrl);
+                return false;
+            }
+            exchangeUrlPreference.setSummary(newUrl);
+            return true;
+        });
+
+        CheckBoxPreference pinPreference = (CheckBoxPreference)
+                findPreference(getString(R.string.settings_key_enable_pin));
+        pinPreference.setChecked(appPreferences.isPinProtectionEnabled());
+        pinPreference.setOnPreferenceChangeListener(((preference, newValue) -> {
+            boolean shouldPersist = false;
+            if (newValue instanceof Boolean && (Boolean) newValue) {
+                setupPin();
+            } else {
+                appPreferences.setPinAttempts(0);
+                appPreferences.setPin("");
+                appPreferences.setPinProtectionEnabled(false);
+                shouldPersist = true;
+            }
+            return shouldPersist;
+        }));
+    }
+
+    private void finishPinSetup(@NonNull String pin) {
+        mainHost.hidePinView();
+        appPreferences.setPin(pin);
+        appPreferences.setPinProtectionEnabled(true);
+        ((CheckBoxPreference) findPreference(getString(R.string.settings_key_enable_pin)))
+                .setChecked(true);
+        new AlertDialog.Builder(getActivity())
+                .setMessage(R.string.pin_setup_warning)
+                .setPositiveButton(android.R.string.ok, null)
+                .show();
+    }
+
+    private void setupPin() {
+        isInPinSetupMode = true;
+        mainHost.setupPinView(new PinLockListener() {
+            @Override
+            public void onComplete(String pin) {
+                isInPinSetupMode = false;
+                finishPinSetup(pin);
+            }
+
+            @Override
+            public void onEmpty() {
+
+            }
+
+            @Override
+            public void onPinChange(int pinLength, String intermediatePin) {
+
+            }
+        });
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        mainHost = (MainHost) getActivity();
+        if (savedInstanceState != null && savedInstanceState.getBoolean(IS_IN_PIN_SETUP_MODE)) {
+            isInPinSetupMode = true;
+            setupPin();
+        }
     }
 
     private void showNonHttpsWarning(@NonNull final EditTextPreference preference,
@@ -120,12 +177,9 @@ public class SettingsFragment extends PreferenceFragment
         new AlertDialog.Builder(getActivity())
                 .setMessage(R.string.exchange_url_no_https_warning)
                 .setPositiveButton(android.R.string.yes,
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                preference.setText(newValue);
-                                preference.setSummary(newValue);
-                            }
+                        (dialog, which) -> {
+                            preference.setText(newValue);
+                            preference.setSummary(newValue);
                         })
                 .setNegativeButton(android.R.string.no, null)
                 .show();
@@ -176,6 +230,7 @@ public class SettingsFragment extends PreferenceFragment
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putBoolean(IS_EXCHANGE_SYNC_ONGOING_KEY, isExchangeSyncOngoing);
+        outState.putBoolean(IS_IN_PIN_SETUP_MODE, isInPinSetupMode);
     }
 
     @Override
@@ -203,5 +258,9 @@ public class SettingsFragment extends PreferenceFragment
     @Override
     public void onLoaderReset(Loader<CallResult<ExchangeInfo>> loader) {
         // do nothing
+    }
+
+    public void disablePinSetupMode() {
+        isInPinSetupMode = false;
     }
 }
