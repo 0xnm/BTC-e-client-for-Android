@@ -187,4 +187,5 @@
     <string name="enter_pin">Введите PIN</string>
     <string name="pin_max_attempts">Достигнуто максимальное количество попыток</string>
     <string name="pin_setup_warning">Если вы превысите максимальное количество попыток, единственным способом вернуться в приложение будет удалить данные приложения (Настройки > Приложения > WEX client > Данные > Стереть данные)</string>
+    <string name="pin_attempts_left">Осталось попыток: %d</string>
 </resources>

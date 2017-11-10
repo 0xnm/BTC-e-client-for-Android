@@ -20,10 +20,10 @@
             android:id="@+id/pin_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:maxLines="2"
+            android:minLines="2"
             android:text="@string/enter_pin"
             android:textAlignment="center"
-            android:minLines="2"
-            android:maxLines="2"
             android:textSize="18sp" />
 
         <com.andrognito.pinlockview.IndicatorDots
@@ -41,10 +41,17 @@
             android:layout_marginTop="16dp"
             app:indicatorType="fillWithAnimation"
             app:keypadButtonSize="72dp"
+            app:keypadDeleteButtonDrawable="@drawable/ic_backspace_black_24dp"
             app:keypadShowDeleteButton="true"
             app:keypadTextColor="@android:color/black"
-            app:keypadTextSize="18dp"
-            app:keypadDeleteButtonDrawable="@drawable/ic_backspace_black_24dp"/>
+            app:keypadTextSize="18dp" />
+
+        <TextView
+            android:id="@+id/pin_attempts_left"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            tools:text="Attempts left: 5"/>
 
     </LinearLayout>
 </merge>

@@ -91,6 +91,7 @@ public class MainActivity extends AppCompatActivity
     private PinLockView pinLockView;
     private View pinContainer;
     private TextView pinTitleView;
+    private TextView pinAttemptsLeftView;
 
     @Nullable
     private Runnable displayTask;
@@ -145,6 +146,7 @@ public class MainActivity extends AppCompatActivity
         pinLockView = (PinLockView) findViewById(R.id.pin_lock_view);
         pinContainer = findViewById(R.id.pin_container);
         pinTitleView = (TextView) findViewById(R.id.pin_title);
+        pinAttemptsLeftView = (TextView) findViewById(R.id.pin_attempts_left);
 
         pinLockView.attachIndicatorDots((IndicatorDots) findViewById(R.id.indicator_dots));
 
@@ -198,6 +200,9 @@ public class MainActivity extends AppCompatActivity
                         } else {
                             appPreferences.setPinAttempts(appPreferences.getPinAttempts() + 1);
                         }
+                        pinAttemptsLeftView.setText(
+                                getString(R.string.pin_attempts_left,
+                                        PIN_MAX_ATTEMPTS - appPreferences.getPinAttempts()));
                     }
                 }
 
@@ -210,7 +215,7 @@ public class MainActivity extends AppCompatActivity
                 public void onPinChange(int pinLength, String intermediatePin) {
                     // not interested
                 }
-            });
+            }, false);
         }
     }
 
@@ -316,7 +321,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void setupPinView(@NonNull PinLockListener listener) {
         inPinSetupMode = true;
-        showPinView(R.string.enter_pin, listener);
+        showPinView(R.string.enter_pin, listener, true);
     }
 
     @Override
@@ -327,7 +332,15 @@ public class MainActivity extends AppCompatActivity
         pinLockView.resetPinLockView();
     }
 
-    public void showPinView(@StringRes int titleId, @Nullable PinLockListener listener) {
+    public void showPinView(@StringRes int titleId, @Nullable PinLockListener listener,
+                            boolean isSetup) {
+        if (isSetup) {
+            pinAttemptsLeftView.setVisibility(View.GONE);
+        } else {
+            pinAttemptsLeftView.setVisibility(View.VISIBLE);
+        }
+        pinAttemptsLeftView.setText(getString(R.string.pin_attempts_left,
+                PIN_MAX_ATTEMPTS - appPreferences.getPinAttempts()));
         pinTitleView.setText(titleId);
         pinContainer.setVisibility(View.VISIBLE);
         pinLockView.setPinLockListener(listener);
