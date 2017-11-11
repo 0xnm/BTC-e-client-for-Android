@@ -10,4 +10,7 @@
     <color name="chat_author_default">#ff8da0b9</color>
     <color name="chart_background">?android:windowBackground</color>
 
+    <color name="blue_gray">#607d8b</color>
+    <color name="white">#ffffff</color>
+
 </resources>
