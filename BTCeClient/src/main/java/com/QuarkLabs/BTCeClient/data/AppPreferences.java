@@ -77,6 +77,10 @@ public class AppPreferences implements SharedPreferences.OnSharedPreferenceChang
         return preferences.getString(keyApiSecret, "");
     }
 
+    public void eraseApiKeyAndSecret() {
+        preferences.edit().remove(keyApiKey).remove(keyApiSecret).apply();
+    }
+
     @NonNull
     public String getCheckPeriodMillis() {
         return preferences.getString(keyCheckPeriod, "60000");

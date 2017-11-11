@@ -19,11 +19,15 @@
 package com.QuarkLabs.BTCeClient.ui.watchers;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -46,6 +50,7 @@ import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.data.DBWorker;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.Watcher;
+import com.QuarkLabs.BTCeClient.utils.ContextUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -153,7 +158,8 @@ public class WatchersFragment extends Fragment {
         @SuppressLint("InflateParams") View dialogContentView = inflater
                 .inflate(R.layout.notifiers_add_dialog, null);
 
-        final TextView valueTitle = (TextView) dialogContentView.findViewById(R.id.ValueTitle);
+        final TextInputLayout valueTitle =
+                (TextInputLayout) dialogContentView.findViewById(R.id.value_title);
         final TextView notifDesc = (TextView) dialogContentView.findViewById(R.id.NotifDescription);
 
         Spinner pairsSpinner = (Spinner) dialogContentView.findViewById(R.id.PairSpinner);
@@ -182,19 +188,19 @@ public class WatchersFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 switch (position) {
                     case 0:
-                        valueTitle.setText(R.string.watcher_value_delta);
+                        valueTitle.setHint(getString(R.string.watcher_value_delta));
                         notifDesc.setText(R.string.PanicSellDescription);
                         break;
                     case 1:
-                        valueTitle.setText(R.string.watcher_value_delta);
+                        valueTitle.setHint(getString(R.string.watcher_value_delta));
                         notifDesc.setText(R.string.PanicBuyDescription);
                         break;
                     case 2:
-                        valueTitle.setText(R.string.watcher_value_number);
+                        valueTitle.setHint(getString(R.string.watcher_value_number));
                         notifDesc.setText(R.string.StopLossDescription);
                         break;
                     case 3:
-                        valueTitle.setText(R.string.watcher_value_number);
+                        valueTitle.setHint(getString(R.string.watcher_value_number));
                         notifDesc.setText(R.string.TakeProfitDescription);
                         break;
                     default:
@@ -214,7 +220,15 @@ public class WatchersFragment extends Fragment {
                 .setNeutralButton(android.R.string.cancel, null)
                 .setPositiveButton(R.string.DialogSaveButton,
                         (dialog, which) -> saveWatcher((AlertDialog) dialog)
-                ).show();
+                )
+                .setOnDismissListener(dialog -> {
+                    Activity activity = getActivity();
+                    View view = getView();
+                    if (activity != null && view != null) {
+                        ContextUtils.hideKeyboard(activity, view);
+                    }
+                })
+                .show();
     }
 
     private void saveWatcher(AlertDialog watcherDialog) {
@@ -234,7 +248,7 @@ public class WatchersFragment extends Fragment {
         }
 
         //noinspection ConstantConditions
-        String valueText = ((EditText) watcherDialog.findViewById(R.id.NotifValue))
+        String valueText = ((TextInputEditText) watcherDialog.findViewById(R.id.watcher_value))
                 .getText().toString();
 
         if (!TextUtils.isEmpty(valueText)) {

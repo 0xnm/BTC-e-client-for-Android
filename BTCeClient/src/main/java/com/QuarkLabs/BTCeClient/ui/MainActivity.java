@@ -199,6 +199,7 @@ public class MainActivity extends AppCompatActivity
                         pinLockView.resetPinLockView();
                         if (appPreferences.getPinAttempts() == PIN_MAX_ATTEMPTS) {
                             pinTitleView.setText(R.string.pin_max_attempts);
+                            appPreferences.eraseApiKeyAndSecret();
                         }
                         pinAttemptsLeftView.setText(
                                 getString(R.string.pin_attempts_left,
