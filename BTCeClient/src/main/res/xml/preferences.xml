@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <PreferenceCategory android:title="API Key">
+    <PreferenceCategory android:title="@string/settings_api_category_title">
         <com.QuarkLabs.BTCeClient.views.EncryptedEditTextPreference
             android:hint="@string/APIKeyDefaultText"
             android:key="@string/settings_key_api_key"

@@ -22,6 +22,7 @@ import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.GET_INFO;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE_HISTORY;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRANSACTIONS_HISTORY;
+import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.WITHDRAW;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
@@ -507,8 +508,52 @@ public class ApiTest {
                         .getAsJsonObject());
 
 
-        CallResult<List<TradeHistoryEntry>> callResult =
-                testable.getTradeHistory(Collections.<String, String>emptyMap());
+        CallResult<CancelOrderResponse> callResult =
+                testable.cancelOrder(123456);
+
+        assertFalse(callResult.isSuccess());
+        assertNotNull(callResult.getError());
+        assertNull(callResult.getPayload());
+    }
+
+    @Test
+    public void withdraw_success() throws Exception {
+        when(mockAuthApi.makeRequest(eq(WITHDRAW), anyMapOf(String.class, String.class)))
+                .thenReturn(JSON_PARSER.parse("{\n" +
+                        "\t\"success\":1,\n" +
+                        "\t\"return\":{\n" +
+                        "\t\t\"tId\":37832629,\n" +
+                        "\t\t\"amountSent\":0.009,\n" +
+                        "\t\t\"funds\":{\n" +
+                        "\t\t\t\"usd\":325,\n" +
+                        "\t\t\t\"btc\":24.998,\n" +
+                        "\t\t\t\"ltc\":0\n" +
+                        "\t\t}\n" +
+                        "\t}\n" +
+                        "}").getAsJsonObject());
+
+        CallResult<WithdrawResponse>
+                callResult = testable.withdraw("BTC", 5, "1Az");
+
+        assertTrue(callResult.isSuccess());
+        assertNull(callResult.getError());
+        WithdrawResponse response = callResult.getPayload();
+
+        assertNotNull(response);
+        assertEquals(37832629, response.getTransactionId());
+        assertEquals(new BigDecimal("0.009"), response.getAmountSent());
+        assertEquals(new BigDecimal("24.998"),
+                response.getFunds().get("BTC"));
+    }
+
+    @Test
+    public void withdraw_error() throws Exception {
+        when(mockAuthApi.makeRequest(eq(CANCEL_ORDER), anyMapOf(String.class, String.class)))
+                .thenReturn(JSON_PARSER.parse("{\"success\":0,\"error\":\"error\"}")
+                        .getAsJsonObject());
+
+
+        CallResult<WithdrawResponse> callResult = testable.withdraw("BTC", 5, "1Az");
 
         assertFalse(callResult.isSuccess());
         assertNotNull(callResult.getError());

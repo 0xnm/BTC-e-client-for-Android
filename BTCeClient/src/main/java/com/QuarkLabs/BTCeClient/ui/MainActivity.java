@@ -22,18 +22,15 @@ import android.app.AlarmManager;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.media.RingtoneManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
-import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -62,6 +59,7 @@ import com.QuarkLabs.BTCeClient.ui.settings.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
+import com.QuarkLabs.BTCeClient.utils.ContextUtils;
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
@@ -404,17 +402,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void makeNotification(int id, String message) {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                .setContentTitle(getString(R.string.app_name))
-                .setColor(getResources().getColor(R.color.colorPrimary))
-                .setContentText(message);
-
-        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //noinspection ConstantConditions
-        mNotificationManager.notify(id, mBuilder.build());
+        ContextUtils.makeNotification(this, id, message);
     }
 
     @Override
