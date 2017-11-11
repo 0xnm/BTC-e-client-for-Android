@@ -187,16 +187,19 @@ public class MainActivity extends AppCompatActivity
                     : R.string.enter_pin, new PinLockListener() {
                 @Override
                 public void onComplete(String pin) {
+
+                    appPreferences.setPinAttempts(Math.min(PIN_MAX_ATTEMPTS,
+                            appPreferences.getPinAttempts() + 1));
+
                     if (pin.equals(appPreferences.getPin())
-                            && appPreferences.getPinAttempts() != PIN_MAX_ATTEMPTS) {
+                            && appPreferences.getPinAttempts() < PIN_MAX_ATTEMPTS) {
                         appPreferences.setPinAttempts(0);
                         hidePinView();
                     } else {
                         pinLockView.resetPinLockView();
                         if (appPreferences.getPinAttempts() == PIN_MAX_ATTEMPTS) {
                             pinTitleView.setText(R.string.pin_max_attempts);
-                        } else {
-                            appPreferences.setPinAttempts(appPreferences.getPinAttempts() + 1);
+                            appPreferences.eraseApiKeyAndSecret();
                         }
                         pinAttemptsLeftView.setText(
                                 getString(R.string.pin_attempts_left,

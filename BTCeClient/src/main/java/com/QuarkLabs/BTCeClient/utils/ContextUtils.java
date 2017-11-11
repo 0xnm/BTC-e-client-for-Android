@@ -5,6 +5,8 @@ import android.content.Context;
 import android.media.RingtoneManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.QuarkLabs.BTCeClient.R;
 
@@ -32,5 +34,12 @@ public final class ContextUtils {
                 (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         //noinspection ConstantConditions
         notificationManager.notify(id, mBuilder.build());
+    }
+
+    public static void hideKeyboard(@NonNull Context context, @NonNull View view) {
+        InputMethodManager inputManager =
+                (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        //noinspection ConstantConditions
+        inputManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
