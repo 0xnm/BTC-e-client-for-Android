@@ -62,6 +62,7 @@ import com.QuarkLabs.BTCeClient.ui.settings.SettingsFragment;
 import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.ui.chat.ChatFragment;
+import com.QuarkLabs.BTCeClient.utils.ContextUtils;
 import com.andrognito.pinlockview.IndicatorDots;
 import com.andrognito.pinlockview.PinLockListener;
 import com.andrognito.pinlockview.PinLockView;
@@ -404,17 +405,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void makeNotification(int id, String message) {
-        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.ic_stat_bitcoin_sign)
-                .setContentTitle(getString(R.string.app_name))
-                .setColor(getResources().getColor(R.color.colorPrimary))
-                .setContentText(message);
-
-        mBuilder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        //noinspection ConstantConditions
-        mNotificationManager.notify(id, mBuilder.build());
+        ContextUtils.makeNotification(this, id, message);
     }
 
     @Override

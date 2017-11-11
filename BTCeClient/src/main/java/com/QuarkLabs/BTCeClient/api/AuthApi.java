@@ -57,6 +57,7 @@ import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.GET_INFO;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRADE_HISTORY;
 import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.TRANSACTIONS_HISTORY;
+import static com.QuarkLabs.BTCeClient.api.AuthApi.TradeMethod.WITHDRAW;
 
 class AuthApi {
 
@@ -72,7 +73,7 @@ class AuthApi {
     private String hostUrl;
 
     @StringDef(value = {GET_INFO, TRANSACTIONS_HISTORY, TRADE_HISTORY,
-            ACTIVE_ORDERS, TRADE, CANCEL_ORDER})
+            ACTIVE_ORDERS, TRADE, CANCEL_ORDER, WITHDRAW})
     @Target({ElementType.PARAMETER, ElementType.FIELD, ElementType.LOCAL_VARIABLE})
     @Retention(RetentionPolicy.SOURCE)
     @interface TradeMethod {
@@ -82,6 +83,7 @@ class AuthApi {
         String ACTIVE_ORDERS = "ActiveOrders";
         String TRADE = "Trade";
         String CANCEL_ORDER = "CancelOrder";
+        String WITHDRAW = "WithdrawCoin";
     }
 
     AuthApi(@NonNull Context appContext, long nonce,

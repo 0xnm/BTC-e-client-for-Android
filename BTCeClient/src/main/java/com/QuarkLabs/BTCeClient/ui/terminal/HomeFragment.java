@@ -25,17 +25,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Typeface;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.Html;
-import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -60,19 +56,22 @@ import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.QuarkLabs.BTCeClient.api.AccountInfo;
+import com.QuarkLabs.BTCeClient.api.TradeResponse;
 import com.QuarkLabs.BTCeClient.data.AppPreferences;
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
 import com.QuarkLabs.BTCeClient.data.InMemoryStorage;
+import com.QuarkLabs.BTCeClient.tasks.ApiResultListener;
+import com.QuarkLabs.BTCeClient.tasks.RegisterTradeRequestTask;
+import com.QuarkLabs.BTCeClient.tasks.TradeRequest;
+import com.QuarkLabs.BTCeClient.tasks.UnregistrableTask;
+import com.QuarkLabs.BTCeClient.tasks.UpdateFundsTask;
 import com.QuarkLabs.BTCeClient.utils.PairUtils;
 import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.adapters.PairsCheckboxAdapter;
 import com.QuarkLabs.BTCeClient.adapters.TickersDashboardAdapter;
-import com.QuarkLabs.BTCeClient.api.AccountInfo;
-import com.QuarkLabs.BTCeClient.api.CallResult;
-import com.QuarkLabs.BTCeClient.api.TradeResponse;
 import com.QuarkLabs.BTCeClient.api.TradeType;
-import com.QuarkLabs.BTCeClient.interfaces.ActivityCallbacks;
 import com.QuarkLabs.BTCeClient.api.Ticker;
 import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
@@ -83,19 +82,19 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
 public class HomeFragment extends Fragment implements
-        TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface {
+        TickersDashboardAdapter.TickersDashboardAdapterCallbackInterface,
+        TradeDialogFragment.TradeRequestListener {
 
-    private static final String TRADE_REQUEST_KEY = "TRADE_REQUEST";
+    private static final String TRADE_REQUEST_DIALOG_TAG = "TRADE_REQUEST_DIALOG";
+
     private FixedGridView tickersContainer;
     private TickersDashboardAdapter tickersAdapter;
     private BroadcastReceiver statsReceiver;
-    private ActivityCallbacks activityCallback;
     private MenuItem refreshItem;
     private TradeRequest tradeRequest;
 
@@ -116,24 +115,10 @@ public class HomeFragment extends Fragment implements
     private ViewGroup tradingContainer;
 
     @NonNull
+    private List<UnregistrableTask> ongoingTasks = new ArrayList<>();
+    @NonNull
     private final Queue<Runnable> pendingTasks = new LinkedList<>();
 
-    @Override
-    public void onAttach(Activity activity) {
-        super.onAttach(activity);
-        try {
-            activityCallback = (ActivityCallbacks) activity;
-        } catch (ClassCastException e) {
-            throw new RuntimeException(activity.toString() + " must implement "
-                    + ActivityCallbacks.class.getSimpleName(), e);
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        activityCallback = null;
-        super.onDetach();
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -214,41 +199,12 @@ public class HomeFragment extends Fragment implements
 
         operationCostView = (TextView) view.findViewById(R.id.operation_cost);
 
-        //Trade listener, once "Buy" or "Sell" clicked, send the order to server
-        View.OnClickListener tradeListener = v -> {
-            String tradeAmount = tradeAmountView.getText().toString();
-            String tradeCurrency = tradeCurrencyView.getSelectedItem().toString();
-            String tradePrice = tradePriceView.getText().toString();
-            String tradePriceCurrency = tradePriceCurrencyView.getSelectedItem().toString();
-
-            if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
-                    || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
-                new AlertDialog.Builder(getActivity())
-                        .setMessage(getString(R.string.missing_mandatory_fields_error))
-                        .setPositiveButton(android.R.string.ok, null)
-                        .show();
-                return;
-            }
-
-            tradeRequest = new TradeRequest(
-                    (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
-                    tradeAmount, tradeCurrency,
-                    tradePrice, tradePriceCurrency);
-            showTradeRequestDialog(tradeRequest);
-        };
-
-        view.findViewById(R.id.SellButton).setOnClickListener(tradeListener);
-        view.findViewById(R.id.BuyButton).setOnClickListener(tradeListener);
+        view.findViewById(R.id.SellButton).setOnClickListener(this::onTradeRequested);
+        view.findViewById(R.id.BuyButton).setOnClickListener(this::onTradeRequested);
 
         Button updateAccountInfoButton = (Button) view.findViewById(R.id.UpdateAccountInfoButton);
 
-        updateAccountInfoButton.setOnClickListener(v -> new UpdateFundsTask().execute());
-
-        if (savedInstanceState != null && savedInstanceState.containsKey(TRADE_REQUEST_KEY)) {
-            tradeRequest = savedInstanceState.getParcelable(TRADE_REQUEST_KEY);
-            //noinspection ConstantConditions
-            showTradeRequestDialog(tradeRequest);
-        }
+        updateAccountInfoButton.setOnClickListener(v -> sendUpdateFundsTask());
 
         //start service to get new data once Dashboard is opened
         getActivity().startService(new Intent(getActivity(), CheckTickersService.class));
@@ -256,6 +212,61 @@ public class HomeFragment extends Fragment implements
         if (inMemoryStorage.getFunds() != null) {
             refreshFundsView(inMemoryStorage.getFunds());
         }
+
+        TradeDialogFragment tradeDialog = (TradeDialogFragment) getFragmentManager()
+                .findFragmentByTag(TRADE_REQUEST_DIALOG_TAG);
+        if (tradeDialog != null) {
+            tradeDialog.setListener(this);
+        }
+    }
+
+    private void onTradeRequested(View v) {
+        String tradeAmount = tradeAmountView.getText().toString();
+        String tradeCurrency = tradeCurrencyView.getSelectedItem().toString();
+        String tradePrice = tradePriceView.getText().toString();
+        String tradePriceCurrency = tradePriceCurrencyView.getSelectedItem().toString();
+
+        if (tradeAmount.trim().isEmpty() || tradeCurrency.isEmpty()
+                || tradePrice.trim().isEmpty() || tradePriceCurrency.isEmpty()) {
+            new AlertDialog.Builder(getActivity())
+                    .setMessage(getString(R.string.missing_mandatory_fields_error))
+                    .setPositiveButton(android.R.string.ok, null)
+                    .show();
+            return;
+        }
+
+        tradeRequest = new TradeRequest(
+                (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
+                tradeAmount, tradeCurrency,
+                tradePrice, tradePriceCurrency);
+        showTradeRequestDialog(tradeRequest);
+    }
+
+    private void sendUpdateFundsTask() {
+        UpdateFundsTask task = new UpdateFundsTask(getActivity(),
+                BtcEApplication.get(getActivity()).getApi(),
+                new ApiResultListener<AccountInfo>() {
+                    @Override
+                    public void onSuccess(@NonNull AccountInfo result) {
+                        Map<String, BigDecimal> funds = inMemoryStorage.getFunds();
+                        if (funds != null) {
+                            refreshFundsView(funds);
+                        }
+                    }
+
+                    @Override
+                    public void onError(@NonNull String error) {
+                        Toast.makeText(getActivity(), error, Toast.LENGTH_LONG).show();
+                    }
+                });
+        task.execute();
+        ongoingTasks.add(task);
+    }
+
+    private void showTradeRequestDialog(@NonNull TradeRequest tradeRequest) {
+        TradeDialogFragment tradeDialog = TradeDialogFragment.create(tradeRequest);
+        tradeDialog.setListener(this);
+        tradeDialog.show(getFragmentManager(), TRADE_REQUEST_DIALOG_TAG);
     }
 
     @Override
@@ -309,62 +320,6 @@ public class HomeFragment extends Fragment implements
         tradeAmountView.removeTextChangedListener(tradeAmountWatcher);
         tradePriceView.removeTextChangedListener(tradePriceWatcher);
         tradePriceCurrencyView.setOnItemSelectedListener(null);
-    }
-
-    private void showTradeRequestDialog(@NonNull TradeRequest request) {
-        new AlertDialog.Builder(getActivity())
-                .setMessage(createTradeRequestDialogMessage(request))
-                .setCancelable(false)
-                .setOnDismissListener(dialog -> tradeRequest = null)
-                .setPositiveButton(android.R.string.yes,
-                        (dialog, which) -> new RegisterTradeRequestTask().execute(tradeRequest))
-                .setNegativeButton(android.R.string.no, null)
-                .show();
-    }
-
-    @NonNull
-    private Spanned createTradeRequestDialogMessage(@NonNull TradeRequest request) {
-        String message = null;
-        final BigDecimal effectivePart = new BigDecimal("0.998");
-        final BigDecimal feePart = new BigDecimal("0.002");
-        if (TradeType.BUY.equals(request.type)) {
-            message = getString(R.string.buy_confirmation,
-                    request.tradeAmount,
-                    request.tradeCurrency,
-                    new BigDecimal(request.tradeAmount)
-                            .multiply(effectivePart)
-                            .stripTrailingZeros().toPlainString(),
-                    request.tradeCurrency,
-                    new BigDecimal(request.tradeAmount)
-                            .multiply(feePart)
-                            .stripTrailingZeros().toPlainString(),
-                    request.tradeCurrency,
-                    request.tradePrice,
-                    request.tradePriceCurrency,
-                    request.tradeCurrency,
-                    new BigDecimal(request.tradeAmount)
-                            .multiply(new BigDecimal(request.tradePrice))
-                            .stripTrailingZeros().toPlainString(),
-                    request.tradePriceCurrency);
-        } else {
-            BigDecimal totalToGet = new BigDecimal(request.tradeAmount)
-                    .multiply(new BigDecimal(request.tradePrice));
-            message = getString(R.string.sell_confirmation,
-                    request.tradeAmount,
-                    request.tradeCurrency,
-                    request.tradePrice,
-                    request.tradePriceCurrency,
-                    request.tradeCurrency,
-                    totalToGet
-                            .multiply(effectivePart)
-                            .stripTrailingZeros().toPlainString(),
-                    request.tradePriceCurrency,
-                    totalToGet
-                            .multiply(feePart)
-                            .stripTrailingZeros().toPlainString(),
-                    request.tradePriceCurrency);
-        }
-        return Html.fromHtml(message);
     }
 
     /**
@@ -449,19 +404,14 @@ public class HomeFragment extends Fragment implements
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (tradeRequest != null) {
-            outState.putParcelable(TRADE_REQUEST_KEY, tradeRequest);
-        }
-    }
-
-    @Override
     public void onDestroyView() {
         LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(statsReceiver);
         if (pairsDialog != null) {
             pairsDialog.dismiss();
             pairsDialog = null;
+        }
+        for (UnregistrableTask task : ongoingTasks) {
+            task.unregisterListener();
         }
         super.onDestroyView();
     }
@@ -595,81 +545,30 @@ public class HomeFragment extends Fragment implements
         pendingTasks.add(() -> onPriceClicked(pair, price));
     }
 
-    /**
-     * AsyncTask to register trade request on the exchange
-     */
-    private class RegisterTradeRequestTask extends AsyncTask<TradeRequest, Void,
-            CallResult<TradeResponse>> {
+    @Override
+    public void onSendTradeRequest(@NonNull TradeRequest tradeRequest) {
+        BtcEApplication app = BtcEApplication.get(getActivity());
+        RegisterTradeRequestTask task = new RegisterTradeRequestTask(app,
+                app.getApi(),
+                new ApiResultListener<TradeResponse>() {
+                    @Override
+                    public void onSuccess(@NonNull TradeResponse result) {
+                        Map<String, BigDecimal> funds = inMemoryStorage.getFunds();
+                        if (funds != null) {
+                            refreshFundsView(funds);
+                        }
+                    }
 
-        @Override
-        protected CallResult<TradeResponse> doInBackground(TradeRequest... params) {
-            TradeRequest tradeRequest = params[0];
-            String tradeAction = tradeRequest.type;
-            String pair = tradeRequest.tradeCurrency.toLowerCase(Locale.US)
-                    + "_" + tradeRequest.tradePriceCurrency.toLowerCase(Locale.US);
-            return BtcEApplication.get(HomeFragment.this.getActivity()).getApi()
-                    .trade(pair, tradeAction, tradeRequest.tradePrice, tradeRequest.tradeAmount);
-        }
-
-        @Override
-        protected void onPostExecute(@NonNull CallResult<TradeResponse> callResult) {
-            String message;
-            if (callResult.isSuccess()) {
-                message = getString(R.string.order_successfully_added);
-                if (isVisible()) {
-                    //noinspection ConstantConditions
-                    Map<String, BigDecimal> funds = callResult.getPayload().getFunds();
-                    inMemoryStorage.setFunds(funds);
-                    refreshFundsView(funds);
-                }
-            } else {
-                message = callResult.getError();
-                if (getActivity() != null) {
-                    Toast.makeText(getActivity(), message, Toast.LENGTH_LONG)
-                            .show();
-                }
-            }
-            if (activityCallback != null) {
-                activityCallback.makeNotification(ConstantHolder.TRADE_REGISTERED_NOTIF_ID,
-                        message);
-            }
-        }
-    }
-
-    /**
-     * AsyncTask to update funds
-     */
-    private class UpdateFundsTask extends AsyncTask<Void, Void, CallResult<AccountInfo>> {
-
-        @Override
-        protected CallResult<AccountInfo> doInBackground(Void... params) {
-            Context context = getActivity();
-            if (context == null) {
-                return null;
-            }
-            return BtcEApplication.get(context).getApi().getAccountInfo();
-        }
-
-        @Override
-        protected void onPostExecute(CallResult<AccountInfo> result) {
-            String notificationText;
-            if (result == null || !isVisible()) {
-                return;
-            }
-            if (result.isSuccess()) {
-                notificationText = getString(R.string.FundsInfoUpdatedtext);
-                //noinspection ConstantConditions
-                Map<String, BigDecimal> funds = result.getPayload().getFunds();
-                inMemoryStorage.setFunds(funds);
-                refreshFundsView(funds);
-            } else {
-                notificationText = result.getError();
-            }
-            if (activityCallback != null) {
-                activityCallback.makeNotification(ConstantHolder.ACCOUNT_INFO_NOTIF_ID,
-                        notificationText);
-            }
-        }
+                    @Override
+                    public void onError(@NonNull String error) {
+                        Activity activity = getActivity();
+                        if (getActivity() != null) {
+                            Toast.makeText(activity, error, Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+        task.execute(tradeRequest);
+        ongoingTasks.add(task);
     }
 
     private final class TradeConditionWatcher implements TextWatcher {
@@ -690,63 +589,5 @@ public class HomeFragment extends Fragment implements
         }
     }
 
-    private static final class TradeRequest implements Parcelable {
-        @NonNull
-        @TradeType
-        final String type;
-        @NonNull
-        final String tradeAmount;
-        @NonNull
-        final String tradeCurrency;
-        @NonNull
-        final String tradePrice;
-        @NonNull
-        final String tradePriceCurrency;
-
-        TradeRequest(@NonNull @TradeType String type,
-                     @NonNull String tradeAmount, @NonNull String tradeCurrency,
-                     @NonNull String tradePrice, @NonNull String tradePriceCurrency) {
-            this.type = type;
-            this.tradeAmount = tradeAmount;
-            this.tradeCurrency = tradeCurrency;
-            this.tradePrice = tradePrice;
-            this.tradePriceCurrency = tradePriceCurrency;
-        }
-
-        protected TradeRequest(Parcel in) {
-            //noinspection WrongConstant
-            type = in.readString();
-            tradeAmount = in.readString();
-            tradeCurrency = in.readString();
-            tradePrice = in.readString();
-            tradePriceCurrency = in.readString();
-        }
-
-        public static final Creator<TradeRequest> CREATOR = new Creator<TradeRequest>() {
-            @Override
-            public TradeRequest createFromParcel(Parcel in) {
-                return new TradeRequest(in);
-            }
-
-            @Override
-            public TradeRequest[] newArray(int size) {
-                return new TradeRequest[size];
-            }
-        };
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeString(type);
-            dest.writeString(tradeAmount);
-            dest.writeString(tradeCurrency);
-            dest.writeString(tradePrice);
-            dest.writeString(tradePriceCurrency);
-        }
-    }
 }
 

@@ -349,4 +349,28 @@ public class Api {
         return result;
     }
 
+    @NonNull
+    @WorkerThread
+    public CallResult<WithdrawResponse> withdraw(@NonNull String coinName,
+                                                 double amount, @NonNull String address) {
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("coinName", coinName);
+        parameters.put("amount", String.valueOf(amount));
+        parameters.put("address", address);
+
+        JsonObject response = authApi.makeRequest(AuthApi.TradeMethod.WITHDRAW, parameters);
+        CallResult<WithdrawResponse> result = new CallResult<>();
+        if (response == null
+                || (response.has(SUCCESS_KEY) && response.get(SUCCESS_KEY).getAsInt() == 0)) {
+            result.isSuccess = false;
+            result.error = response == null ?
+                    generalErrorText : response.get(ERROR_KEY).getAsString();
+            return result;
+        }
+
+        result.isSuccess = true;
+        result.payload = WithdrawResponse.create(response.getAsJsonObject(RETURN_KEY));
+        return result;
+    }
+
 }
