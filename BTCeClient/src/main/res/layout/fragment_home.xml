@@ -50,13 +50,15 @@
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="4dp">
+            android:layout_margin="8dp">
 
             <TableLayout
                 android:id="@+id/FundsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_horizontal"
+                android:dividerPadding="4dp"
+                android:layout_margin="4dp"
                 android:stretchColumns="*">
 
                 <TextView

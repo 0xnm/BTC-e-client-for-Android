@@ -5,7 +5,6 @@ import android.os.Parcelable;
 import android.support.annotation.NonNull;
 
 import com.QuarkLabs.BTCeClient.api.TradeType;
-import com.QuarkLabs.BTCeClient.ui.terminal.HomeFragment;
 
 public final class TradeRequest implements Parcelable {
     @NonNull

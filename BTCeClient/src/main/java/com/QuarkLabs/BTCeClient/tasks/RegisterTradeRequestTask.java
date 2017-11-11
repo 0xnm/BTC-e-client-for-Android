@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.widget.Toast;
 
 import com.QuarkLabs.BTCeClient.BtcEApplication;
 import com.QuarkLabs.BTCeClient.ConstantHolder;
@@ -13,7 +12,6 @@ import com.QuarkLabs.BTCeClient.R;
 import com.QuarkLabs.BTCeClient.api.Api;
 import com.QuarkLabs.BTCeClient.api.CallResult;
 import com.QuarkLabs.BTCeClient.api.TradeResponse;
-import com.QuarkLabs.BTCeClient.ui.terminal.HomeFragment;
 import com.QuarkLabs.BTCeClient.utils.ContextUtils;
 
 import java.math.BigDecimal;

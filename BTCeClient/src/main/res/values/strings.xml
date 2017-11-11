@@ -198,6 +198,7 @@
     <string name="tokens">Tokens</string>
     <string name="exchange_sync_failed">Failed to sync with exchange</string>
     <string name="msg_syncing_with_exchange">Syncing with exchange</string>
+    <string name="settings_api_category_title">API Key</string>
     <string name="settings_sync_exchange_summary">Synchronize pairs available in the app with current state of exchange</string>
     <string name="settings_sync_exchange_title">Sync exchange pairs</string>
     <string name="settings_exchange_url_title">Exchange URL</string>
