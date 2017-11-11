@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="center"
-        android:background="?android:windowBackground"
+        android:background="@color/blue_gray"
         android:gravity="center"
         android:orientation="vertical"
         android:visibility="gone"
@@ -24,6 +24,7 @@
             android:minLines="2"
             android:text="@string/enter_pin"
             android:textAlignment="center"
+            android:textColor="@color/white"
             android:textSize="18sp" />
 
         <com.andrognito.pinlockview.IndicatorDots
@@ -43,7 +44,7 @@
             app:keypadButtonSize="72dp"
             app:keypadDeleteButtonDrawable="@drawable/ic_backspace_black_24dp"
             app:keypadShowDeleteButton="true"
-            app:keypadTextColor="@android:color/black"
+            app:keypadTextColor="@color/white"
             app:keypadTextSize="18dp" />
 
         <TextView
@@ -51,7 +52,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            tools:text="Attempts left: 5"/>
+            android:textColor="@color/white"
+            tools:text="Attempts left: 5" />
 
     </LinearLayout>
 </merge>
