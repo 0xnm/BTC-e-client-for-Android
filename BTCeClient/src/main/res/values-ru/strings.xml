@@ -152,7 +152,6 @@
     <string name="buy_confirmation">Купить &lt;b>%1$s %2$s&lt;/b> (вы получите &lt;b>%3$s %4$s&lt;/b>, комиссия = &lt;b>%5$s %6$s&lt;/b>) по цене &lt;b>%7$s %8$s&lt;/b> за 1 &lt;b>%9$s&lt;/b>? Общая стоимость операции: &lt;b>%10$s  %11$s&lt;/b></string>
     <string name="sell_confirmation">Продать &lt;b>%1$s %2$s&lt;/b> по цене &lt;b>%3$s %4$s&lt;/b> за 1 &lt;b>%5$s&lt;/b>? Вы получите &lt;b>%6$s %7$s&lt;/b> (после вычета комиссии = &lt;b>%8$s %9$s&lt;/b>)</string>
     <string name="missing_mandatory_fields_error">Не заполнены необходимые поля</string>
-    <string name="trade_operation_cost">Всего будет потрачено (если покупка)/получено (если продажа): &lt;b>%1$s %2$s&lt;/b></string>
     <string name="tokens">Токены</string>
     <string name="exchange_sync_failed">Не удалось выполнить синхронизацию с биржей</string>
     <string name="msg_syncing_with_exchange">Синхронизация с биржей</string>
@@ -189,4 +188,5 @@
     <string name="pin_max_attempts">Достигнуто максимальное количество попыток</string>
     <string name="pin_setup_warning">Если вы превысите максимальное количество попыток, единственным способом вернуться в приложение будет удалить данные приложения (Настройки > Приложения > WEX client > Данные > Стереть данные)</string>
     <string name="pin_attempts_left">Осталось попыток: %d</string>
+    <string name="total">Всего</string>
 </resources>
