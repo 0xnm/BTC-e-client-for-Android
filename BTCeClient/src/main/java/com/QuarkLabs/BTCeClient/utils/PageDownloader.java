@@ -37,7 +37,7 @@ public class PageDownloader {
             if (pair != null && !pair.isEmpty()) {
                 path = (isToken(pair) ? "/tokens/" : "/exchange/") + PairUtils.localToServer(pair);
             }
-            URL url = new URL(exchangeUrl + path);
+            URL url = new URL(exchangeUrl + path + "?old_charts=1");
             connection = (HttpsURLConnection) url.openConnection();
             connection.setConnectTimeout((int) TimeUnit.SECONDS.toMillis(5));
             connection.setReadTimeout((int) TimeUnit.SECONDS.toMillis(30));
