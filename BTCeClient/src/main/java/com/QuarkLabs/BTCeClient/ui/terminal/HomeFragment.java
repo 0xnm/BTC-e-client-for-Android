@@ -31,7 +31,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.Html;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.TypedValue;
@@ -77,11 +76,14 @@ import com.QuarkLabs.BTCeClient.services.CheckTickersService;
 import com.QuarkLabs.BTCeClient.views.FixedGridView;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
@@ -92,20 +94,29 @@ public class HomeFragment extends Fragment implements
 
     private static final String TRADE_REQUEST_DIALOG_TAG = "TRADE_REQUEST_DIALOG";
 
+    private static final NumberFormat VALUE_FORMAT;
+
+    static {
+        VALUE_FORMAT = DecimalFormat.getNumberInstance(Locale.US);
+        VALUE_FORMAT.setGroupingUsed(false);
+        VALUE_FORMAT.setMaximumFractionDigits(6);
+    }
+
     private FixedGridView tickersContainer;
     private TickersDashboardAdapter tickersAdapter;
     private BroadcastReceiver statsReceiver;
     private MenuItem refreshItem;
-    private TradeRequest tradeRequest;
 
-    private TextView operationCostView;
     private EditText tradeAmountView;
     private Spinner tradeCurrencyView;
     private EditText tradePriceView;
     private Spinner tradePriceCurrencyView;
+    private EditText totalCostView;
+    private TextView totalCostCurrencyView;
 
-    private final TextWatcher tradeAmountWatcher = new TradeConditionWatcher();
-    private final TextWatcher tradePriceWatcher = new TradeConditionWatcher();
+    private final TextWatcher amountWatcher = new TradeAmountWatcher();
+    private final TextWatcher totalWatcher = new TradeTotalWatcher();
+    private final TextWatcher priceWatcher = new PriceWatcher();
     private AlertDialog pairsDialog;
 
     private AppPreferences appPreferences;
@@ -197,7 +208,8 @@ public class HomeFragment extends Fragment implements
         tradePriceCurrencyView = (Spinner) view.findViewById(R.id.TradePriceCurrency);
         tradePriceCurrencyView.setAdapter(currenciesAdapter);
 
-        operationCostView = (TextView) view.findViewById(R.id.operation_cost);
+        totalCostView = (EditText) view.findViewById(R.id.total);
+        totalCostCurrencyView = (TextView) view.findViewById(R.id.total_currency);
 
         view.findViewById(R.id.SellButton).setOnClickListener(this::onTradeRequested);
         view.findViewById(R.id.BuyButton).setOnClickListener(this::onTradeRequested);
@@ -235,7 +247,7 @@ public class HomeFragment extends Fragment implements
             return;
         }
 
-        tradeRequest = new TradeRequest(
+        TradeRequest tradeRequest = new TradeRequest(
                 (v.getId() == R.id.BuyButton) ? TradeType.BUY : TradeType.SELL,
                 tradeAmount, tradeCurrency,
                 tradePrice, tradePriceCurrency);
@@ -272,12 +284,13 @@ public class HomeFragment extends Fragment implements
     @Override
     public void onResume() {
         super.onResume();
-        tradeAmountView.addTextChangedListener(tradeAmountWatcher);
-        tradePriceView.addTextChangedListener(tradePriceWatcher);
+        tradeAmountView.addTextChangedListener(amountWatcher);
+        totalCostView.addTextChangedListener(totalWatcher);
+        tradePriceView.addTextChangedListener(priceWatcher);
         tradePriceCurrencyView.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                refreshOperationCostView();
+                totalCostCurrencyView.setText((String) parent.getItemAtPosition(position));
             }
 
             @Override
@@ -290,35 +303,12 @@ public class HomeFragment extends Fragment implements
         }
     }
 
-    private void refreshOperationCostView() {
-        String tradeAmount = tradeAmountView.getText().toString();
-        String tradePrice = tradePriceView.getText().toString();
-        if (tradeAmount.isEmpty() || tradePrice.isEmpty()) {
-            operationCostView.setText("");
-        } else {
-            try {
-                operationCostView.setText(
-                        Html.fromHtml(
-                                getString(
-                                        R.string.trade_operation_cost,
-                                        new BigDecimal(tradeAmount)
-                                                .multiply(new BigDecimal(tradePrice))
-                                                .toPlainString(),
-                                        tradePriceCurrencyView.getSelectedItem()
-                                )
-                        )
-                );
-            } catch (NumberFormatException nfe) {
-                operationCostView.setText("");
-            }
-        }
-    }
-
     @Override
     public void onPause() {
         super.onPause();
-        tradeAmountView.removeTextChangedListener(tradeAmountWatcher);
-        tradePriceView.removeTextChangedListener(tradePriceWatcher);
+        tradeAmountView.removeTextChangedListener(amountWatcher);
+        totalCostView.removeTextChangedListener(totalWatcher);
+        tradePriceView.removeTextChangedListener(priceWatcher);
         tradePriceCurrencyView.setOnItemSelectedListener(null);
     }
 
@@ -493,26 +483,20 @@ public class HomeFragment extends Fragment implements
         }
 
         if (!TextUtils.isEmpty(tradeAmount)) {
-            EditText tradeAmountView = (EditText) tradingContainer.findViewById(R.id.TradeAmount);
             tradeAmountView.setText(tradeAmount);
         }
 
         if (!TextUtils.isEmpty(tradePrice)) {
-            EditText tradePriceView = (EditText) tradingContainer.findViewById(R.id.TradePrice);
             tradePriceView.setText(tradePrice);
         }
         if (!TextUtils.isEmpty(tradeCurrency)) {
-            Spinner tradeCurrencySpinner = (Spinner) tradingContainer
-                    .findViewById(R.id.TradeCurrency);
-            tradeCurrencySpinner.setSelection(
-                    ((ArrayAdapter<String>) tradeCurrencySpinner.getAdapter())
+            tradeCurrencyView.setSelection(
+                    ((ArrayAdapter<String>) tradeCurrencyView.getAdapter())
                             .getPosition(tradeCurrency));
         }
         if (!TextUtils.isEmpty(tradePriceCurrency)) {
-            Spinner tradePriceCurrencySpinner
-                    = (Spinner) tradingContainer.findViewById(R.id.TradePriceCurrency);
-            tradePriceCurrencySpinner.setSelection(
-                    ((ArrayAdapter<String>) tradePriceCurrencySpinner.getAdapter())
+            tradePriceCurrencyView.setSelection(
+                    ((ArrayAdapter<String>) tradePriceCurrencyView.getAdapter())
                             .getPosition(tradePriceCurrency));
         }
 
@@ -571,7 +555,15 @@ public class HomeFragment extends Fragment implements
         ongoingTasks.add(task);
     }
 
-    private final class TradeConditionWatcher implements TextWatcher {
+    private double tryGetDouble(@NonNull String value) {
+        try {
+            return Double.parseDouble(value);
+        } catch (NumberFormatException nfe) {
+            return -1;
+        }
+    }
+
+    private final class TradeAmountWatcher implements TextWatcher {
 
         @Override
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -585,7 +577,71 @@ public class HomeFragment extends Fragment implements
 
         @Override
         public void afterTextChanged(Editable s) {
-            refreshOperationCostView();
+            double price = tryGetDouble(tradePriceView.getText().toString());
+            double amount = tryGetDouble(s.toString());
+            String total;
+            if (price != -1 && amount != -1) {
+                total = VALUE_FORMAT.format(price * amount);
+            } else {
+                total = "";
+            }
+
+            totalCostView.removeTextChangedListener(totalWatcher);
+            totalCostView.setText(total);
+            totalCostView.addTextChangedListener(totalWatcher);
+        }
+    }
+
+    private final class TradeTotalWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            // not interested
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            // not interested
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            double price = tryGetDouble(tradePriceView.getText().toString());
+            double total = tryGetDouble(s.toString());
+
+            if (price != -1 && total != -1) {
+                tradeAmountView.removeTextChangedListener(amountWatcher);
+                tradeAmountView.setText(VALUE_FORMAT.format(total / price));
+                tradeAmountView.addTextChangedListener(amountWatcher);
+            }
+        }
+    }
+
+    private final class PriceWatcher implements TextWatcher {
+
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            // not interested
+        }
+
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+            // not interested
+        }
+
+        @Override
+        public void afterTextChanged(Editable s) {
+            double amount = tryGetDouble(tradeAmountView.getText().toString());
+            double price = tryGetDouble(s.toString());
+            String total;
+            if (price != -1 && amount != -1) {
+                total = VALUE_FORMAT.format(price * amount);
+            } else {
+                total = "";
+            }
+            totalCostView.removeTextChangedListener(totalWatcher);
+            totalCostView.setText(total);
+            totalCostView.addTextChangedListener(totalWatcher);
         }
     }
 

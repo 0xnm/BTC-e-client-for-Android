@@ -56,9 +56,9 @@
                 android:id="@+id/FundsContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:dividerPadding="4dp"
                 android:layout_margin="4dp"
+                android:dividerPadding="4dp"
+                android:gravity="center_horizontal"
                 android:stretchColumns="*">
 
                 <TextView
@@ -83,6 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:layout_marginBottom="8dp"
             android:text="@string/TradeTitle"
             android:textAppearance="@android:style/TextAppearance.Medium"
             android:textSize="@dimen/title_font_size"

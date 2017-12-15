@@ -21,3 +21,5 @@
 -dontobfuscate
 # workaround for missing float method in API 23
 -dontwarn org.stockchart.StockChartView
+-keep class com.andrognito.pinlockview.PinLockListener
+-keep class org.stockchart.StockChartView$ITouchEventListener
